@@ -3,4 +3,7 @@
 /Parse Tree C-Sharp
 /irony/NPhp/NPhp/obj
 /irony/NPhp/NPhp/bin
+/irony/NPhp/NPhp.Tests/bin
+/irony/NPhp/NPhp.Tests/obj
 *.suo
+*.trx

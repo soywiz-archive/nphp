@@ -29,13 +29,16 @@ namespace NPhp
 
 			var Number = TerminalFactory.CreateCSharpNumber("Number");
 			Number.AstConfig.NodeCreator = GetCreator<NumberNode>();
-			//var semi = ToTerm(";", "semi");
+			var semi = ToTerm(";", "semi");
 			//var semi_opt = new NonTerminal("semi?");
 
 
 			var sentence = new NonTerminal("sentence", GetCreator<IgnoreNode>());
+			var sentence_list = new NonTerminal("sentences", GetCreator<IgnoreNode>());
 			var base_sentence = new NonTerminal("base_sentence", GetCreator<IgnoreNode>());
 			var echo_base_sentence = new NonTerminal("echo_base_sentence", GetCreator<EchoNode>());
+			var curly_sentence = new NonTerminal("curly_sentence", GetCreator<IgnoreNode>());
+			var if_sentence = new NonTerminal("if_sentence", GetCreator<IfNode>());
 
 			var bin_op = new NonTerminal("bin_op", GetCreator<OperatorNode>());
 			var bin_op_expression = new NonTerminal("bin_op_expression", GetCreator<BinaryExpression>());
@@ -46,15 +49,24 @@ namespace NPhp
 			//semi_opt.Rule = Empty | semi;
 
 			echo_base_sentence.Rule =
-				"echo" + expr
+				"echo" + expr + ";"
 			;
+
+			curly_sentence.Rule = "{" + sentence_list + "}";
+
+			if_sentence.Rule = ToTerm("if")
+				+ "(" + expr + ")" + sentence;
 
 			base_sentence.Rule =
-				echo_base_sentence
+				curly_sentence |
+				echo_base_sentence |
+				if_sentence
 			;
 
+			sentence_list.Rule = MakePlusRule(sentence_list, sentence);
+
 			sentence.Rule =
-				base_sentence + ";"
+				base_sentence
 			;
 
 			bin_op_expression.Rule = expr + bin_op + expr;
@@ -96,7 +108,7 @@ namespace NPhp
 				expr2
 			;
 
-			Root = sentence;
+			Root = sentence_list;
 			Root.AstConfig.DefaultNodeCreator = () => { return null; };
 
 			LanguageFlags = LanguageFlags.CreateAst;

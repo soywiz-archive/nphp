@@ -21,25 +21,35 @@ namespace NPhp
 			Parser.Context.TracingEnabled = true;
 		}
 
-		public Action CreateMethodFromCode(string Code, string File = "<source>")
+		public Action CreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false)
 		{
 			var Tree = Parser.Parse(Code, File);
 
 			//Console.WriteLine(Tree);
 			if (Tree.HasErrors())
 			{
+				var Errors = "";
 				foreach (var Message in Tree.ParserMessages)
 				{
-					Console.Error.WriteLine("Error: {0} at {1}", Message.Message, Message.Location);
+					Errors += String.Format("Error: {0} at {1}", Message.Message, Message.Location);
 				}
-				throw(new Exception("Error"));
+				Console.Error.WriteLine(Errors);
+				throw (new Exception(Errors));
 			}
 
-			//Console.WriteLine(Tree.ToXml());
+			if (DumpTree)
+			{
+				Console.WriteLine(Tree.ToXml());
+			}
 			//Console.WriteLine("'{0}'", Tree.Root.Term.AstConfig.NodeType);
 			//Console.WriteLine("'{0}'", Tree.Root.AstNode);
 			var Action = (Tree.Root.AstNode as Node).CreateMethod();
 			return Action;
+		}
+
+		static public void Echo(int Value)
+		{
+			Console.Write(Value);
 		}
 	}
 }

@@ -31,15 +31,34 @@ namespace NPhp
 			//Console.WriteLine("Operator");
 			switch (Operator)
 			{
-				case "+":
-					ILGenerator.Emit(OpCodes.Add);
-					break;
-				case "*":
-					ILGenerator.Emit(OpCodes.Mul);
-					break;
-				default:
-					throw (new NotImplementedException());
+				case "+": ILGenerator.Emit(OpCodes.Add); break;
+				case "-": ILGenerator.Emit(OpCodes.Sub); break;
+				case "*": ILGenerator.Emit(OpCodes.Mul); break;
+				case "/": ILGenerator.Emit(OpCodes.Div); break;
+				default: throw (new NotImplementedException());
 			}
+			StackCount--;
+		}
+
+		public Label DefineLabel()
+		{
+			return ILGenerator.DefineLabel();
+		}
+
+		public void MarkLabel(Label Label)
+		{
+			ILGenerator.MarkLabel(Label);
+		}
+
+		public void BranchIfTrue(Label Label)
+		{
+			ILGenerator.Emit(OpCodes.Brtrue, Label);
+			StackCount--;
+		}
+
+		public void BranchIfFalse(Label Label)
+		{
+			ILGenerator.Emit(OpCodes.Brfalse, Label);
 			StackCount--;
 		}
 
@@ -175,15 +194,32 @@ namespace NPhp
 
 	public class EchoNode : IgnoreNode
 	{
-		static public void Write(int Value)
+		public override void Generate(NodeGenerateContext Context)
 		{
-			Console.WriteLine(Value);
+			base.Generate(Context);
+			Context.Call(((Action<int>)Php54Runtime.Echo).Method);
+		}
+	}
+
+	public class IfNode : Node
+	{
+		ParseTreeNode ConditionExpresion;
+		ParseTreeNode TrueSentence;
+
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			ConditionExpresion = parseNode.ChildNodes[1];
+			TrueSentence = parseNode.ChildNodes[2];
 		}
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			base.Generate(Context);
-			Context.Call(((Action<int>)Write).Method);
+			var SkipIfLabel = Context.DefineLabel();
+			(ConditionExpresion.AstNode as Node).Generate(Context);
+			Context.BranchIfFalse(SkipIfLabel);
+			(TrueSentence.AstNode as Node).Generate(Context);
+			Context.MarkLabel(SkipIfLabel);
+			//base.Generate(Context);
 		}
 	}
 
