@@ -1,0 +1,1018 @@
+"Name"    = 'zend_language_parser.y'
+"Version" = 'The version of the grammar'
+"Author"  = 'The author of the grammar'
+"About"   = 'Imported from zend_language_parser.y.txt'
+
+
+"Start Symbol" = <start>
+
+
+! This grammar was translated from the YACC meta-language to the GOLD
+! meta-language by the YaccToGOLD utility program.
+! 
+! You need to review the name of each terminal.
+!
+! One of the major differences between YACC and GOLD grammars is how
+! terminals are defined and used. In YACC, lexical analysis is often
+! performed by a second utility progam called 'Lex'. While this is
+! not always the case, YACC tends to use C-style identifiers to represent
+! each terminal. These names assigned by the YACC developer and often
+! follow their personal naming style as well as the format used for
+! C-style constants.
+!
+! Terminals, that are simple symbols, will often be represented with an
+! identifier. For instance, in a YACC grammar, the developer may define
+! a terminal named 'PLUS' to represent the plus sign '+'. After the
+! grammar is translated to GOLD, the productions will still contain
+! 'PLUS', but the meaning is quite different.
+!
+! For those terminals which do not have explicit definitions, GOLD
+! assumes its definition to be the same as its name. For instance, in
+! the following:
+!
+!     <statement> ::= if <expression> then <statements> end
+!
+! the 'if', 'then' and 'end' do not have to be explicity declared. As a
+! result, the 'PLUS' used in the YACC grammar will be interpreted as a
+! reserved word. This can be resolved by either replacing all the
+! instances of 'PLUS' with '+' or by explicity defining PLUS as '+' in
+! the GOLD grammar:
+!
+!     PLUS = '+'
+!
+! All of the terminals in the grammar are listed below. Please note
+! that each line is currently commented out. To explicitly define
+! the terminal, add a regular expression and remove the '!'.
+!
+! You can also you replace all the occurances of PLUS in the grammar
+! with '+'
+
+"Case Sensitive" = True
+"Start Symbol"   = <Decls>
+
+{Hex Digit}      = {Digit} + [abcdefABCDEF]
+{Oct Digit}      = [01234567]
+
+{Id Head}        = {Letter} + [_]
+{Id Tail}        = {Id Head} + {Digit}
+
+{String Ch}      = {Printable} - ["]
+{Char Ch}        = {Printable} - ['']
+
+!DecLiteral       = [123456789]{digit}*
+OctLiteral       = 0{Oct Digit}*
+HexLiteral       = 0x{Hex Digit}+
+FloatLiteral     = {Digit}*'.'{Digit}+
+
+StringLiteral    = '"'( {String Ch} | '\'{Printable} )* '"'
+CharLiteral      = '' ( {Char Ch} | '\'{Printable} )''
+
+Id               = {Id Head}{Id Tail}*
+
+! END = 
+T_INCLUDE = 'include'
+T_INCLUDE_ONCE = 'include_once'
+T_EVAL = 'eval'
+T_REQUIRE = 'require'
+T_REQUIRE_ONCE = 'require_once'
+T_LOGICAL_OR = 'or'
+T_LOGICAL_XOR = 'xor'
+T_LOGICAL_AND = 'and'
+T_PRINT = 'print'
+T_PLUS_EQUAL = '+='
+T_MINUS_EQUAL = '-='
+T_MUL_EQUAL = '*='
+T_DIV_EQUAL = '/='
+T_CONCAT_EQUAL = '.='
+T_MOD_EQUAL = '%='
+T_AND_EQUAL = '&='
+T_OR_EQUAL = '|='
+T_XOR_EQUAL = '^='
+T_SL_EQUAL = '<<='
+T_SR_EQUAL = '>>='
+T_BOOLEAN_OR = '||'
+T_BOOLEAN_AND = '&&'
+T_IS_EQUAL = '=='
+T_IS_NOT_EQUAL = '!='
+T_IS_IDENTICAL = '==='
+T_IS_NOT_IDENTICAL = '!=='
+T_IS_SMALLER_OR_EQUAL = '<='
+T_IS_GREATER_OR_EQUAL = '>='
+T_SL = '<<'
+T_SR = '>>'
+T_INSTANCEOF = 'instanceof'
+T_INC = '++'
+T_DEC = '--'
+T_INT_CAST = '(int)'
+T_DOUBLE_CAST = '(double)'
+T_STRING_CAST = '(string)'
+T_ARRAY_CAST = '(array)'
+T_OBJECT_CAST = '(object)'
+T_BOOL_CAST = '(bool)'
+T_UNSET_CAST = '(unset)'
+T_NEW = 'new'
+T_CLONE = 'clone'
+T_EXIT = 'exit'
+T_IF = 'if'
+T_ELSEIF = 'elseif'
+T_ELSE = 'else'
+T_ENDIF = 'endif'
+T_LNUMBER = [123456789]{digit}*
+     
+!T_DNUMBER
+!    ::= FloatLiteral
+     
+!T_STRING
+!    ::= StringLiteral
+     
+! T_STRING_VARNAME = 
+T_VARIABLE = '$' {Id Head}{Id Tail}*
+! T_NUM_STRING = 
+! T_INLINE_HTML = 
+! T_CHARACTER = 
+! T_BAD_CHARACTER = 
+! T_ENCAPSED_AND_WHITESPACE = 
+! T_CONSTANT_ENCAPSED_STRING = 
+T_ECHO = 'echo'
+T_DO = 'do'
+T_WHILE = 'while'
+T_ENDWHILE = 'endwhile'
+T_FOR = 'for'
+T_ENDFOR = 'endfor'
+T_FOREACH = 'foreach'
+T_ENDFOREACH = 'endforeach'
+T_DECLARE = 'declare'
+T_ENDDECLARE = 'enddeclare'
+T_AS = 'as'
+T_SWITCH = 'switch'
+T_ENDSWITCH = 'endswitch'
+T_CASE = 'case'
+T_DEFAULT = 'default'
+T_BREAK = 'break'
+T_CONTINUE = 'continue'
+T_GOTO = 'goto'
+T_FUNCTION = 'funtion'
+T_CONST = 'const'
+T_RETURN = 'return'
+T_TRY = 'try'
+T_CATCH = 'catch'
+T_THROW = 'throw'
+T_USE = 'use'
+T_INSTEADOF = 'insteadof'
+T_GLOBAL = 'global'
+T_STATIC = 'static'
+T_ABSTRACT = 'abstract'
+T_FINAL = 'final'
+T_PRIVATE = 'private'
+T_PROTECTED = 'protected'
+T_PUBLIC = 'public'
+T_VAR = 'var'
+T_UNSET = 'unset'
+T_ISSET = 'isset'
+T_EMPTY = 'empty'
+T_HALT_COMPLER = '__halt_compiler'
+T_CLASS = 'class'
+T_TRAIT = 'trait'
+T_INTERFACE = 'interface'
+T_EXTENDS = 'extends'
+T_IMPLEMENTS = 'implements'
+T_OBJECT_OPERATOR = '->'
+T_DOUBLE_ARROW = '=>'
+T_LIST = 'list'
+T_ARRAY = 'array'
+T_CALLABLE = 'callable'
+T_CLASS_C = '__CLASS__'
+T_TRAIT_C = '__TRAIT__'
+T_METHOD_C = '__METHOD__'
+T_FUNC_C = '__FUNCTION__'
+T_LINE = '__LINE__'
+T_FILE = '__FILE__'
+! T_COMMENT = 
+! T_DOC_COMMENT = 
+! T_OPEN_TAG = 
+! T_OPEN_TAG_WITH_ECHO = 
+! T_CLOSE_TAG = 
+! T_WHITESPACE = 
+! T_START_HEREDOC = 
+! T_END_HEREDOC = 
+! T_DOLLAR_OPEN_CURLY_BRACES = 
+! T_CURLY_OPEN = 
+! T_PAAMAYIM_NEKUDOTAYIM = 
+! T_NAMESPACE = 
+T_NS_C = '__NAMESPACE__'
+T_DIR = '__DIR__'
+T_NS_SEPARATOR = '\'
+
+
+! ======================================= Rules
+
+<start>
+        ::= <top statement list> 
+
+<top statement list>
+        ::= <top statement list> <top statement> 
+         |  
+
+<namespace name>
+        ::= T_STRING 
+         |  <namespace name> T_NS_SEPARATOR T_STRING 
+
+<top statement>
+        ::= <statement> 
+         |  <function declaration statement> 
+         |  <class declaration statement> 
+         |  T_HALT_COMPILER '(' ')' ';' 
+         |  T_NAMESPACE <namespace name> ';' 
+         |  T_NAMESPACE <namespace name> '{' <top statement list> '}' 
+         |  T_NAMESPACE '{' <top statement list> '}' 
+         |  T_USE <use declarations> ';' 
+         |  <constant declaration> ';' 
+
+<use declarations>
+        ::= <use declarations> ',' <use declaration> 
+         |  <use declarations 2> 
+
+<use declarations 2>
+        ::= <use declaration> 
+
+<use declaration>
+        ::= <namespace name> 
+         |  <namespace name> T_AS T_STRING 
+         |  T_NS_SEPARATOR <namespace name> 
+         |  T_NS_SEPARATOR <namespace name> T_AS T_STRING 
+
+<constant declaration>
+        ::= <constant declaration> ',' T_STRING '=' <static scalar> 
+         |  <constant declaration 2> 
+
+<constant declaration 2>
+        ::= T_CONST T_STRING '=' <static scalar> 
+
+<inner statement list>
+        ::= <inner statement list> <inner statement> 
+         |  
+
+<inner statement>
+        ::= <statement> 
+         |  <function declaration statement> 
+         |  <class declaration statement> 
+         |  T_HALT_COMPILER '(' ')' ';' 
+
+<statement>
+        ::= <unticked statement> 
+         |  T_STRING ':' 
+
+<unticked statement>
+        ::= '{' <inner statement list> '}' 
+         |  T_IF '(' <expr> ')' <statement> <elseif list> <else single> 
+         |  T_IF '(' <expr> ')' ':' <inner statement list> <new elseif list> <new else single> T_ENDIF ';' 
+         |  T_WHILE '(' <expr> ')' <while statement> 
+         |  T_DO <statement> T_WHILE '(' <expr> ')' ';' 
+         |  T_FOR '(' <for expr> ';' <for expr> ';' <for expr> ')' <for statement> 
+         |  T_SWITCH '(' <expr> ')' <switch case list> 
+         |  T_BREAK ';' 
+         |  T_BREAK <expr> ';' 
+         |  T_CONTINUE ';' 
+         |  T_CONTINUE <expr> ';' 
+         |  T_RETURN ';' 
+         |  T_RETURN <expr without variable> ';' 
+         |  T_RETURN <variable> ';' 
+         |  T_GLOBAL <global var list> ';' 
+         |  T_STATIC <static var list> ';' 
+         |  T_ECHO <echo expr list> ';' 
+         |  T_INLINE_HTML 
+         |  <expr> ';' 
+         |  T_UNSET '(' <unset variables> ')' ';' 
+         |  T_FOREACH '(' <variable> T_AS <foreach variable> <foreach optional arg> ')' <foreach statement> 
+         |  T_FOREACH '(' <expr without variable> T_AS <variable> <foreach optional arg> ')' <foreach statement> 
+         |  T_DECLARE '(' <declare list> ')' <declare statement> 
+         |  ';' 
+         |  T_TRY '{' <inner statement list> '}' T_CATCH '(' <fully qualified class name> T_VARIABLE ')' '{' <inner statement list> '}' <additional catches> 
+         |  T_THROW <expr> ';' 
+         |  T_GOTO T_STRING ';' 
+
+<additional catches>
+        ::= <non empty additional catches> 
+         |  
+
+<non empty additional catches>
+        ::= <additional catch> 
+         |  <non empty additional catches> <additional catch> 
+
+<additional catch>
+        ::= T_CATCH '(' <fully qualified class name> T_VARIABLE ')' '{' <inner statement list> '}' 
+
+<unset variables>
+        ::= <unset variables> ',' <unset variable> 
+         |  <unset variables 2> 
+
+<unset variables 2>
+        ::= <unset variable> 
+
+<unset variable>
+        ::= <variable> 
+
+<function declaration statement>
+        ::= <unticked function declaration statement> 
+
+<class declaration statement>
+        ::= <unticked class declaration statement> 
+
+<is reference>
+        ::= 
+         |  '&' 
+
+<unticked function declaration statement>
+        ::= <function> <is reference> T_STRING '(' <parameter list> ')' '{' <inner statement list> '}' 
+
+<unticked class declaration statement>
+        ::= <class entry type> T_STRING <extends from> <implements list> '{' <class statement list> '}' 
+         |  <interface entry> T_STRING <interface extends list> '{' <class statement list> '}' 
+
+<class entry type>
+        ::= T_CLASS 
+         |  T_ABSTRACT T_CLASS 
+         |  T_TRAIT 
+         |  T_FINAL T_CLASS 
+
+<extends from>
+        ::= 
+         |  T_EXTENDS <fully qualified class name> 
+
+<interface entry>
+        ::= T_INTERFACE 
+
+<interface extends list>
+        ::= 
+         |  T_EXTENDS <interface list> 
+
+<implements list>
+        ::= 
+         |  T_IMPLEMENTS <interface list> 
+
+<interface list>
+        ::= <interface list> ',' <fully qualified class name> 
+         |  <interface list 2> 
+
+<interface list 2>
+        ::= <fully qualified class name> 
+
+<foreach optional arg>
+        ::= 
+         |  T_DOUBLE_ARROW <foreach variable> 
+
+<foreach variable>
+        ::= <variable> 
+         |  '&' <variable> 
+
+<for statement>
+        ::= <statement> 
+         |  ':' <inner statement list> T_ENDFOR ';' 
+
+<foreach statement>
+        ::= <statement> 
+         |  ':' <inner statement list> T_ENDFOREACH ';' 
+
+<declare statement>
+        ::= <statement> 
+         |  ':' <inner statement list> T_ENDDECLARE ';' 
+
+<declare list>
+        ::= <declare list> ',' T_STRING '=' <static scalar> 
+         |  <declare list 2> 
+
+<declare list 2>
+        ::= T_STRING '=' <static scalar> 
+
+<switch case list>
+        ::= '{' <case list> '}' 
+         |  '{' ';' <case list> '}' 
+         |  ':' <case list> T_ENDSWITCH ';' 
+         |  ':' ';' <case list> T_ENDSWITCH ';' 
+
+<case list>
+        ::= 
+         |  <case list> T_CASE <expr> <case separator> <inner statement list> 
+         |  <case list> T_DEFAULT <case separator> <inner statement list> 
+
+<case separator>
+        ::= ':' 
+         |  ';' 
+
+<while statement>
+        ::= <statement> 
+         |  ':' <inner statement list> T_ENDWHILE ';' 
+
+<elseif list>
+        ::= 
+         |  <elseif list> T_ELSEIF '(' <expr> ')' <statement> 
+
+<new elseif list>
+        ::= <new elseif list> T_ELSEIF '(' <expr> ')' ':' <inner statement list> 
+         |  <new elseif list 2> 
+
+<new elseif list 2>
+        ::= 
+
+<else single>
+        ::= 
+         |  T_ELSE <statement> 
+
+<new else single>
+        ::= 
+         |  T_ELSE ':' <inner statement list> 
+
+<parameter list>
+        ::= <non empty parameter list> 
+         |  
+
+<non empty parameter list>
+        ::= <non empty parameter list> ',' <optional class type> T_VARIABLE 
+         |  <non empty parameter list 2> 
+
+<non empty parameter list 2>
+        ::= <non empty parameter list 2> ',' <optional class type> T_VARIABLE '=' <static scalar> 
+         |  <non empty parameter list 3> 
+
+<non empty parameter list 3>
+        ::= <non empty parameter list 3> ',' <optional class type> '&' T_VARIABLE 
+         |  <non empty parameter list 3> ',' <optional class type> '&' T_VARIABLE '=' <static scalar> 
+         |  <non empty parameter list 4> 
+
+<non empty parameter list 4>
+        ::= <optional class type> T_VARIABLE 
+         |  <optional class type> '&' T_VARIABLE 
+         |  <optional class type> '&' T_VARIABLE '=' <static scalar> 
+         |  <optional class type> T_VARIABLE '=' <static scalar> 
+
+<optional class type>
+        ::= 
+         |  T_ARRAY 
+         |  T_CALLABLE 
+         |  <fully qualified class name> 
+
+<function call parameter list>
+        ::= <non empty function call parameter list> 
+         |  
+
+<non empty function call parameter list>
+        ::= <non empty function call parameter list> ',' <expr without variable> 
+         |  <non empty function call parameter list> ',' <variable> 
+         |  <non empty function call parameter list 2> 
+
+<non empty function call parameter list 2>
+        ::= <non empty function call parameter list 2> ',' '&' <w variable> 
+         |  <non empty function call parameter list 3> 
+
+<non empty function call parameter list 3>
+        ::= <expr without variable> 
+         |  <variable> 
+         |  '&' <w variable> 
+
+<global var list>
+        ::= <global var list> ',' <global var> 
+         |  <global var list 2> 
+
+<global var list 2>
+        ::= <global var> 
+
+<global var>
+        ::= T_VARIABLE 
+         |  '$' <r variable> 
+         |  '$' '{' <expr> '}' 
+
+<static var list>
+        ::= <static var list> ',' T_VARIABLE 
+         |  <static var list 2> 
+
+<static var list 2>
+        ::= <static var list 2> ',' T_VARIABLE '=' <static scalar> 
+         |  <static var list 3> 
+
+<static var list 3>
+        ::= T_VARIABLE 
+         |  T_VARIABLE '=' <static scalar> 
+
+<class statement list>
+        ::= <class statement list> <class statement> 
+         |  
+
+<class statement>
+        ::= <variable modifiers> <class variable declaration> ';' 
+         |  <class constant declaration> ';' 
+         |  <trait use statement> 
+         |  <method modifiers> <function> <is reference> T_STRING '(' <parameter list> ')' <method body> 
+
+<trait use statement>
+        ::= T_USE <trait list> <trait adaptations> 
+
+<trait list>
+        ::= <trait list> ',' <fully qualified class name> 
+         |  <trait list 2> 
+
+<trait list 2>
+        ::= <fully qualified class name> 
+
+<trait adaptations>
+        ::= ';' 
+         |  '{' <trait adaptation list> '}' 
+
+<trait adaptation list>
+        ::= 
+         |  <non empty trait adaptation list> 
+
+<non empty trait adaptation list>
+        ::= <trait adaptation statement> 
+         |  <non empty trait adaptation list> <trait adaptation statement> 
+
+<trait adaptation statement>
+        ::= <trait precedence> ';' 
+         |  <trait alias> ';' 
+
+<trait precedence>
+        ::= <trait method reference fully qualified> T_INSTEADOF <trait reference list> 
+
+<trait reference list>
+        ::= <trait reference list> ',' <fully qualified class name> 
+         |  <trait reference list 2> 
+
+<trait reference list 2>
+        ::= <fully qualified class name> 
+
+<trait method reference>
+        ::= T_STRING 
+         |  <trait method reference fully qualified> 
+
+<trait method reference fully qualified>
+        ::= <fully qualified class name> T_PAAMAYIM_NEKUDOTAYIM T_STRING 
+
+<trait alias>
+        ::= <trait method reference> T_AS <trait modifiers> T_STRING 
+         |  <trait method reference> T_AS <member modifier> 
+
+<trait modifiers>
+        ::= 
+         |  <member modifier> 
+
+<method body>
+        ::= ';' 
+         |  '{' <inner statement list> '}' 
+
+<variable modifiers>
+        ::= <non empty member modifiers> 
+         |  T_VAR 
+
+<method modifiers>
+        ::= 
+         |  <non empty member modifiers> 
+
+<non empty member modifiers>
+        ::= <member modifier> 
+         |  <non empty member modifiers> <member modifier> 
+
+<member modifier>
+        ::= T_PUBLIC 
+         |  T_PROTECTED 
+         |  T_PRIVATE 
+         |  T_STATIC 
+         |  T_ABSTRACT 
+         |  T_FINAL 
+
+<class variable declaration>
+        ::= <class variable declaration> ',' T_VARIABLE 
+         |  <class variable declaration 2> 
+
+<class variable declaration 2>
+        ::= <class variable declaration 2> ',' T_VARIABLE '=' <static scalar> 
+         |  <class variable declaration 3> 
+
+<class variable declaration 3>
+        ::= T_VARIABLE 
+         |  T_VARIABLE '=' <static scalar> 
+
+<class constant declaration>
+        ::= <class constant declaration> ',' T_STRING '=' <static scalar> 
+         |  <class constant declaration 2> 
+
+<class constant declaration 2>
+        ::= T_CONST T_STRING '=' <static scalar> 
+
+<echo expr list>
+        ::= <echo expr list> ',' <expr> 
+         |  <echo expr list 2> 
+
+<echo expr list 2>
+        ::= <expr> 
+
+<for expr>
+        ::= 
+         |  <non empty for expr> 
+
+<non empty for expr>
+        ::= <non empty for expr> ',' <expr> 
+         |  <non empty for expr 2> 
+
+<non empty for expr 2>
+        ::= <expr> 
+
+<chaining method or property>
+        ::= <chaining method or property> <variable property> 
+         |  <variable property> 
+
+<chaining dereference>
+        ::= <chaining dereference 2> '[' <dim offset> ']' 
+         |  <chaining dereference 2> 
+
+<chaining dereference 2>
+        ::= '[' <dim offset> ']' 
+
+<chaining instance call>
+        ::= <chaining dereference> <chaining method or property> 
+         |  <chaining dereference> 
+         |  <chaining method or property> 
+
+<instance call>
+        ::= 
+         |  <chaining instance call> 
+
+<new expr>
+        ::= T_NEW <class name reference> <ctor arguments> 
+
+<expr without variable>
+        ::= '+' <expr> 
+         |  '-' <expr> 
+         |  <expr without variable 2> 
+
+<expr without variable 2>
+        ::= T_LIST '(' <assignment list> ')' '=' <expr> 
+         |  <variable> '=' <expr> 
+         |  <variable> '=' '&' <variable> 
+         |  <variable> '=' '&' T_NEW <class name reference> <ctor arguments> 
+         |  T_CLONE <expr> 
+         |  <variable> T_PLUS_EQUAL <expr> 
+         |  <variable> T_MINUS_EQUAL <expr> 
+         |  <variable> T_MUL_EQUAL <expr> 
+         |  <variable> T_DIV_EQUAL <expr> 
+         |  <variable> T_CONCAT_EQUAL <expr> 
+         |  <variable> T_MOD_EQUAL <expr> 
+         |  <variable> T_AND_EQUAL <expr> 
+         |  <variable> T_OR_EQUAL <expr> 
+         |  <variable> T_XOR_EQUAL <expr> 
+         |  <variable> T_SL_EQUAL <expr> 
+         |  <variable> T_SR_EQUAL <expr> 
+         |  <rw variable> T_INC 
+         |  T_INC <rw variable> 
+         |  <rw variable> T_DEC 
+         |  T_DEC <rw variable> 
+         |  <expr> T_BOOLEAN_OR <expr> 
+         |  <expr> T_BOOLEAN_AND <expr> 
+         |  <expr> T_LOGICAL_OR <expr> 
+         |  <expr> T_LOGICAL_AND <expr> 
+         |  <expr> T_LOGICAL_XOR <expr> 
+         |  <expr> '|' <expr> 
+         |  <expr> '&' <expr> 
+         |  <expr> '^' <expr> 
+         |  <expr> '.' <expr> 
+         |  <expr> '+' <expr> 
+         |  <expr> '-' <expr> 
+         |  <expr> '*' <expr> 
+         |  <expr> '/' <expr> 
+         |  <expr> '%' <expr> 
+         |  <expr> T_SL <expr> 
+         |  <expr> T_SR <expr> 
+         |  '!' <expr> 
+         |  '~' <expr> 
+         |  <expr> T_IS_IDENTICAL <expr> 
+         |  <expr> T_IS_NOT_IDENTICAL <expr> 
+         |  <expr> T_IS_EQUAL <expr> 
+         |  <expr> T_IS_NOT_EQUAL <expr> 
+         |  <expr> '<' <expr> 
+         |  <expr> T_IS_SMALLER_OR_EQUAL <expr> 
+         |  <expr> '>' <expr> 
+         |  <expr> T_IS_GREATER_OR_EQUAL <expr> 
+         |  <expr> T_INSTANCEOF <class name reference> 
+         |  '(' <expr> ')' 
+         |  <new expr> 
+         |  '(' <new expr> ')' <instance call> 
+         |  <expr> '?' <expr> ':' <expr> 
+         |  <expr> '?' ':' <expr> 
+         |  <internal functions in yacc> 
+         |  T_INT_CAST <expr> 
+         |  T_DOUBLE_CAST <expr> 
+         |  T_STRING_CAST <expr> 
+         |  T_ARRAY_CAST <expr> 
+         |  T_OBJECT_CAST <expr> 
+         |  T_BOOL_CAST <expr> 
+         |  T_UNSET_CAST <expr> 
+         |  T_EXIT <exit expr> 
+         |  '@' <expr> 
+         |  <scalar> 
+         |  T_ARRAY '(' <array pair list> ')' 
+         |  '[' <array pair list> ']' 
+         |  '`' <backticks expr> '`' 
+         |  T_PRINT <expr> 
+         |  <function> <is reference> '(' <parameter list> ')' <lexical vars> '{' <inner statement list> '}' 
+         |  T_STATIC <function> <is reference> '(' <parameter list> ')' <lexical vars> '{' <inner statement list> '}' 
+
+<function>
+        ::= T_FUNCTION 
+
+<lexical vars>
+        ::= 
+         |  T_USE '(' <lexical var list> ')' 
+
+<lexical var list>
+        ::= <lexical var list> ',' T_VARIABLE 
+         |  <lexical var list 2> 
+
+<lexical var list 2>
+        ::= <lexical var list 2> ',' '&' T_VARIABLE 
+         |  <lexical var list 3> 
+
+<lexical var list 3>
+        ::= T_VARIABLE 
+         |  '&' T_VARIABLE 
+
+<function call>
+        ::= <namespace name> '(' <function call parameter list> ')' 
+         |  T_NAMESPACE T_NS_SEPARATOR <namespace name> '(' <function call parameter list> ')' 
+         |  T_NS_SEPARATOR <namespace name> '(' <function call parameter list> ')' 
+         |  <class name> T_PAAMAYIM_NEKUDOTAYIM <variable name> '(' <function call parameter list> ')' 
+         |  <class name> T_PAAMAYIM_NEKUDOTAYIM <variable without objects> '(' <function call parameter list> ')' 
+         |  <variable class name> T_PAAMAYIM_NEKUDOTAYIM <variable name> '(' <function call parameter list> ')' 
+         |  <variable class name> T_PAAMAYIM_NEKUDOTAYIM <variable without objects> '(' <function call parameter list> ')' 
+         |  <variable without objects> '(' <function call parameter list> ')' 
+
+<class name>
+        ::= T_STATIC 
+         |  <namespace name> 
+         |  T_NAMESPACE T_NS_SEPARATOR <namespace name> 
+         |  T_NS_SEPARATOR <namespace name> 
+
+<fully qualified class name>
+        ::= <namespace name> 
+         |  T_NAMESPACE T_NS_SEPARATOR <namespace name> 
+         |  T_NS_SEPARATOR <namespace name> 
+
+<class name reference>
+        ::= <class name> 
+         |  <dynamic class name reference> 
+
+<dynamic class name reference>
+        ::= <base variable> T_OBJECT_OPERATOR <object property> <dynamic class name variable properties> 
+         |  <base variable> 
+
+<dynamic class name variable properties>
+        ::= <dynamic class name variable properties> <dynamic class name variable property> 
+         |  
+
+<dynamic class name variable property>
+        ::= T_OBJECT_OPERATOR <object property> 
+
+<exit expr>
+        ::= 
+         |  '(' ')' 
+         |  '(' <expr> ')' 
+
+<backticks expr>
+        ::= 
+         |  T_ENCAPSED_AND_WHITESPACE 
+         |  <encaps list> 
+
+<ctor arguments>
+        ::= 
+         |  '(' <function call parameter list> ')' 
+
+<common scalar>
+        ::= T_LNUMBER 
+         |  T_DNUMBER 
+         |  T_CONSTANT_ENCAPSED_STRING 
+         |  T_LINE 
+         |  T_FILE 
+         |  T_DIR 
+         |  T_TRAIT_C 
+         |  T_METHOD_C 
+         |  T_FUNC_C 
+         |  T_NS_C 
+         |  T_START_HEREDOC T_ENCAPSED_AND_WHITESPACE T_END_HEREDOC 
+         |  T_START_HEREDOC T_END_HEREDOC 
+
+<static scalar>
+        ::= '+' <static scalar 2> 
+         |  '-' <static scalar 2> 
+         |  <static scalar 2> 
+
+<static scalar 2>
+        ::= <common scalar> 
+         |  <namespace name> 
+         |  T_NAMESPACE T_NS_SEPARATOR <namespace name> 
+         |  T_NS_SEPARATOR <namespace name> 
+         |  T_ARRAY '(' <static array pair list> ')' 
+         |  '[' <static array pair list> ']' 
+         |  <static class constant> 
+         |  T_CLASS_C 
+
+<static class constant>
+        ::= <class name> T_PAAMAYIM_NEKUDOTAYIM T_STRING 
+
+<scalar>
+        ::= T_STRING_VARNAME 
+         |  <class constant> 
+         |  <namespace name> 
+         |  T_NAMESPACE T_NS_SEPARATOR <namespace name> 
+         |  T_NS_SEPARATOR <namespace name> 
+         |  <common scalar> 
+         |  '"' <encaps list> '"' 
+         |  T_START_HEREDOC <encaps list> T_END_HEREDOC 
+         |  T_CLASS_C 
+
+<static array pair list>
+        ::= 
+         |  <non empty static array pair list> <possible comma> 
+
+<possible comma>
+        ::= 
+         |  ',' 
+
+<non empty static array pair list>
+        ::= <non empty static array pair list> ',' <static scalar> T_DOUBLE_ARROW <static scalar> 
+         |  <non empty static array pair list> ',' <static scalar> 
+         |  <non empty static array pair list 2> 
+
+<non empty static array pair list 2>
+        ::= <static scalar> T_DOUBLE_ARROW <static scalar> 
+         |  <static scalar> 
+
+<expr>
+        ::= <r variable> 
+         |  <expr without variable> 
+
+<r variable>
+        ::= <variable> 
+
+<w variable>
+        ::= <variable> 
+
+<rw variable>
+        ::= <variable> 
+
+<variable>
+        ::= <base variable with function calls> T_OBJECT_OPERATOR <object property> <method or not> <variable properties> 
+         |  <base variable with function calls> 
+
+<variable properties>
+        ::= <variable properties> <variable property> 
+         |  
+
+<variable property>
+        ::= T_OBJECT_OPERATOR <object property> <method or not> 
+
+<array method dereference>
+        ::= <array method dereference 2> '[' <dim offset> ']' 
+         |  <array method dereference 2> 
+
+<array method dereference 2>
+        ::= <method> '[' <dim offset> ']' 
+
+<method>
+        ::= '(' <function call parameter list> ')' 
+
+<method or not>
+        ::= <method> 
+         |  <array method dereference> 
+         |  
+
+<variable without objects>
+        ::= <reference variable> 
+         |  <simple indirect reference> <reference variable> 
+
+<static member>
+        ::= <class name> T_PAAMAYIM_NEKUDOTAYIM <variable without objects> 
+         |  <variable class name> T_PAAMAYIM_NEKUDOTAYIM <variable without objects> 
+
+<variable class name>
+        ::= <reference variable> 
+
+<array function dereference>
+        ::= <array function dereference 2> '[' <dim offset> ']' 
+         |  <array function dereference 2> 
+
+<array function dereference 2>
+        ::= <function call> '[' <dim offset> ']' 
+
+<base variable with function calls>
+        ::= <base variable> 
+         |  <array function dereference> 
+         |  <function call> 
+
+<base variable>
+        ::= <reference variable> 
+         |  <simple indirect reference> <reference variable> 
+         |  <static member> 
+
+<reference variable>
+        ::= <reference variable 2> '[' <dim offset> ']' 
+         |  <reference variable 2> 
+
+<reference variable 2>
+        ::= <reference variable> '{' <expr> '}' 
+         |  <compound variable> 
+
+<compound variable>
+        ::= T_VARIABLE 
+         |  '$' '{' <expr> '}' 
+
+<dim offset>
+        ::= 
+         |  <expr> 
+
+<object property>
+        ::= <object dim list> 
+         |  <variable without objects> 
+
+<object dim list>
+        ::= <object dim list 2> '[' <dim offset> ']' 
+         |  <object dim list 2> 
+
+<object dim list 2>
+        ::= <object dim list> '{' <expr> '}' 
+         |  <variable name> 
+
+<variable name>
+        ::= T_STRING 
+         |  '{' <expr> '}' 
+
+<simple indirect reference>
+        ::= '$' 
+         |  <simple indirect reference> '$' 
+
+<assignment list>
+        ::= <assignment list> ',' <assignment list element> 
+         |  <assignment list 2> 
+
+<assignment list 2>
+        ::= <assignment list element> 
+
+<assignment list element>
+        ::= <variable> 
+         |  T_LIST '(' <assignment list> ')' 
+         |  
+
+<array pair list>
+        ::= 
+         |  <non empty array pair list> <possible comma> 
+
+<non empty array pair list>
+        ::= <non empty array pair list> ',' <expr> T_DOUBLE_ARROW <expr> 
+         |  <non empty array pair list> ',' <expr> 
+         |  <non empty array pair list 2> 
+
+<non empty array pair list 2>
+        ::= <non empty array pair list 2> ',' <expr> T_DOUBLE_ARROW '&' <w variable> 
+         |  <non empty array pair list 2> ',' '&' <w variable> 
+         |  <non empty array pair list 3> 
+
+<non empty array pair list 3>
+        ::= <expr> T_DOUBLE_ARROW <expr> 
+         |  <expr> 
+         |  <expr> T_DOUBLE_ARROW '&' <w variable> 
+         |  '&' <w variable> 
+
+<encaps list>
+        ::= <encaps list> <encaps var> 
+         |  <encaps list> T_ENCAPSED_AND_WHITESPACE 
+         |  <encaps var> 
+         |  T_ENCAPSED_AND_WHITESPACE <encaps var> 
+
+<encaps var>
+        ::= T_VARIABLE 
+         |  T_VARIABLE '[' <encaps var offset> ']' 
+         |  T_VARIABLE T_OBJECT_OPERATOR T_STRING 
+         |  T_DOLLAR_OPEN_CURLY_BRACES <expr> '}' 
+         |  T_DOLLAR_OPEN_CURLY_BRACES T_STRING_VARNAME '[' <expr> ']' '}' 
+         |  T_CURLY_OPEN <variable> '}' 
+
+<encaps var offset>
+        ::= T_STRING 
+         |  T_NUM_STRING 
+         |  T_VARIABLE 
+
+<internal functions in yacc>
+        ::= T_ISSET '(' <isset variables> ')' 
+         |  T_EMPTY '(' <variable> ')' 
+         |  T_INCLUDE <expr> 
+         |  T_INCLUDE_ONCE <expr> 
+         |  T_EVAL '(' <expr> ')' 
+         |  T_REQUIRE <expr> 
+         |  T_REQUIRE_ONCE <expr> 
+
+<isset variables>
+        ::= <isset variables> ',' <variable> 
+         |  <isset variables 2> 
+
+<isset variables 2>
+        ::= <variable> 
+         
+! FIXME!!!!
+<class constant> 
+        ::= <class name> T_PAAMAYIM_NEKUDOTAYIM
