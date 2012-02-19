@@ -178,16 +178,35 @@ namespace NPhp
 		}
 	}
 
+	public class UnaryExpression : Node
+	{
+		ParseTreeNode UnaryOperator;
+		ParseTreeNode Right;
+
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			UnaryOperator = parseNode.ChildNodes[0];
+			Right = parseNode.ChildNodes[1];
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			//base.Generate();
+			((Node)Right.AstNode).Generate(Context);
+			((Node)UnaryOperator.AstNode).Generate(Context);
+		}
+	}
+
 	public class BinaryExpression : Node
 	{
 		ParseTreeNode Left;
-		ParseTreeNode Operator;
+		ParseTreeNode BinaryOperator;
 		ParseTreeNode Right;
 
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
 			Left = parseNode.ChildNodes[0];
-			Operator = parseNode.ChildNodes[1];
+			BinaryOperator = parseNode.ChildNodes[1];
 			Right = parseNode.ChildNodes[2];
 		}
 
@@ -196,7 +215,7 @@ namespace NPhp
 			//base.Generate();
 			((Node)Left.AstNode).Generate(Context);
 			((Node)Right.AstNode).Generate(Context);
-			((Node)Operator.AstNode).Generate(Context);
+			((Node)BinaryOperator.AstNode).Generate(Context);
 		}
 	}
 
@@ -205,6 +224,33 @@ namespace NPhp
 	{
 	}
 	*/
+
+	public class StringNode : Node
+	{
+		String Value;
+
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			Value = Unquote(parseNode.FindTokenAndGetText());
+		}
+
+		static string Unquote(string Unquote)
+		{
+			Debug.Assert(Unquote[0] == Unquote[Unquote.Length - 1]);
+			if (Unquote[0] == '\'')
+			{
+			}
+			// @TODO fix unquotes.
+			return Unquote.Substring(1, Unquote.Length - 2);
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			Context.Push(Value);
+			Context.Call((Func<string, Php54Var>)Php54Var.FromString);
+			//Console.WriteLine("Value: '{0}'", Value);
+		}
+	}
 
 	public class NumberNode : Node
 	{
@@ -241,12 +287,34 @@ namespace NPhp
 		{
 			Context.LoadArgument(0);
 			Context.Push(VariableName);
-			Context.Call((Func<Php54Scope, String, Php54Var>)Php54Scope.GetVariable);
+			Context.Call(typeof(Php54Scope).GetMethod("GetVariable"));
 			//base.Generate(Context);
 		}
 	}
 
-	public class OperatorNode : Node
+	public class UnaryOperatorNode : Node
+	{
+		String Operator;
+
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			Operator = parseNode.FindTokenAndGetText();
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			switch (Operator)
+			{
+				case "+": Context.Call((Func<Php54Var, Php54Var>)Php54Var.UnaryAdd); break;
+				case "-": Context.Call((Func<Php54Var, Php54Var>)Php54Var.UnarySub); break;
+				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
+			}
+			//Context.Operator(Operator);
+			//Console.WriteLine("Operator: '{0}'", Operator);
+		}
+	}
+
+	public class BinaryOperatorNode : Node
 	{
 		String Operator;
 
@@ -263,6 +331,9 @@ namespace NPhp
 				case "-": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Sub); break;
 				case "*": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mul); break;
 				case "/": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Div); break;
+				case "==": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareEquals); break;
+				case "!=": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareNotEquals); break;
+				case "&&": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.LogicalAnd); break;
 				default: throw(new NotImplementedException("Not implemented operator '" + Operator + "'"));
 			}
 			//Context.Operator(Operator);

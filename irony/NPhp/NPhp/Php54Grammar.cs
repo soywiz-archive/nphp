@@ -27,6 +27,9 @@ namespace NPhp
 			NonGrammarTerminals.Add(new CommentTerminal("SingleLineComment", "//", "\r", "\n", "\u2085", "\u2028", "\u2029"));
 			NonGrammarTerminals.Add(new CommentTerminal("DelimitedComment", "/*", "*/"));
 
+			var StringSingleQuoteTerminal = new StringLiteral("StringLiteral", "'", StringOptions.AllowsAllEscapes);
+			StringSingleQuoteTerminal.AstConfig.NodeCreator = GetCreator<StringNode>();
+
 			var VariableTerminal = new IdentifierTerminal("identifier", IdOptions.None);
 			VariableTerminal.AstConfig.NodeCreator = GetCreator<VariableNameNode>();
 			VariableTerminal.AddPrefix("$", IdOptions.None);
@@ -47,13 +50,18 @@ namespace NPhp
 			var if_else_sentence = new NonTerminal("if_else_sentence", GetCreator<IfNode>());
 			var expression_sentence = new NonTerminal("expression_sentence", GetCreator<IgnoreNode>());
 
-			var bin_op = new NonTerminal("bin_op", GetCreator<OperatorNode>());
+			//var unary_op = new NonTerminal("unary_op", GetCreator<OperatorNode>());
+
+			var bin_op = new NonTerminal("bin_op", GetCreator<BinaryOperatorNode>());
 			var bin_op_expression = new NonTerminal("bin_op_expression", GetCreator<BinaryExpression>());
 			var expr = new NonTerminal("expr", GetCreator<IgnoreNode>());
 			var expr2 = new NonTerminal("expr2", GetCreator<IgnoreNode>());
 			var literal = new NonTerminal("literal", GetCreator<IgnoreNode>());
 			var assignment = new NonTerminal("assignment", GetCreator<AssignmentNode>());
 			var GetVariable = new NonTerminal("get_variable", GetCreator<GetVariableNode>());
+
+			var unary_op = new NonTerminal("unary_op", GetCreator<UnaryOperatorNode>());
+			var unary_expr = new NonTerminal("unary_expr", GetCreator<UnaryExpression>());
 
 			//semi_opt.Rule = Empty | semi;
 
@@ -103,8 +111,7 @@ namespace NPhp
 
 			literal.Rule =
 				Number
-				//| StringLiteral
-				//| CharLiteral
+				| StringSingleQuoteTerminal
 				| GetVariable
 				| "true"
 				| "false"
@@ -125,6 +132,10 @@ namespace NPhp
 
 			expr2.Rule = "(" + expr + ")";
 
+			unary_op.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~");
+
+			unary_expr.Rule = unary_op + expr;
+
 			//assignment.Rule = VariableTerminal + "=" + expr;
 			assignment.Rule = GetVariable + "=" + expr;
 
@@ -132,6 +143,7 @@ namespace NPhp
 			expr.Rule = 
 				literal |
 				bin_op_expression |
+				unary_expr |
 				expr2 |
 				assignment
 			;

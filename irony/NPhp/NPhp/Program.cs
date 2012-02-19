@@ -13,7 +13,7 @@ namespace NPhp
 		{
 			var Runtime = new Php54Runtime();
 			var Method = Runtime.CreateMethodFromCode(@"
-				$a = 3 + 2;
+				$a = -(1 + 2);
 				echo $a;
 			", DumpTree: true);
 

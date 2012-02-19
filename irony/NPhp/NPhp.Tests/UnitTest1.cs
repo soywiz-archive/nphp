@@ -17,12 +17,19 @@ namespace NPhp.Tests
 			Runtime = new Php54Runtime();
 		}
 
-		static private string RunAndCaptureOutput(string Code)
+		static private string RunAndCaptureOutput(string Code, Dictionary<string, Php54Var> Variables = null)
 		{
 			var Out = TestUtils.CaptureOutput(() =>
 			{
 				var Method = Runtime.CreateMethodFromCode(Code);
 				var Scope = new Php54Scope(Runtime);
+				if (Variables != null)
+				{
+					foreach (var Pair in Variables)
+					{
+						Php54Var.Assign(Scope.GetVariable(Pair.Key), Pair.Value);
+					}
+				}
 				Method(Scope);
 			});
 			return Out;
@@ -87,6 +94,33 @@ namespace NPhp.Tests
 			Assert.AreEqual("3", RunAndCaptureOutput(@"
 				$a = 3;
 				echo $a;
+			"));
+		}
+
+		[TestMethod]
+		public void UnaryOperation()
+		{
+			Assert.AreEqual("-3", RunAndCaptureOutput(@"
+				$a = -(1 + 2);
+				echo $a;
+			"));
+		}
+
+		[TestMethod]
+		public void Var1Use()
+		{
+			Assert.AreEqual("4yes", RunAndCaptureOutput(@"
+				$a = (1 + 2);
+				if ($a == 3) {
+					echo $a + 1;
+				} else {
+					echo 'no';
+				}
+				if (($a != 2) && ($b != 4)) {
+					echo 'yes';
+				} else {
+					echo 'no';
+				}
 			"));
 		}
 	}
