@@ -13,17 +13,14 @@ namespace NPhp
 		{
 			var Runtime = new Php54Runtime();
 			var Method = Runtime.CreateMethodFromCode(@"
-				echo(1+(2+3)*2)/11;
-				//echo 5;
-				//echo 2;
-				if (0) {
-					echo 0;
-				}
-				if (1) {
-					echo 1;
-				}
+				$a = 3 + 2;
+				echo $a;
 			", DumpTree: true);
-			Method();
+
+			var Scope = new Php54Scope(Runtime);
+
+			Method(Scope);
+
 			Console.ReadKey();
 		}
 	}

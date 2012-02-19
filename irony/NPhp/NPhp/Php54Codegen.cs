@@ -14,7 +14,11 @@ namespace NPhp
 	{
 		public NodeGenerateContext()
 		{
-			DynamicMethod = new DynamicMethod("unknown", typeof(void), new Type[] { });
+			DynamicMethod = new DynamicMethod(
+				"unknown",
+				typeof(void),
+				new Type[] { typeof(Php54Scope) }
+			);
 			ILGenerator = DynamicMethod.GetILGenerator();
 		}
 
@@ -22,10 +26,40 @@ namespace NPhp
 
 		public void Push(int Value)
 		{
-			//Console.WriteLine("Push");
-			ILGenerator.Emit(OpCodes.Ldc_I4, Value);
+			switch (Value)
+			{
+				case -1: ILGenerator.Emit(OpCodes.Ldc_I4_M1); break;
+				case 0: ILGenerator.Emit(OpCodes.Ldc_I4_0); break;
+				case 1: ILGenerator.Emit(OpCodes.Ldc_I4_1); break;
+				case 2: ILGenerator.Emit(OpCodes.Ldc_I4_2); break;
+				case 3: ILGenerator.Emit(OpCodes.Ldc_I4_3); break;
+				case 4: ILGenerator.Emit(OpCodes.Ldc_I4_4); break;
+				case 5: ILGenerator.Emit(OpCodes.Ldc_I4_5); break;
+				case 6: ILGenerator.Emit(OpCodes.Ldc_I4_6); break;
+				case 7: ILGenerator.Emit(OpCodes.Ldc_I4_7); break;
+				case 8: ILGenerator.Emit(OpCodes.Ldc_I4_8); break;
+				default:
+					if ((int)(sbyte)Value == (int)Value)
+					{
+						ILGenerator.Emit(OpCodes.Ldc_I4_S, (sbyte)Value);
+					}
+					else
+					{
+						ILGenerator.Emit(OpCodes.Ldc_I4, Value);
+					}
+				break;
+			}
+			
 			StackCount++;
 		}
+
+		public void Push(string Value)
+		{
+			ILGenerator.Emit(OpCodes.Ldstr, Value);
+
+			StackCount++;
+		}
+
 
 		public void Operator(string Operator)
 		{
@@ -63,7 +97,7 @@ namespace NPhp
 			StackCount--;
 		}
 
-		public Action GenerateMethod()
+		public Action<Php54Scope> GenerateMethod()
 		{
 			while (StackCount-- > 0)
 			{
@@ -72,27 +106,54 @@ namespace NPhp
 			}
 			ILGenerator.Emit(OpCodes.Ret);
 
-			return (Action)DynamicMethod.CreateDelegate(typeof(Action));
+			return (Action<Php54Scope>)DynamicMethod.CreateDelegate(typeof(Action<Php54Scope>));
 		}
 
 		private DynamicMethod DynamicMethod;
 		private ILGenerator ILGenerator;
 
+		public void Call(Delegate Delegate)
+		{
+			Call(Delegate.Method);
+		}
+
 		public void Call(MethodInfo MethodInfo)
 		{
-			//Console.WriteLine("Call");
 			ILGenerator.Emit(OpCodes.Call, MethodInfo);
-			foreach (var Param in MethodInfo.GetCurrentMethod().GetParameters()) {
-				StackCount--;
-			}
-			if (MethodInfo.ReturnType != typeof(void)) {
-				StackCount++;
-			}
+			int ArgumentCount = MethodInfo.GetParameters().Length;
+			int ReturnCount = (MethodInfo.ReturnType != typeof(void)) ? 1 : 0;
+			StackCount -= ArgumentCount;
+			StackCount += ReturnCount;
+			//Console.WriteLine("Call: {0} : {1}, {2} -> {3}", MethodInfo.Name, ArgumentCount, ReturnCount, StackCount);
 		}
 
 		public void BranchAlways(Label Label)
 		{
 			ILGenerator.Emit(OpCodes.Br, Label);
+		}
+
+		internal void LoadArgument(int ArgumentIndex)
+		{
+			switch (ArgumentIndex)
+			{
+				case 0: ILGenerator.Emit(OpCodes.Ldarg_0); break;
+				case 1: ILGenerator.Emit(OpCodes.Ldarg_1); break;
+				case 2: ILGenerator.Emit(OpCodes.Ldarg_2); break;
+				case 3: ILGenerator.Emit(OpCodes.Ldarg_3); break;
+				default: ILGenerator.Emit(OpCodes.Ldarg, ArgumentIndex); break;
+			}
+			
+			//throw new NotImplementedException();
+		}
+
+		public void Box<TType>()
+		{
+			ILGenerator.Emit(OpCodes.Box, typeof(TType));
+		}
+
+		public void Unbox<TType>()
+		{
+			ILGenerator.Emit(OpCodes.Unbox, typeof(TType));
 		}
 	}
 
@@ -103,7 +164,7 @@ namespace NPhp
 			//throw new NotImplementedException();
 		}
 
-		public Action CreateMethod()
+		public Action<Php54Scope> CreateMethod()
 		{
 			var Context = new NodeGenerateContext();
 			Generate(Context);
@@ -113,6 +174,7 @@ namespace NPhp
 		public virtual void Generate(NodeGenerateContext Context)
 		{
 			Console.WriteLine("Generate! : {0}", this.GetType());
+			throw(new NotImplementedException());
 		}
 	}
 
@@ -157,7 +219,30 @@ namespace NPhp
 		public override void Generate(NodeGenerateContext Context)
 		{
 			Context.Push(Value);
+			Context.Call((Func<int, Php54Var>)Php54Var.FromInt);
 			//Console.WriteLine("Value: '{0}'", Value);
+		}
+	}
+
+	public class VariableNameNode : IgnoreNode
+	{
+	}
+
+	public class GetVariableNode : Node
+	{
+		String VariableName;
+
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			VariableName = parseNode.FindTokenAndGetText();
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			Context.LoadArgument(0);
+			Context.Push(VariableName);
+			Context.Call((Func<Php54Scope, String, Php54Var>)Php54Scope.GetVariable);
+			//base.Generate(Context);
 		}
 	}
 
@@ -172,7 +257,15 @@ namespace NPhp
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			Context.Operator(Operator);
+			switch (Operator)
+			{
+				case "+": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Add); break;
+				case "-": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Sub); break;
+				case "*": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mul); break;
+				case "/": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Div); break;
+				default: throw(new NotImplementedException("Not implemented operator '" + Operator + "'"));
+			}
+			//Context.Operator(Operator);
 			//Console.WriteLine("Operator: '{0}'", Operator);
 		}
 	}
@@ -198,12 +291,32 @@ namespace NPhp
 		}
 	}
 
+	public class AssignmentNode : Node
+	{
+		ParseTreeNode LeftValueNode;
+		ParseTreeNode ValueNode;
+
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			LeftValueNode = parseNode.ChildNodes[0];
+			Debug.Assert(parseNode.ChildNodes[1].FindTokenAndGetText() == "=");
+			ValueNode = parseNode.ChildNodes[2];
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			(LeftValueNode.AstNode as Node).Generate(Context);
+			(ValueNode.AstNode as Node).Generate(Context);
+			Context.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
+		}
+	}
+
 	public class EchoNode : IgnoreNode
 	{
 		public override void Generate(NodeGenerateContext Context)
 		{
 			base.Generate(Context);
-			Context.Call(((Action<int>)Php54Runtime.Echo).Method);
+			Context.Call((Action<Php54Var>)Php54Runtime.Echo);
 		}
 	}
 
@@ -232,6 +345,7 @@ namespace NPhp
 			// Check condition
 			{
 				(ConditionExpresion.AstNode as Node).Generate(Context);
+				Context.Call((Func<Php54Var, bool>)Php54Var.ToBool);
 				Context.BranchIfFalse(FalseLabel);
 			}
 			// True

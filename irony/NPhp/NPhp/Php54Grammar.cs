@@ -27,6 +27,11 @@ namespace NPhp
 			NonGrammarTerminals.Add(new CommentTerminal("SingleLineComment", "//", "\r", "\n", "\u2085", "\u2028", "\u2029"));
 			NonGrammarTerminals.Add(new CommentTerminal("DelimitedComment", "/*", "*/"));
 
+			var VariableTerminal = new IdentifierTerminal("identifier", IdOptions.None);
+			VariableTerminal.AstConfig.NodeCreator = GetCreator<VariableNameNode>();
+			VariableTerminal.AddPrefix("$", IdOptions.None);
+
+
 			var Number = TerminalFactory.CreateCSharpNumber("Number");
 			Number.AstConfig.NodeCreator = GetCreator<NumberNode>();
 			var semi = ToTerm(";", "semi");
@@ -40,17 +45,26 @@ namespace NPhp
 			var curly_sentence = new NonTerminal("curly_sentence", GetCreator<IgnoreNode>());
 			var if_sentence = new NonTerminal("if_sentence", GetCreator<IfNode>());
 			var if_else_sentence = new NonTerminal("if_else_sentence", GetCreator<IfNode>());
+			var expression_sentence = new NonTerminal("expression_sentence", GetCreator<IgnoreNode>());
 
 			var bin_op = new NonTerminal("bin_op", GetCreator<OperatorNode>());
 			var bin_op_expression = new NonTerminal("bin_op_expression", GetCreator<BinaryExpression>());
 			var expr = new NonTerminal("expr", GetCreator<IgnoreNode>());
 			var expr2 = new NonTerminal("expr2", GetCreator<IgnoreNode>());
 			var literal = new NonTerminal("literal", GetCreator<IgnoreNode>());
+			var assignment = new NonTerminal("assignment", GetCreator<AssignmentNode>());
+			var GetVariable = new NonTerminal("get_variable", GetCreator<GetVariableNode>());
 
 			//semi_opt.Rule = Empty | semi;
 
+			GetVariable.Rule = VariableTerminal;
+
 			echo_base_sentence.Rule =
 				"echo" + expr + ";"
+			;
+
+			expression_sentence.Rule =
+				expr + ";"
 			;
 
 			curly_sentence.Rule = "{" + sentence_list + "}";
@@ -68,7 +82,8 @@ namespace NPhp
 				curly_sentence |
 				echo_base_sentence |
 				if_else_sentence |
-				if_sentence
+				if_sentence |
+				expression_sentence
 			;
 
 			sentence_list.Rule = MakePlusRule(sentence_list, sentence);
@@ -90,6 +105,7 @@ namespace NPhp
 				Number
 				//| StringLiteral
 				//| CharLiteral
+				| GetVariable
 				| "true"
 				| "false"
 				| "null"
@@ -109,11 +125,15 @@ namespace NPhp
 
 			expr2.Rule = "(" + expr + ")";
 
+			//assignment.Rule = VariableTerminal + "=" + expr;
+			assignment.Rule = GetVariable + "=" + expr;
+
 			//var expression = new NonTerminal("comma_opt", Empty | comma);
 			expr.Rule = 
 				literal |
 				bin_op_expression |
-				expr2
+				expr2 |
+				assignment
 			;
 
 			Root = sentence_list;

@@ -22,7 +22,8 @@ namespace NPhp.Tests
 			var Out = TestUtils.CaptureOutput(() =>
 			{
 				var Method = Runtime.CreateMethodFromCode(Code);
-				Method();
+				var Scope = new Php54Scope(Runtime);
+				Method(Scope);
 			});
 			return Out;
 		}
@@ -69,6 +70,23 @@ namespace NPhp.Tests
 				} else {
 					echo 4;
 				}
+			"));
+		}
+
+		[TestMethod]
+		public void UndefinedVarUse()
+		{
+			Assert.AreEqual("", RunAndCaptureOutput(@"
+				echo $a;
+			"));
+		}
+
+		[TestMethod]
+		public void SimpleVarUse()
+		{
+			Assert.AreEqual("3", RunAndCaptureOutput(@"
+				$a = 3;
+				echo $a;
 			"));
 		}
 	}
