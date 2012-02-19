@@ -6,6 +6,7 @@ using Irony.Ast;
 using Irony.Parsing;
 using System.Reflection.Emit;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace NPhp
 {
@@ -87,6 +88,11 @@ namespace NPhp
 			if (MethodInfo.ReturnType != typeof(void)) {
 				StackCount++;
 			}
+		}
+
+		public void BranchAlways(Label Label)
+		{
+			ILGenerator.Emit(OpCodes.Br, Label);
 		}
 	}
 
@@ -205,20 +211,42 @@ namespace NPhp
 	{
 		ParseTreeNode ConditionExpresion;
 		ParseTreeNode TrueSentence;
+		ParseTreeNode FalseSentence;
 
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
+			Debug.Assert("if" == parseNode.ChildNodes[0].FindTokenAndGetText());
 			ConditionExpresion = parseNode.ChildNodes[1];
 			TrueSentence = parseNode.ChildNodes[2];
+			if (parseNode.ChildNodes.Count > 3)
+			{
+				Debug.Assert("else" == parseNode.ChildNodes[3].FindTokenAndGetText());
+				FalseSentence = parseNode.ChildNodes[4];
+			}
 		}
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			var SkipIfLabel = Context.DefineLabel();
-			(ConditionExpresion.AstNode as Node).Generate(Context);
-			Context.BranchIfFalse(SkipIfLabel);
-			(TrueSentence.AstNode as Node).Generate(Context);
-			Context.MarkLabel(SkipIfLabel);
+			var EndLabel = Context.DefineLabel();
+			var FalseLabel = Context.DefineLabel();
+			// Check condition
+			{
+				(ConditionExpresion.AstNode as Node).Generate(Context);
+				Context.BranchIfFalse(FalseLabel);
+			}
+			// True
+			{
+				(TrueSentence.AstNode as Node).Generate(Context);
+				Context.BranchAlways(EndLabel);
+			}
+			// False
+			Context.MarkLabel(FalseLabel);
+			if (FalseSentence != null)
+			{
+				(FalseSentence.AstNode as Node).Generate(Context);
+				Context.BranchAlways(EndLabel);
+			}
+			Context.MarkLabel(EndLabel);
 			//base.Generate(Context);
 		}
 	}
