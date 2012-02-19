@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Irony.Parsing;
 using Irony.Ast;
+using NPhp.Runtime;
 
 namespace NPhp
 {

@@ -46,17 +46,43 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Php54Codegen.cs" />
-    <Compile Include="Php54Grammar.cs" />
-    <Compile Include="Php54Runtime.cs" />
+    <Compile Include="Codegen\MethodGenerator.cs" />
+    <Compile Include="Codegen\Node.cs" />
+    <Compile Include="Codegen\NodeGenerateContext.cs" />
+    <Compile Include="Codegen\Nodes\AssignmentNode.cs" />
+    <Compile Include="Codegen\Nodes\BinaryExpressionNode.cs" />
+    <Compile Include="Codegen\Nodes\BinaryOperatorNode.cs" />
+    <Compile Include="Codegen\Nodes\EchoNode.cs" />
+    <Compile Include="Codegen\Nodes\EvalNode.cs" />
+    <Compile Include="Codegen\Nodes\ForNode.cs" />
+    <Compile Include="Codegen\Nodes\FunctionCallNode.cs" />
+    <Compile Include="Codegen\Nodes\GetVariableNode.cs" />
+    <Compile Include="Codegen\Nodes\IdentifierNameNode.cs" />
+    <Compile Include="Codegen\Nodes\IdentifierNode.cs" />
+    <Compile Include="Codegen\Nodes\IfNode.cs" />
+    <Compile Include="Codegen\Nodes\IgnoreNode.cs" />
+    <Compile Include="Codegen\Nodes\NamedFunctionDeclarationNode.cs" />
+    <Compile Include="Codegen\Nodes\NumberNode.cs" />
+    <Compile Include="Codegen\Nodes\PostOperationNode.cs" />
+    <Compile Include="Codegen\Nodes\PreOperationNode.cs" />
+    <Compile Include="Codegen\Nodes\SpecialLiteralNode.cs" />
+    <Compile Include="Codegen\Nodes\StringNode.cs" />
+    <Compile Include="Codegen\Nodes\UnaryExpressionNode.cs" />
+    <Compile Include="Codegen\Nodes\UnaryOperatorNode.cs" />
+    <Compile Include="Codegen\Nodes\UnaryPostOperationNode.cs" />
+    <Compile Include="Codegen\Nodes\UnaryPreOperationNode.cs" />
+    <Compile Include="Codegen\Nodes\VariableNameNode.cs" />
+    <Compile Include="Codegen\Nodes\WhileNode.cs" />
+    <Compile Include="Grammar\Php54Grammar.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\Functions\StringFunctions.cs" />
+    <Compile Include="Runtime\Php54FunctionScope.cs" />
+    <Compile Include="Runtime\Php54Runtime.cs" />
+    <Compile Include="Runtime\Php54Scope.cs" />
+    <Compile Include="Runtime\Php54Var.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Codegen\" />
-    <Folder Include="Grammar\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
