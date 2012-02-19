@@ -7,34 +7,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NPhp.Tests
 {
 	[TestClass]
-	public class UnitTest1
+	public partial class UnitTest1
 	{
-		static Php54Runtime Runtime;
-
-		[ClassInitialize]
-		static public void PrepareRuntime(TestContext Context)
-		{
-			Runtime = new Php54Runtime();
-		}
-
-		static private string RunAndCaptureOutput(string Code, Dictionary<string, Php54Var> Variables = null)
-		{
-			var Out = TestUtils.CaptureOutput(() =>
-			{
-				var Method = Runtime.CreateMethodFromCode(Code);
-				var Scope = new Php54Scope(Runtime);
-				if (Variables != null)
-				{
-					foreach (var Pair in Variables)
-					{
-						Php54Var.Assign(Scope.GetVariable(Pair.Key), Pair.Value);
-					}
-				}
-				Method(Scope);
-			});
-			return Out;
-		}
-
 		[TestMethod]
 		public void SimpleEchoExpressionTest()
 		{
@@ -165,6 +139,17 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void PartialFor()
+		{
+			Assert.AreEqual("0123456789", RunAndCaptureOutput(@"
+				$n = 0;
+				for (; $n < 10;) {
+					echo $n++;
+				}
+			"));
+		}
+
+		[TestMethod]
 		public void AddStrings()
 		{
 			Assert.AreEqual("10", RunAndCaptureOutput(@"
@@ -195,5 +180,49 @@ namespace NPhp.Tests
 				eval('echo 1;');
 			"));
 		}
+
+		[TestMethod]
+		public void FunctionTest()
+		{
+			Assert.AreEqual("3", RunAndCaptureOutput(@"
+				$a = -1;
+				$b = -2;
+				function add($a, $b) {
+					echo $a + $b;
+				}
+				add(1, 2);
+			"));
+		}
 	}
+
+	public partial class UnitTest1
+	{
+		static Php54Runtime Runtime;
+
+		[ClassInitialize]
+		static public void PrepareRuntime(TestContext Context)
+		{
+			Runtime = new Php54Runtime();
+		}
+
+		static private string RunAndCaptureOutput(string Code, Dictionary<string, Php54Var> Variables = null)
+		{
+			var Out = TestUtils.CaptureOutput(() =>
+			{
+				var Method = Runtime.CreateMethodFromCode(Code);
+				var Scope = new Php54Scope(Runtime);
+				if (Variables != null)
+				{
+					foreach (var Pair in Variables)
+					{
+						Php54Var.Assign(Scope.GetVariable(Pair.Key), Pair.Value);
+					}
+				}
+				Method(Scope);
+			});
+			return Out;
+		}
+
+	}
+
 }

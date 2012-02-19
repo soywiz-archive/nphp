@@ -348,6 +348,10 @@ namespace NPhp
 		}
 	}
 
+	public class IdentifierNameNode : IgnoreNode
+	{
+	}
+
 	public class VariableNameNode : IgnoreNode
 	{
 	}
@@ -407,6 +411,34 @@ namespace NPhp
 				case "--": Context.Push(-1); Context.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPreInc); break;
 				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
 			}
+		}
+	}
+
+	public class IdentifierNode : IgnoreNode
+	{
+	}
+
+	public class NamedFunctionDeclarationNode : Node
+	{
+		IdentifierNode FunctionName;
+		Node ParametersDeclaration;
+		Node Code;
+
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			Debug.Assert(parseNode.ChildNodes[0].FindTokenAndGetText() == "function");
+			FunctionName = (parseNode.ChildNodes[1].AstNode as IdentifierNode);
+			ParametersDeclaration = (parseNode.ChildNodes[2].AstNode as Node);
+			Code = (parseNode.ChildNodes[3].AstNode as Node);
+			
+			//throw(new NotImplementedException());
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			Code.Generate(Context);
+			//throw(new NotImplementedException());
+			//base.Generate(Context);
 		}
 	}
 
@@ -543,8 +575,9 @@ namespace NPhp
 	{
 		public override void Generate(NodeGenerateContext Context)
 		{
+			Context.LoadArgument<Php54Scope>(0);
 			base.Generate(Context);
-			Context.Call((Action<Php54Var>)Php54Runtime.Echo);
+			Context.Call((Action<Php54Scope, Php54Var>)Php54Runtime.Echo);
 		}
 	}
 

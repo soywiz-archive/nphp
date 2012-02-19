@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Irony.Parsing;
 using Irony.Ast;
+using System.IO;
 
 namespace NPhp
 {
@@ -93,6 +94,7 @@ namespace NPhp
 		{
 			get
 			{
+				if (Type == null) return 0;
 				if (Type == typeof(double)) return DynamicValue;
 				var Str = StringValue;
 				int value = 0;
@@ -176,35 +178,35 @@ namespace NPhp
 
 		static public Php54Var UnaryPostInc(Php54Var Left, int Count)
 		{
-			var Old = Left.DynamicValue;
+			var Old = Left.DoubleValue;
 			Left.DynamicValue = Old + Count;
 			return new Php54Var(Old);
 		}
 
 		static public Php54Var UnaryPreInc(Php54Var Left, int Count)
 		{
-			Left.DynamicValue = Left.DynamicValue + Count;
+			Left.DynamicValue = Left.DoubleValue + Count;
 			return new Php54Var(Left.DynamicValue);
 		}
 
 		static public Php54Var UnarySub(Php54Var Right)
 		{
-			return new Php54Var(-Right.DynamicValue);
+			return new Php54Var(-Right.DoubleValue);
 		}
 
 		public static Php54Var CompareEquals(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DynamicValue == Right.DynamicValue);
+			return new Php54Var(Left.DoubleValue == Right.DoubleValue);
 		}
 
 		public static Php54Var CompareGreaterThan(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DynamicValue > Right.DynamicValue);
+			return new Php54Var(Left.DoubleValue > Right.DoubleValue);
 		}
 
 		public static Php54Var CompareLessThan(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DynamicValue < Right.DynamicValue);
+			return new Php54Var(Left.DoubleValue < Right.DoubleValue);
 		}
 
 		public static Php54Var CompareNotEquals(Php54Var Left, Php54Var Right)
@@ -258,6 +260,7 @@ namespace NPhp
 		Php54Grammar Grammar;
 		LanguageData LanguageData;
 		Parser Parser;
+		TextWriter TextWriter;
 
 		public Php54Runtime()
 		{
@@ -265,6 +268,7 @@ namespace NPhp
 			LanguageData = new LanguageData(Grammar);
 			Parser = new Parser(LanguageData);
 			Parser.Context.TracingEnabled = true;
+			TextWriter = Console.Out;
 		}
 
 		public Action<Php54Scope> CreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false)
@@ -293,8 +297,9 @@ namespace NPhp
 			return Action;
 		}
 
-		static public void Echo(Php54Var Variable)
+		static public void Echo(Php54Scope Scope, Php54Var Variable)
 		{
+			//Scope.Php54Runtime.TextWriter.Write(Variable);
 			Console.Out.Write(Variable);
 		}
 

@@ -30,7 +30,10 @@ namespace NPhp
 			var StringSingleQuoteTerminal = new StringLiteral("StringLiteral", "'", StringOptions.AllowsAllEscapes);
 			StringSingleQuoteTerminal.AstConfig.NodeCreator = GetCreator<StringNode>();
 
-			var VariableTerminal = new IdentifierTerminal("identifier", IdOptions.None);
+			var IdTerminal = new IdentifierTerminal("identifier", IdOptions.None);
+			IdTerminal.AstConfig.NodeCreator = GetCreator<IdentifierNameNode>();
+
+			var VariableTerminal = new IdentifierTerminal("variable", IdOptions.None);
 			VariableTerminal.AstConfig.NodeCreator = GetCreator<VariableNameNode>();
 			VariableTerminal.AddPrefix("$", IdOptions.None);
 
@@ -38,9 +41,12 @@ namespace NPhp
 			var Number = TerminalFactory.CreateCSharpNumber("Number");
 			Number.AstConfig.NodeCreator = GetCreator<NumberNode>();
 			var semi = ToTerm(";", "semi");
+			var comma = ToTerm(",", "comma");
 			//var semi_opt = new NonTerminal("semi?");
 
 			var SpecialLiteral = new NonTerminal("SpecialLiteral", GetCreator<SpecialLiteralNode>());
+
+			var GetId = new NonTerminal("GetId", GetCreator<IdentifierNode>());
 
 			var sentence = new NonTerminal("sentence", GetCreator<IgnoreNode>());
 			var sentence_list = new NonTerminal("sentences", GetCreator<IgnoreNode>());
@@ -60,6 +66,7 @@ namespace NPhp
 			var bin_op = new NonTerminal("bin_op", GetCreator<BinaryOperatorNode>());
 			var bin_op_expression = new NonTerminal("bin_op_expression", GetCreator<BinaryExpression>());
 			var expr = new NonTerminal("expr", GetCreator<IgnoreNode>());
+			var expr_or_empty = new NonTerminal("expr_or_empty", GetCreator<IgnoreNode>());
 			var expr2 = new NonTerminal("expr2", GetCreator<IgnoreNode>());
 			var literal = new NonTerminal("literal", GetCreator<IgnoreNode>());
 			var assignment = new NonTerminal("assignment", GetCreator<AssignmentNode>());
@@ -73,6 +80,18 @@ namespace NPhp
 
 			var pre = new NonTerminal("pre", GetCreator<UnaryPreOperationNode>());
 			var literal_pre = new NonTerminal("literal_pret", GetCreator<PreOperationNode>());
+
+			var named_func_decl = new NonTerminal("named_func_decl", GetCreator<NamedFunctionDeclarationNode>());
+			
+			var func_decl_args = new NonTerminal("func_decl_args", GetCreator<IgnoreNode>());
+			var func_call = new NonTerminal("func_call", GetCreator<IgnoreNode>());
+			var func_arguments = new NonTerminal("func_arguments", GetCreator<IgnoreNode>());
+
+			func_decl_args.Rule = MakeStarRule(func_decl_args, comma, GetVariable);
+
+			named_func_decl.Rule = ToTerm("function") + GetId + "(" + func_decl_args + ")" + "{" + sentence_list + "}";
+
+			GetId.Rule = IdTerminal;
 
 			//semi_opt.Rule = Empty | semi;
 
@@ -108,7 +127,7 @@ namespace NPhp
 			;
 
 			for_sentence.Rule =
-				ToTerm("for") + "(" + expr + ";" + expr + ";" + expr + ")" +
+				ToTerm("for") + "(" + expr_or_empty + ";" + expr_or_empty + ";" + expr_or_empty + ")" +
 				sentence
 			;
 
@@ -120,7 +139,8 @@ namespace NPhp
 				for_sentence |
 				if_else_sentence |
 				if_sentence |
-				expression_sentence
+				expression_sentence |
+				named_func_decl
 			;
 
 			sentence_list.Rule = MakeStarRule(sentence_list, sentence);
@@ -170,7 +190,7 @@ namespace NPhp
 			RegisterOperators(40, "*", "/");
 			RegisterOperators(50, Associativity.Right, "**");
 
-			MarkPunctuation("(", ")", "?", ":", ";", "[", "]");
+			MarkPunctuation("(", ")", "?", ":", ";", "[", "]", "{", "}");
 			RegisterBracePair("(", ")");
 			RegisterBracePair("[", "]");
 			//MarkTransient(Term, Expr, Statement, BinOp, UnOp, IncDecOp, AssignmentOp, ParExpr, ObjectRef);
@@ -184,8 +204,13 @@ namespace NPhp
 			//assignment.Rule = VariableTerminal + "=" + expr;
 			assignment.Rule = GetVariable + "=" + expr;
 
+			func_arguments.Rule = MakeStarRule(func_arguments, comma, expr);
+
+			func_call.Rule = GetId + "(" + func_arguments + ")";
+
 			//var expression = new NonTerminal("comma_opt", Empty | comma);
 			expr.Rule =
+				func_call |
 				literal_pre |
 				literal |
 				literal_post |
@@ -194,6 +219,8 @@ namespace NPhp
 				expr2 |
 				assignment
 			;
+
+			expr_or_empty.Rule = expr | Empty;
 
 			Root = sentence_list;
 			Root.AstConfig.DefaultNodeCreator = () => { return null; };
