@@ -13,16 +13,15 @@ namespace NPhp
 		{
 			var Runtime = new Php54Runtime();
 			var Method = Runtime.CreateMethodFromCode(@"
-				$n = 9;
-				while ($n > 0) {
-					echo $n;
-					$n = $n - 1;
-				}
+				eval('echo 1;');
 			", DumpTree: true);
 
 			var Scope = new Php54Scope(Runtime);
 
+			var Start = DateTime.UtcNow;
 			Method(Scope);
+			var End = DateTime.UtcNow;
+			Console.WriteLine("\nTime: {0}", End - Start);
 
 			Console.ReadKey();
 		}

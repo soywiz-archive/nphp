@@ -147,5 +147,53 @@ namespace NPhp.Tests
 				}
 			"));
 		}
+
+		[TestMethod]
+		public void SimpleFor()
+		{
+			Assert.AreEqual("0123456789", RunAndCaptureOutput(@"
+				for ($n = 0; $n < 10; $n = $n + 1) echo $n;
+			"));
+		}
+
+		[TestMethod]
+		public void ForWithPostIncrement()
+		{
+			Assert.AreEqual("0123456789", RunAndCaptureOutput(@"
+				for ($n = 0; $n < 10; $n++) echo $n;
+			"));
+		}
+
+		[TestMethod]
+		public void AddStrings()
+		{
+			Assert.AreEqual("10", RunAndCaptureOutput(@"
+				echo '1test2' + 4 + '2demo' + 3;
+			"));
+		}
+
+		[TestMethod]
+		public void PostIncrementAndDecrement()
+		{
+			Assert.AreEqual("0130-1-3", RunAndCaptureOutput(@"
+				$n = 0;
+				echo $n++;
+				echo $n++;
+				echo ++$n;
+
+				$n = 0;
+				echo $n--;
+				echo $n--;
+				echo --$n;
+			"));
+		}
+
+		[TestMethod]
+		public void EvalTest()
+		{
+			Assert.AreEqual("1", RunAndCaptureOutput(@"
+				eval('echo 1;');
+			"));
+		}
 	}
 }

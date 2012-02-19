@@ -46,10 +46,12 @@ namespace NPhp
 			var sentence_list = new NonTerminal("sentences", GetCreator<IgnoreNode>());
 			var base_sentence = new NonTerminal("base_sentence", GetCreator<IgnoreNode>());
 			var echo_base_sentence = new NonTerminal("echo_base_sentence", GetCreator<EchoNode>());
+			var eval_base_sentence = new NonTerminal("eval_base_sentence", GetCreator<EvalNode>());
 			var curly_sentence = new NonTerminal("curly_sentence", GetCreator<IgnoreNode>());
 			var if_sentence = new NonTerminal("if_sentence", GetCreator<IfNode>());
 			var if_else_sentence = new NonTerminal("if_else_sentence", GetCreator<IfNode>());
 			var while_sentence = new NonTerminal("while_sentence", GetCreator<WhileNode>());
+			var for_sentence = new NonTerminal("for_sentence", GetCreator<ForNode>());
 			
 			var expression_sentence = new NonTerminal("expression_sentence", GetCreator<IgnoreNode>());
 
@@ -66,12 +68,22 @@ namespace NPhp
 			var unary_op = new NonTerminal("unary_op", GetCreator<UnaryOperatorNode>());
 			var unary_expr = new NonTerminal("unary_expr", GetCreator<UnaryExpression>());
 
+			var post = new NonTerminal("post", GetCreator<UnaryPostOperationNode>());
+			var literal_post = new NonTerminal("literal_post", GetCreator<PostOperationNode>());
+
+			var pre = new NonTerminal("pre", GetCreator<UnaryPreOperationNode>());
+			var literal_pre = new NonTerminal("literal_pret", GetCreator<PreOperationNode>());
+
 			//semi_opt.Rule = Empty | semi;
 
 			GetVariable.Rule = VariableTerminal;
 
 			echo_base_sentence.Rule =
 				"echo" + expr + ";"
+			;
+
+			eval_base_sentence.Rule =
+				"eval" + expr + ";"
 			;
 
 			expression_sentence.Rule =
@@ -95,16 +107,23 @@ namespace NPhp
 				sentence
 			;
 
+			for_sentence.Rule =
+				ToTerm("for") + "(" + expr + ";" + expr + ";" + expr + ")" +
+				sentence
+			;
+
 			base_sentence.Rule =
 				curly_sentence |
 				echo_base_sentence |
+				eval_base_sentence |
 				while_sentence |
+				for_sentence |
 				if_else_sentence |
 				if_sentence |
 				expression_sentence
 			;
 
-			sentence_list.Rule = MakePlusRule(sentence_list, sentence);
+			sentence_list.Rule = MakeStarRule(sentence_list, sentence);
 
 			sentence.Rule =
 				base_sentence
@@ -132,6 +151,18 @@ namespace NPhp
 				| SpecialLiteral
 			;
 
+			post.Rule = ToTerm("++") | "--";
+
+			literal_post.Rule =
+				GetVariable + post
+			;
+
+			pre.Rule = ToTerm("++") | "--";
+
+			literal_pre.Rule =
+				pre + GetVariable
+			;
+
 			RegisterOperators(10, "?");
 			RegisterOperators(15, "&", "&&", "|", "||");
 			RegisterOperators(20, "==", "<", "<=", ">", ">=", "!=");
@@ -139,7 +170,7 @@ namespace NPhp
 			RegisterOperators(40, "*", "/");
 			RegisterOperators(50, Associativity.Right, "**");
 
-			MarkPunctuation("(", ")", "?", ":", "[", "]");
+			MarkPunctuation("(", ")", "?", ":", ";", "[", "]");
 			RegisterBracePair("(", ")");
 			RegisterBracePair("[", "]");
 			//MarkTransient(Term, Expr, Statement, BinOp, UnOp, IncDecOp, AssignmentOp, ParExpr, ObjectRef);
@@ -154,8 +185,10 @@ namespace NPhp
 			assignment.Rule = GetVariable + "=" + expr;
 
 			//var expression = new NonTerminal("comma_opt", Empty | comma);
-			expr.Rule = 
+			expr.Rule =
+				literal_pre |
 				literal |
+				literal_post |
 				bin_op_expression |
 				unary_expr |
 				expr2 |
