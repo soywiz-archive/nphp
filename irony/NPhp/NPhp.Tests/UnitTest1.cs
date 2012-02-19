@@ -183,6 +183,20 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void SimpleFunctionTest()
+		{
+			Assert.AreEqual("1234", RunAndCaptureOutput(@"
+				echo 1;
+				function test() {
+					echo 3;
+				}
+				echo 2;
+				test();
+				echo 4;
+			"));
+		}
+
+		[TestMethod]
 		public void FunctionTest()
 		{
 			Assert.AreEqual("3", RunAndCaptureOutput(@"
@@ -203,6 +217,39 @@ namespace NPhp.Tests
 				$b = &$a;
 				$b = 2;
 				echo $a;
+			"));
+		}
+
+		[TestMethod]
+		public void FunctionChaining()
+		{
+			Assert.AreEqual("abc", RunAndCaptureOutput(@"
+				function a() { return 'a'; }
+				function b($a) { return $a.'b'; }
+				function c($b) { return $b.'c'; }
+				echo c(b(a()));
+			"));
+		}
+
+		[TestMethod]
+		public void ParameterOrderIsLeftToRight()
+		{
+			Assert.AreEqual("ab", RunAndCaptureOutput(@"
+				function a() { echo 'a'; }
+				function b() { echo 'b'; }
+				function c($a, $b) { }
+				c(a(), b());
+			"));
+		}
+
+		[TestMethod]
+		public void ParameterOrderIsLeftToRightPlusReturn()
+		{
+			Assert.AreEqual("abAB", RunAndCaptureOutput(@"
+				function a() { echo 'a'; return 'A'; }
+				function b() { echo 'b'; return 'B'; }
+				function c($a, $b) { return $a . $b; }
+				echo c(a(), b());
 			"));
 		}
 	}

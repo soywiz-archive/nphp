@@ -15,18 +15,10 @@ namespace NPhp
 			var FunctionScope = new Php54FunctionScope();
 			var Runtime = new Php54Runtime(FunctionScope);
 			var Method = Runtime.CreateMethodFromCode(@"
-				$a = -1;
-				$b = -2;
-				function add($a, $b) {
-					echo $a + $b;
-				}
-				add(1, 2);
-
-				//for ($n = 0; $n < 100000; $n++) {}
-				//$a = 1;
-				//$b = &$a;
-				//$b = 2;
-				//echo $a;
+				function a() { echo 'a'; return 'A'; }
+				function b() { echo 'b'; return 'B'; }
+				function c($a, $b) { return $a . $b; }
+				echo c(a(), b());
 			", DumpTree: true);
 
 			var Scope = new Php54Scope(Runtime);

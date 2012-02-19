@@ -61,10 +61,11 @@
     <Compile Include="Codegen\Nodes\IdentifierNode.cs" />
     <Compile Include="Codegen\Nodes\IfNode.cs" />
     <Compile Include="Codegen\Nodes\IgnoreNode.cs" />
-    <Compile Include="Codegen\Nodes\NamedFunctionDeclarationNode.cs" />
+    <Compile Include="Codegen\Nodes\FunctionNamedDeclarationNode.cs" />
     <Compile Include="Codegen\Nodes\NumberNode.cs" />
     <Compile Include="Codegen\Nodes\PostOperationNode.cs" />
     <Compile Include="Codegen\Nodes\PreOperationNode.cs" />
+    <Compile Include="Codegen\Nodes\ReturnNode.cs" />
     <Compile Include="Codegen\Nodes\SpecialLiteralNode.cs" />
     <Compile Include="Codegen\Nodes\StringNode.cs" />
     <Compile Include="Codegen\Nodes\UnaryExpressionNode.cs" />

@@ -1,4 +1,4 @@
-﻿//#define CODEGEN_TRACE
+﻿#define CODEGEN_TRACE
 
 using System;
 using System.Collections.Generic;
@@ -147,6 +147,8 @@ namespace NPhp.Codegen
 
 		public void Call(MethodInfo MethodInfo)
 		{
+			int PrevStackCount = StackCount;
+
 			ILGenerator.Emit(OpCodes.Call, MethodInfo);
 			int ThisCount = (!MethodInfo.IsStatic) ? 1 : 0;
 			int ArgumentCount = MethodInfo.GetParameters().Length;
@@ -156,7 +158,16 @@ namespace NPhp.Codegen
 			StackCount += ReturnCount;
 
 #if CODEGEN_TRACE
-			Debug.WriteLine("Call: {0}.{1} (this:{2}, args:{3}, ret:{4}) -> Stack: {4}", MethodInfo.DeclaringType.Name, MethodInfo.Name, ThisCount, ArgumentCount, ReturnCount, StackCount);
+			Debug.WriteLine(
+				"Call: {0}.{1} (this:{2}, args:{3}, ret:{4}) -> Stack: {5} -> {6}",
+				MethodInfo.DeclaringType.Name,
+				MethodInfo.Name,
+				ThisCount,
+				ArgumentCount,
+				ReturnCount,
+				PrevStackCount,
+				StackCount
+			);
 #endif
 		}
 
@@ -187,7 +198,7 @@ namespace NPhp.Codegen
 			StackCount++;
 
 #if CODEGEN_TRACE
-			Debug.WriteLine("LoadArgument: {0} -> Stack: {1}", ArgumentIndex, StackCount);
+			Debug.WriteLine("LoadArgument<{0}>: {1} -> Stack: {2}", typeof(TType).Name, ArgumentIndex, StackCount);
 #endif
 			//throw new NotImplementedException();
 		}
@@ -212,7 +223,33 @@ namespace NPhp.Codegen
 		public void Comment(string Comment)
 		{
 #if CODEGEN_TRACE
-			Debug.WriteLine("--- {0}", Comment);
+			Debug.WriteLine("--- " + Comment);
+#endif
+		}
+
+		public void Dup()
+		{
+			ILGenerator.Emit(OpCodes.Dup);
+			StackCount++;
+#if CODEGEN_TRACE
+			Debug.WriteLine("Dup -> Stack: {0}", StackCount);
+#endif
+		}
+
+		public void Pop()
+		{
+			StackCount--;
+
+#if CODEGEN_TRACE
+			Debug.WriteLine("Pop -> Stack: {0}", StackCount);
+#endif
+		}
+
+		public void Return()
+		{
+			ILGenerator.Emit(OpCodes.Ret);
+#if CODEGEN_TRACE
+			Debug.WriteLine("Ret");
 #endif
 		}
 	}

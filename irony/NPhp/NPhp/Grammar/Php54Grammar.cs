@@ -83,11 +83,14 @@ namespace NPhp.LanguageGrammar
 			var pre = new NonTerminal("pre", GetCreator<UnaryPreOperationNode>());
 			var literal_pre = new NonTerminal("literal_pret", GetCreator<PreOperationNode>());
 
-			var named_func_decl = new NonTerminal("named_func_decl", GetCreator<NamedFunctionDeclarationNode>());
+			var named_func_decl = new NonTerminal("named_func_decl", GetCreator<FunctionNamedDeclarationNode>());
 			
 			var func_decl_args = new NonTerminal("func_decl_args", GetCreator<IgnoreNode>());
 			var func_call = new NonTerminal("func_call", GetCreator<FunctionCallNode>());
 			var func_arguments = new NonTerminal("func_arguments", GetCreator<IgnoreNode>());
+			var return_sentence = new NonTerminal("return_sentence", GetCreator<ReturnNode>());
+
+			return_sentence.Rule = "return" + expr + ";";
 
 			func_decl_args.Rule = MakeStarRule(func_decl_args, comma, GetVariable);
 
@@ -142,6 +145,7 @@ namespace NPhp.LanguageGrammar
 				if_else_sentence |
 				if_sentence |
 				expression_sentence |
+				return_sentence |
 				named_func_decl
 			;
 
