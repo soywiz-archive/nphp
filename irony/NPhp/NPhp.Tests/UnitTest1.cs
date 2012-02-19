@@ -193,17 +193,36 @@ namespace NPhp.Tests
 				add(1, 2);
 			"));
 		}
+
+		[TestMethod]
+		public void RefTest()
+		{
+			Assert.AreEqual("2", RunAndCaptureOutput(@"
+				$a = 1;
+				$b = &$a;
+				$b = 2;
+				echo $a;
+			"));
+		}
 	}
 
 	public partial class UnitTest1
 	{
 		static Php54Runtime Runtime;
+		static Php54FunctionScope FunctionScope;
 
 		[ClassInitialize]
 		static public void PrepareRuntime(TestContext Context)
 		{
-			Runtime = new Php54Runtime();
+			FunctionScope = new Php54FunctionScope();
+			Runtime = new Php54Runtime(FunctionScope);
 		}
+
+		[TestInitialize]
+		public void PrepareRuntime()
+		{
+		}
+
 
 		static private string RunAndCaptureOutput(string Code, Dictionary<string, Php54Var> Variables = null)
 		{

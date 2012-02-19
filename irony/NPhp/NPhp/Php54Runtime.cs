@@ -53,6 +53,7 @@ namespace NPhp
 	public sealed class Php54Var
 	{
 		//private Type Type;
+		internal bool IsRef = false;
 		private dynamic DynamicValue;
 		static private readonly Type BoolType = typeof(bool);
 		private Type Type
@@ -115,10 +116,16 @@ namespace NPhp
 			}
 		}
 
-		public Php54Var(dynamic Value)
+		public Php54Var(dynamic Value, bool IsRef = false)
 		{
 			this.DynamicValue = Value;
+			this.IsRef = IsRef;
 			//this.Type = (Value != null) ? Value.GetType() : null;
+		}
+
+		static public Php54Var CreateRef(Php54Var ReferencedValue)
+		{
+			return new Php54Var(ReferencedValue, IsRef: true);
 		}
 
 		static public Php54Var FromInt(int Value)
@@ -221,6 +228,19 @@ namespace NPhp
 
 		static public void Assign(Php54Var Left, Php54Var Right)
 		{
+			if (Left.IsRef)
+			{
+				Assign(Left.DynamicValue, Right);
+				return;
+			}
+
+			if (Right.IsRef)
+			{
+				Left.DynamicValue = Right;
+				Left.IsRef = true;
+				return;
+			}
+
 			Left.DynamicValue = Right.DynamicValue;
 			//Left.Type = Right.Type;
 		}
@@ -255,20 +275,32 @@ namespace NPhp
 		}
 	}
 
+	public class Php54FunctionScope
+	{
+		public Dictionary<string, Action<Php54Scope>> Functions { get; protected set; }
+
+		public Php54FunctionScope()
+		{
+			Functions = new Dictionary<string, Action<Php54Scope>>();
+		}
+	}
+
 	public class Php54Runtime
 	{
 		Php54Grammar Grammar;
 		LanguageData LanguageData;
+		public Php54FunctionScope FunctionScope;
 		Parser Parser;
 		TextWriter TextWriter;
 
-		public Php54Runtime()
+		public Php54Runtime(Php54FunctionScope FunctionScope)
 		{
-			Grammar = new Php54Grammar();
-			LanguageData = new LanguageData(Grammar);
-			Parser = new Parser(LanguageData);
-			Parser.Context.TracingEnabled = true;
-			TextWriter = Console.Out;
+			this.Grammar = new Php54Grammar();
+			this.LanguageData = new LanguageData(Grammar);
+			this.Parser = new Parser(LanguageData);
+			this.Parser.Context.TracingEnabled = true;
+			this.TextWriter = Console.Out;
+			this.FunctionScope = FunctionScope;
 		}
 
 		public Action<Php54Scope> CreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false)
@@ -293,7 +325,7 @@ namespace NPhp
 			}
 			//Console.WriteLine("'{0}'", Tree.Root.Term.AstConfig.NodeType);
 			//Console.WriteLine("'{0}'", Tree.Root.AstNode);
-			var Action = (Tree.Root.AstNode as Node).CreateMethod();
+			var Action = (Tree.Root.AstNode as Node).CreateMethod(FunctionScope);
 			return Action;
 		}
 

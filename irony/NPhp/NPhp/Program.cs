@@ -11,7 +11,8 @@ namespace NPhp
 	{
 		static void Main(string[] args)
 		{
-			var Runtime = new Php54Runtime();
+			var FunctionScope = new Php54FunctionScope();
+			var Runtime = new Php54Runtime(FunctionScope);
 			var Method = Runtime.CreateMethodFromCode(@"
 				$a = -1;
 				$b = -2;
@@ -19,6 +20,12 @@ namespace NPhp
 					echo $a + $b;
 				}
 				add(1, 2);
+
+				//for ($n = 0; $n < 100000; $n++) {}
+				//$a = 1;
+				//$b = &$a;
+				//$b = 2;
+				//echo $a;
 			", DumpTree: true);
 
 			var Scope = new Php54Scope(Runtime);
@@ -26,13 +33,16 @@ namespace NPhp
 			var Start = DateTime.UtcNow;
 			Method(Scope);
 			var End = DateTime.UtcNow;
+			//FunctionScope.Functions["add"](new Php54Scope(Runtime));
+			//Console.WriteLine(FunctionScope.Functions["add"]);
 			Console.WriteLine("\nTime: {0}", End - Start);
 
-			Test();
+			//Test();
 
 			Console.ReadKey();
 		}
 
+		/*
 		static void Test()
 		{
 			Action<int> Del = (Value) =>
@@ -41,5 +51,6 @@ namespace NPhp
 			};
 			Del(1);
 		}
+		*/
 	}
 }

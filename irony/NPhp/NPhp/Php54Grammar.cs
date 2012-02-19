@@ -84,7 +84,7 @@ namespace NPhp
 			var named_func_decl = new NonTerminal("named_func_decl", GetCreator<NamedFunctionDeclarationNode>());
 			
 			var func_decl_args = new NonTerminal("func_decl_args", GetCreator<IgnoreNode>());
-			var func_call = new NonTerminal("func_call", GetCreator<IgnoreNode>());
+			var func_call = new NonTerminal("func_call", GetCreator<FunctionCallNode>());
 			var func_arguments = new NonTerminal("func_arguments", GetCreator<IgnoreNode>());
 
 			func_decl_args.Rule = MakeStarRule(func_decl_args, comma, GetVariable);
@@ -197,7 +197,7 @@ namespace NPhp
 
 			expr2.Rule = "(" + expr + ")";
 
-			unary_op.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~");
+			unary_op.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~") | ToTerm("&");
 
 			unary_expr.Rule = unary_op + expr;
 

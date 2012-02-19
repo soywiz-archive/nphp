@@ -12,9 +12,13 @@ using System.Diagnostics;
 
 namespace NPhp
 {
-	public class NodeGenerateContext
+	public class MethodGenerator
 	{
-		public NodeGenerateContext()
+		private DynamicMethod DynamicMethod;
+		private ILGenerator ILGenerator;
+		public int StackCount;
+
+		public MethodGenerator()
 		{
 			DynamicMethod = new DynamicMethod(
 				"unknown",
@@ -24,7 +28,13 @@ namespace NPhp
 			ILGenerator = DynamicMethod.GetILGenerator();
 		}
 
-		public int StackCount;
+		public Action<Php54Scope> GenerateMethod()
+		{
+			ClearStack();
+			ILGenerator.Emit(OpCodes.Ret);
+
+			return (Action<Php54Scope>)DynamicMethod.CreateDelegate(typeof(Action<Php54Scope>));
+		}
 
 		public void Push(int Value)
 		{
@@ -49,9 +59,9 @@ namespace NPhp
 					{
 						ILGenerator.Emit(OpCodes.Ldc_I4, Value);
 					}
-				break;
+					break;
 			}
-			
+
 			StackCount++;
 
 #if CODEGEN_TRACE
@@ -131,17 +141,6 @@ namespace NPhp
 #endif
 		}
 
-		public Action<Php54Scope> GenerateMethod()
-		{
-			ClearStack();
-			ILGenerator.Emit(OpCodes.Ret);
-
-			return (Action<Php54Scope>)DynamicMethod.CreateDelegate(typeof(Action<Php54Scope>));
-		}
-
-		private DynamicMethod DynamicMethod;
-		private ILGenerator ILGenerator;
-
 		public void Call(Delegate Delegate)
 		{
 			Call(Delegate.Method);
@@ -214,6 +213,35 @@ namespace NPhp
 		}
 	}
 
+	public class NodeGenerateContext
+	{
+		public Php54FunctionScope FunctionScope { get; protected set; }
+		public MethodGenerator MethodGenerator { get; protected set; }
+
+		public NodeGenerateContext(Php54FunctionScope FunctionScope)
+		{
+			this.MethodGenerator = new MethodGenerator();
+			this.FunctionScope = FunctionScope;
+		}
+
+		public Action<Php54Scope> GenerateFunction(Action Action)
+		{
+			var OldMethodGenerator = MethodGenerator;
+			var NewMethodGenerator = new MethodGenerator();
+			OldMethodGenerator = MethodGenerator;
+			MethodGenerator = NewMethodGenerator;
+			try
+			{
+				Action();
+			}
+			finally
+			{
+				MethodGenerator = OldMethodGenerator;
+			}
+			return NewMethodGenerator.GenerateMethod();
+		}
+	}
+
 	public class Node : IAstNodeInit
 	{
 		public virtual void Init(AstContext context, ParseTreeNode parseNode)
@@ -221,11 +249,11 @@ namespace NPhp
 			//throw new NotImplementedException();
 		}
 
-		public Action<Php54Scope> CreateMethod()
+		public Action<Php54Scope> CreateMethod(Php54FunctionScope FunctionScope)
 		{
-			var Context = new NodeGenerateContext();
+			var Context = new NodeGenerateContext(FunctionScope);
 			Generate(Context);
-			return Context.GenerateMethod();
+			return Context.MethodGenerator.GenerateMethod();
 		}
 
 		public virtual void Generate(NodeGenerateContext Context)
@@ -303,8 +331,8 @@ namespace NPhp
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			Context.Push(Value);
-			Context.Call((Func<string, Php54Var>)Php54Var.FromString);
+			Context.MethodGenerator.Push(Value);
+			Context.MethodGenerator.Call((Func<string, Php54Var>)Php54Var.FromString);
 			//Console.WriteLine("Value: '{0}'", Value);
 		}
 	}
@@ -322,9 +350,9 @@ namespace NPhp
 		{
 			switch (Type)
 			{
-				case "true": Context.Call((Func<Php54Var>)Php54Var.FromTrue); break;
-				case "false": Context.Call((Func<Php54Var>)Php54Var.FromFalse); break;
-				case "null": Context.Call((Func<Php54Var>)Php54Var.FromNull); break;
+				case "true": Context.MethodGenerator.Call((Func<Php54Var>)Php54Var.FromTrue); break;
+				case "false": Context.MethodGenerator.Call((Func<Php54Var>)Php54Var.FromFalse); break;
+				case "null": Context.MethodGenerator.Call((Func<Php54Var>)Php54Var.FromNull); break;
 				default: throw (new NotImplementedException());
 			}
 		}
@@ -342,8 +370,8 @@ namespace NPhp
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			Context.Push(Value);
-			Context.Call((Func<int, Php54Var>)Php54Var.FromInt);
+			Context.MethodGenerator.Push(Value);
+			Context.MethodGenerator.Call((Func<int, Php54Var>)Php54Var.FromInt);
 			//Console.WriteLine("Value: '{0}'", Value);
 		}
 	}
@@ -367,9 +395,9 @@ namespace NPhp
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			Context.LoadArgument<Php54Scope>(0);
-			Context.Push(VariableName);
-			Context.Call(typeof(Php54Scope).GetMethod("GetVariable"));
+			Context.MethodGenerator.LoadArgument<Php54Scope>(0);
+			Context.MethodGenerator.Push(VariableName);
+			Context.MethodGenerator.Call(typeof(Php54Scope).GetMethod("GetVariable"));
 			//base.Generate(Context);
 		}
 	}
@@ -387,8 +415,8 @@ namespace NPhp
 		{
 			switch (Operator)
 			{
-				case "++": Context.Push(+1); Context.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPostInc); break;
-				case "--": Context.Push(-1); Context.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPostInc); break;
+				case "++": Context.MethodGenerator.Push(+1); Context.MethodGenerator.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPostInc); break;
+				case "--": Context.MethodGenerator.Push(-1); Context.MethodGenerator.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPostInc); break;
 				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
 			}
 		}
@@ -407,8 +435,8 @@ namespace NPhp
 		{
 			switch (Operator)
 			{
-				case "++": Context.Push(+1); Context.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPreInc); break;
-				case "--": Context.Push(-1); Context.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPreInc); break;
+				case "++": Context.MethodGenerator.Push(+1); Context.MethodGenerator.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPreInc); break;
+				case "--": Context.MethodGenerator.Push(-1); Context.MethodGenerator.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPreInc); break;
 				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
 			}
 		}
@@ -420,14 +448,14 @@ namespace NPhp
 
 	public class NamedFunctionDeclarationNode : Node
 	{
-		IdentifierNode FunctionName;
+		String FunctionName;
 		Node ParametersDeclaration;
 		Node Code;
 
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
 			Debug.Assert(parseNode.ChildNodes[0].FindTokenAndGetText() == "function");
-			FunctionName = (parseNode.ChildNodes[1].AstNode as IdentifierNode);
+			FunctionName = parseNode.ChildNodes[1].FindTokenAndGetText();
 			ParametersDeclaration = (parseNode.ChildNodes[2].AstNode as Node);
 			Code = (parseNode.ChildNodes[3].AstNode as Node);
 			
@@ -436,7 +464,13 @@ namespace NPhp
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			Code.Generate(Context);
+			var Function = Context.GenerateFunction(() =>
+			{
+				// Load parameters?
+				// Code
+				Code.Generate(Context);
+			});
+			Context.FunctionScope.Functions[FunctionName] = Function;
 			//throw(new NotImplementedException());
 			//base.Generate(Context);
 		}
@@ -491,8 +525,9 @@ namespace NPhp
 		{
 			switch (Operator)
 			{
-				case "+": Context.Call((Func<Php54Var, Php54Var>)Php54Var.UnaryAdd); break;
-				case "-": Context.Call((Func<Php54Var, Php54Var>)Php54Var.UnarySub); break;
+				case "+": Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.UnaryAdd); break;
+				case "-": Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.UnarySub); break;
+				case "&": Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.CreateRef); break;
 				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
 			}
 			//Context.Operator(Operator);
@@ -513,16 +548,16 @@ namespace NPhp
 		{
 			switch (Operator)
 			{
-				case "+": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Add); break;
-				case "-": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Sub); break;
-				case ".": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Concat); break;
-				case "*": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mul); break;
-				case "/": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Div); break;
-				case "==": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareEquals); break;
-				case ">": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareGreaterThan); break;
-				case "<": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareLessThan); break;
-				case "!=": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareNotEquals); break;
-				case "&&": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.LogicalAnd); break;
+				case "+": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Add); break;
+				case "-": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Sub); break;
+				case ".": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Concat); break;
+				case "*": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mul); break;
+				case "/": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Div); break;
+				case "==": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareEquals); break;
+				case ">": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareGreaterThan); break;
+				case "<": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareLessThan); break;
+				case "!=": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareNotEquals); break;
+				case "&&": Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.LogicalAnd); break;
 				default: throw(new NotImplementedException("Not implemented operator '" + Operator + "'"));
 			}
 			//Context.Operator(Operator);
@@ -567,7 +602,20 @@ namespace NPhp
 		{
 			(LeftValueNode.AstNode as Node).Generate(Context);
 			(ValueNode.AstNode as Node).Generate(Context);
-			Context.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
+			Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
+		}
+	}
+
+	public class FunctionCallNode : Node
+	{
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			throw(new NotImplementedException());
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			throw (new NotImplementedException());
 		}
 	}
 
@@ -575,9 +623,9 @@ namespace NPhp
 	{
 		public override void Generate(NodeGenerateContext Context)
 		{
-			Context.LoadArgument<Php54Scope>(0);
+			Context.MethodGenerator.LoadArgument<Php54Scope>(0);
 			base.Generate(Context);
-			Context.Call((Action<Php54Scope, Php54Var>)Php54Runtime.Echo);
+			Context.MethodGenerator.Call((Action<Php54Scope, Php54Var>)Php54Runtime.Echo);
 		}
 	}
 
@@ -587,9 +635,9 @@ namespace NPhp
 		{
 			//base.Generate(Context);
 			//Php54Scope
-			Context.LoadArgument<Php54Scope>(0);
+			Context.MethodGenerator.LoadArgument<Php54Scope>(0);
 			base.Generate(Context);
-			Context.Call((Action<Php54Scope, Php54Var>)Php54Runtime.Eval);
+			Context.MethodGenerator.Call((Action<Php54Scope, Php54Var>)Php54Runtime.Eval);
 		}
 	}
 
@@ -607,20 +655,20 @@ namespace NPhp
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			var LoopLabel = Context.DefineLabel();
-			var EndLabel = Context.DefineLabel();
+			var LoopLabel = Context.MethodGenerator.DefineLabel();
+			var EndLabel = Context.MethodGenerator.DefineLabel();
 
-			Context.MarkLabel(LoopLabel);
+			Context.MethodGenerator.MarkLabel(LoopLabel);
 			{
 				(ConditionExpresion.AstNode as Node).Generate(Context);
-				Context.Call((Func<Php54Var, bool>)Php54Var.ToBool);
-				Context.BranchIfFalse(EndLabel);
+				Context.MethodGenerator.Call((Func<Php54Var, bool>)Php54Var.ToBool);
+				Context.MethodGenerator.BranchIfFalse(EndLabel);
 			}
 			{
 				(LoopSentence.AstNode as Node).Generate(Context);
-				Context.BranchAlways(LoopLabel);
+				Context.MethodGenerator.BranchAlways(LoopLabel);
 			}
-			Context.MarkLabel(EndLabel);
+			Context.MethodGenerator.MarkLabel(EndLabel);
 		}
 	}
 
@@ -642,30 +690,30 @@ namespace NPhp
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			var LoopLabel = Context.DefineLabel();
-			var EndLabel = Context.DefineLabel();
+			var LoopLabel = Context.MethodGenerator.DefineLabel();
+			var EndLabel = Context.MethodGenerator.DefineLabel();
 
-			Context.Comment("InitialSentence");
+			Context.MethodGenerator.Comment("InitialSentence");
 			(InitialSentence.AstNode as Node).Generate(Context);
-			Context.ClearStack();
+			Context.MethodGenerator.ClearStack();
 
-			Context.MarkLabel(LoopLabel);
+			Context.MethodGenerator.MarkLabel(LoopLabel);
 			{
-				Context.Comment("ConditionExpresion");
+				Context.MethodGenerator.Comment("ConditionExpresion");
 				(ConditionExpresion.AstNode as Node).Generate(Context);
-				Context.Call((Func<Php54Var, bool>)Php54Var.ToBool);
-				Context.BranchIfFalse(EndLabel);
+				Context.MethodGenerator.Call((Func<Php54Var, bool>)Php54Var.ToBool);
+				Context.MethodGenerator.BranchIfFalse(EndLabel);
 			}
 			{
-				Context.Comment("LoopSentence");
+				Context.MethodGenerator.Comment("LoopSentence");
 				(LoopSentence.AstNode as Node).Generate(Context);
 
-				Context.Comment("PostSentence");
+				Context.MethodGenerator.Comment("PostSentence");
 				(PostSentence.AstNode as Node).Generate(Context);
-				Context.ClearStack();
-				Context.BranchAlways(LoopLabel);
+				Context.MethodGenerator.ClearStack();
+				Context.MethodGenerator.BranchAlways(LoopLabel);
 			}
-			Context.MarkLabel(EndLabel);
+			Context.MethodGenerator.MarkLabel(EndLabel);
 		}
 	}
 
@@ -689,27 +737,27 @@ namespace NPhp
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			var EndLabel = Context.DefineLabel();
-			var FalseLabel = Context.DefineLabel();
+			var EndLabel = Context.MethodGenerator.DefineLabel();
+			var FalseLabel = Context.MethodGenerator.DefineLabel();
 			// Check condition
 			{
 				(ConditionExpresion.AstNode as Node).Generate(Context);
-				Context.Call((Func<Php54Var, bool>)Php54Var.ToBool);
-				Context.BranchIfFalse(FalseLabel);
+				Context.MethodGenerator.Call((Func<Php54Var, bool>)Php54Var.ToBool);
+				Context.MethodGenerator.BranchIfFalse(FalseLabel);
 			}
 			// True
 			{
 				(TrueSentence.AstNode as Node).Generate(Context);
-				Context.BranchAlways(EndLabel);
+				Context.MethodGenerator.BranchAlways(EndLabel);
 			}
 			// False
-			Context.MarkLabel(FalseLabel);
+			Context.MethodGenerator.MarkLabel(FalseLabel);
 			if (FalseSentence != null)
 			{
 				(FalseSentence.AstNode as Node).Generate(Context);
-				Context.BranchAlways(EndLabel);
+				Context.MethodGenerator.BranchAlways(EndLabel);
 			}
-			Context.MarkLabel(EndLabel);
+			Context.MethodGenerator.MarkLabel(EndLabel);
 			//base.Generate(Context);
 		}
 	}
