@@ -107,6 +107,18 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void Concat()
+		{
+			Assert.AreEqual("test-3::1:", RunAndCaptureOutput(@"
+				$a = -(1 + 2);
+				$b = false;
+				$c = true;
+				$d = null;
+				echo 'test'.$a.':'.$b.':'.$c.':'.$d;
+			"));
+		}
+
+		[TestMethod]
 		public void Var1Use()
 		{
 			Assert.AreEqual("4yes", RunAndCaptureOutput(@"
@@ -120,6 +132,18 @@ namespace NPhp.Tests
 					echo 'yes';
 				} else {
 					echo 'no';
+				}
+			"));
+		}
+		
+		[TestMethod]
+		public void SimpleWhile()
+		{
+			Assert.AreEqual("987654321", RunAndCaptureOutput(@"
+				$n = 9;
+				while ($n > 0) {
+					echo $n;
+					$n = $n - 1;
 				}
 			"));
 		}

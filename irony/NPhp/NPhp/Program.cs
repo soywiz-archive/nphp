@@ -13,8 +13,11 @@ namespace NPhp
 		{
 			var Runtime = new Php54Runtime();
 			var Method = Runtime.CreateMethodFromCode(@"
-				$a = -(1 + 2);
-				echo $a;
+				$n = 9;
+				while ($n > 0) {
+					echo $n;
+					$n = $n - 1;
+				}
 			", DumpTree: true);
 
 			var Scope = new Php54Scope(Runtime);

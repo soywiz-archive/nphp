@@ -252,6 +252,27 @@ namespace NPhp
 		}
 	}
 
+	public class SpecialLiteralNode : Node
+	{
+		string Type;
+
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			Type = parseNode.FindTokenAndGetText();
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			switch (Type)
+			{
+				case "true": Context.Call((Func<Php54Var>)Php54Var.FromTrue); break;
+				case "false": Context.Call((Func<Php54Var>)Php54Var.FromFalse); break;
+				case "null": Context.Call((Func<Php54Var>)Php54Var.FromNull); break;
+				default: throw (new NotImplementedException());
+			}
+		}
+	}
+
 	public class NumberNode : Node
 	{
 		int Value;
@@ -329,9 +350,11 @@ namespace NPhp
 			{
 				case "+": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Add); break;
 				case "-": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Sub); break;
+				case ".": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Concat); break;
 				case "*": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mul); break;
 				case "/": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Div); break;
 				case "==": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareEquals); break;
+				case ">": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareGreaterThan); break;
 				case "!=": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.CompareNotEquals); break;
 				case "&&": Context.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.LogicalAnd); break;
 				default: throw(new NotImplementedException("Not implemented operator '" + Operator + "'"));
@@ -388,6 +411,37 @@ namespace NPhp
 		{
 			base.Generate(Context);
 			Context.Call((Action<Php54Var>)Php54Runtime.Echo);
+		}
+	}
+
+	public class WhileNode : Node
+	{
+		ParseTreeNode ConditionExpresion;
+		ParseTreeNode LoopSentence;
+
+		public override void Init(AstContext context, ParseTreeNode parseNode)
+		{
+			Debug.Assert("while" == parseNode.ChildNodes[0].FindTokenAndGetText());
+			ConditionExpresion = parseNode.ChildNodes[1];
+			LoopSentence = parseNode.ChildNodes[2];
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			var LoopLabel = Context.DefineLabel();
+			var EndLabel = Context.DefineLabel();
+
+			Context.MarkLabel(LoopLabel);
+			{
+				(ConditionExpresion.AstNode as Node).Generate(Context);
+				Context.Call((Func<Php54Var, bool>)Php54Var.ToBool);
+				Context.BranchIfFalse(EndLabel);
+			}
+			{
+				(LoopSentence.AstNode as Node).Generate(Context);
+				Context.BranchAlways(LoopLabel);
+			}
+			Context.MarkLabel(EndLabel);
 		}
 	}
 

@@ -11,6 +11,30 @@ namespace NPhp
 	{
 		public dynamic DynamicValue;
 
+		public string StringValue
+		{
+			get
+			{
+				if (DynamicValue == null)
+				{
+					return "";
+				}
+				Type Type = DynamicValue.GetType();
+				if (Type == typeof(bool))
+				{
+					if (DynamicValue == false)
+					{
+						return "";
+					}
+					if (DynamicValue == true)
+					{
+						return "1";
+					}
+				}
+				return DynamicValue.ToString();
+			}
+		}
+
 		public bool BoolValue
 		{
 			get
@@ -36,9 +60,29 @@ namespace NPhp
 			return new Php54Var(Value);
 		}
 
+		static public Php54Var FromTrue()
+		{
+			return new Php54Var(true);
+		}
+
+		static public Php54Var FromFalse()
+		{
+			return new Php54Var(false);
+		}
+
+		static public Php54Var FromNull()
+		{
+			return new Php54Var(null);
+		}
+
 		static public Php54Var Add(Php54Var Left, Php54Var Right)
 		{
 			return new Php54Var(Left.DynamicValue + Right.DynamicValue);
+		}
+
+		static public Php54Var Concat(Php54Var Left, Php54Var Right)
+		{
+			return new Php54Var(Left.StringValue + Right.StringValue);
 		}
 
 		static public Php54Var Sub(Php54Var Left, Php54Var Right)
@@ -71,6 +115,11 @@ namespace NPhp
 			return new Php54Var(Left.DynamicValue == Right.DynamicValue);
 		}
 
+		public static Php54Var CompareGreaterThan(Php54Var Left, Php54Var Right)
+		{
+			return new Php54Var(Left.DynamicValue > Right.DynamicValue);
+		}
+
 		public static Php54Var CompareNotEquals(Php54Var Left, Php54Var Right)
 		{
 			return new Php54Var(Left.DynamicValue != Right.DynamicValue);
@@ -93,22 +142,7 @@ namespace NPhp
 
 		public override string ToString()
 		{
-			if (DynamicValue == null) {
-				return "";
-			}
-			Type Type = DynamicValue.GetType();
-			if (Type == typeof(bool))
-			{
-				if (DynamicValue == false)
-				{
-					return "";
-				}
-				if (DynamicValue == true)
-				{
-					return "1";
-				}
-			}
-			return DynamicValue.ToString();
+			return StringValue;
 		}
 	}
 

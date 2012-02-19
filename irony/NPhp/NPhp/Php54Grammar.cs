@@ -40,6 +40,7 @@ namespace NPhp
 			var semi = ToTerm(";", "semi");
 			//var semi_opt = new NonTerminal("semi?");
 
+			var SpecialLiteral = new NonTerminal("SpecialLiteral", GetCreator<SpecialLiteralNode>());
 
 			var sentence = new NonTerminal("sentence", GetCreator<IgnoreNode>());
 			var sentence_list = new NonTerminal("sentences", GetCreator<IgnoreNode>());
@@ -48,6 +49,8 @@ namespace NPhp
 			var curly_sentence = new NonTerminal("curly_sentence", GetCreator<IgnoreNode>());
 			var if_sentence = new NonTerminal("if_sentence", GetCreator<IfNode>());
 			var if_else_sentence = new NonTerminal("if_else_sentence", GetCreator<IfNode>());
+			var while_sentence = new NonTerminal("while_sentence", GetCreator<WhileNode>());
+			
 			var expression_sentence = new NonTerminal("expression_sentence", GetCreator<IgnoreNode>());
 
 			//var unary_op = new NonTerminal("unary_op", GetCreator<OperatorNode>());
@@ -83,12 +86,19 @@ namespace NPhp
 				ToTerm("else") + sentence
 			;
 
-			if_sentence.Rule = ToTerm("if")
-				+ "(" + expr + ")" + sentence;
+			if_sentence.Rule =
+				ToTerm("if") + "(" + expr + ")" +
+				sentence;
+
+			while_sentence.Rule =
+				ToTerm("while") + "(" + expr + ")" +
+				sentence
+			;
 
 			base_sentence.Rule =
 				curly_sentence |
 				echo_base_sentence |
+				while_sentence |
 				if_else_sentence |
 				if_sentence |
 				expression_sentence
@@ -104,18 +114,22 @@ namespace NPhp
 
 			bin_op.Rule =
 				ToTerm("<")
-				| "||" | "&&" | "|" | "^" | "&" | "==" | "!=" | ">" | "<=" | ">=" | "<<" | ">>" | "+" | "-" | "*" | "/" | "%"
+				| "||" | "&&" | "|" | "^" | "&" | "==" | "!=" | ">" | "<=" | ">=" | "<<" | ">>" | "+" | "-" | "*" | "/" | "%" | "."
 				| "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
 				| "is" | "as" | "??"
+			;
+
+			SpecialLiteral.Rule =
+				ToTerm("true")
+				| "false"
+				| "null"
 			;
 
 			literal.Rule =
 				Number
 				| StringSingleQuoteTerminal
 				| GetVariable
-				| "true"
-				| "false"
-				| "null"
+				| SpecialLiteral
 			;
 
 			RegisterOperators(10, "?");
