@@ -129,7 +129,7 @@ namespace NPhp.Runtime
 			{
 				if (Type == TypeEnum.Int) return DynamicValue;
 				if (Type == TypeEnum.Double) return (int)(double)DynamicValue;
-				if (Type == null) return 0;
+				if (Type == TypeEnum.Null) return 0;
 				var Str = StringValue;
 				int value = 0;
 				for (int n = 0; n < Str.Length; n++)
@@ -200,12 +200,17 @@ namespace NPhp.Runtime
 
 		static public Php54Var FromTrue()
 		{
-			return new Php54Var(true, TypeEnum.Bool);
+			return FromBool(true);
 		}
 
 		static public Php54Var FromFalse()
 		{
-			return new Php54Var(false, TypeEnum.Bool);
+			return FromBool(false);
+		}
+
+		static public Php54Var FromBool(bool Value)
+		{
+			return new Php54Var(Value, TypeEnum.Bool);
 		}
 
 		static public Php54Var FromObject(object Object)
@@ -258,7 +263,8 @@ namespace NPhp.Runtime
 
 		static public Php54Var UnaryAdd(Php54Var Right)
 		{
-			return new Php54Var(+Right.DynamicValue, Right.Type);
+			//return new Php54Var(+Right.DynamicValue, Right.Type);
+			return Right;
 		}
 
 		static public Php54Var UnarySub(Php54Var Right)
@@ -266,29 +272,34 @@ namespace NPhp.Runtime
 			return new Php54Var(-Right.NumericValue, Right.Type);
 		}
 
-		public static Php54Var CompareEquals(Php54Var Left, Php54Var Right)
+		public static bool CompareEquals(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.NumericValue == Right.NumericValue, TypeEnum.Bool);
+			return Left.NumericValue == Right.NumericValue;
 		}
 
-		public static Php54Var CompareGreaterThan(Php54Var Left, Php54Var Right)
+		public static bool CompareGreaterThan(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.NumericValue > Right.NumericValue, TypeEnum.Bool);
+			return Left.NumericValue > Right.NumericValue;
 		}
 
-		public static Php54Var CompareLessThan(Php54Var Left, Php54Var Right)
+		public static bool CompareLessThan(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.NumericValue < Right.NumericValue, TypeEnum.Bool);
+			return Left.NumericValue < Right.NumericValue;
 		}
 
-		public static Php54Var CompareNotEquals(Php54Var Left, Php54Var Right)
+		public static bool CompareLessThan(Php54Var Left, int Right)
 		{
-			return new Php54Var(Left.DynamicValue != Right.DynamicValue, TypeEnum.Bool);
+			return Left.IntegerValue < Right;
 		}
 
-		public static Php54Var LogicalAnd(Php54Var Left, Php54Var Right)
+		public static bool CompareNotEquals(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.BoolValue && Right.BoolValue, TypeEnum.Bool);
+			return Left.DynamicValue != Right.DynamicValue;
+		}
+
+		public static bool LogicalAnd(Php54Var Left, Php54Var Right)
+		{
+			return Left.BoolValue && Right.BoolValue;
 		}
 
 		static public void Assign(Php54Var Left, Php54Var Right)
@@ -313,6 +324,11 @@ namespace NPhp.Runtime
 		public bool ToBool()
 		{
 			return BoolValue;
+		}
+
+		public int ToInt()
+		{
+			return IntegerValue;
 		}
 
 		public override string ToString()

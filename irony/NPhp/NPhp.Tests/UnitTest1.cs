@@ -19,7 +19,7 @@ namespace NPhp.Tests
 				echo 2;
 			"));
 		}
-
+		
 		[TestMethod]
 		public void SimpleIfTest()
 		{

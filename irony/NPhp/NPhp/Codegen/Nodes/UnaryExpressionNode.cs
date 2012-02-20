@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Irony.Parsing;
 using Irony.Ast;
+using NPhp.Runtime;
 
 namespace NPhp.Codegen.Nodes
 {
@@ -22,6 +23,8 @@ namespace NPhp.Codegen.Nodes
 		{
 			//base.Generate();
 			((Node)Right.AstNode).Generate(Context);
+			Context.MethodGenerator.ConvTo<Php54Var>();
+
 			((Node)UnaryOperator.AstNode).Generate(Context);
 		}
 	}

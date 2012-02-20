@@ -24,7 +24,10 @@ namespace NPhp.Codegen.Nodes
 		public override void Generate(NodeGenerateContext Context)
 		{
 			(LeftValueNode.AstNode as Node).Generate(Context);
+			
 			(ValueNode.AstNode as Node).Generate(Context);
+			Context.MethodGenerator.ConvTo<Php54Var>();
+
 			Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
 		}
 	}

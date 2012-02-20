@@ -21,7 +21,8 @@ namespace NPhp.Codegen.Nodes
 		public override void Generate(NodeGenerateContext Context)
 		{
 			Context.MethodGenerator.Push(Value);
-			Context.MethodGenerator.Call((Func<int, Php54Var>)Php54Var.FromInt);
+			//Context.MethodGenerator.Call((Func<int, Php54Var>)Php54Var.FromInt);
+
 			//Console.WriteLine("Value: '{0}'", Value);
 		}
 	}

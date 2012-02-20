@@ -8,6 +8,7 @@ using NPhp.Runtime;
 using NPhp.Runtime.Functions;
 using System.Threading;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace NPhp
 {
@@ -19,18 +20,15 @@ namespace NPhp
 			FunctionScope.LoadAllNativeFunctions();
 			//FunctionScope.Functions["substr"] = Php54FunctionScope.CreateNativeWrapper(((Func<string, int, int, string>)StringFunctions.substr).Method);
 
+			Debug.WriteLine("=========================");
+
 			var Runtime = new Php54Runtime(FunctionScope);
 			var Method = Runtime.CreateMethodFromCode(@"
-				//echo 1;
-				//$s = '';
-				//$s = $s . substr('hello', 1);
-				//echo $s;
+				if (1) { }
 				$start = microtime(true);
-				$m = 0;
 				for ($n = 0; $n < 100000; $n++) { }
-				echo $m;
 				$end = microtime(true);
-				echo ($end - $start) . '\n';
+				echo ':' . ($end - $start) . '\n';
 			", DumpTree: true);
 
 			var Scope = new Php54Scope(Runtime);

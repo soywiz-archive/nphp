@@ -1,4 +1,4 @@
-﻿#define CODEGEN_TRACE
+﻿//#define CODEGEN_TRACE
 
 using System;
 using System.Collections.Generic;
@@ -15,10 +15,28 @@ namespace NPhp.Codegen
 	{
 		private DynamicMethod DynamicMethod;
 		private ILGenerator ILGenerator;
-		public int StackCount;
+		public int StackCount
+		{
+			get
+			{
+				return _TypeStack.Count;
+			}
+		}
+		public Stack<Type> _TypeStack = new Stack<Type>();
+
+		public Type StackTop
+		{
+			get
+			{
+				var Type = _TypeStack.Pop();
+				_TypeStack.Push(Type);
+				return Type;
+			}
+		}
 
 		public MethodGenerator()
 		{
+			//MethodAttributes.
 			DynamicMethod = new DynamicMethod(
 				"unknown",
 				typeof(void),
@@ -59,14 +77,17 @@ namespace NPhp.Codegen
 			ClearStack();
 			ILGenerator.Emit(OpCodes.Ret);
 
-			return (Action<Php54Scope>)DynamicMethod.CreateDelegate(typeof(Action<Php54Scope>));
+			var Method = (Action<Php54Scope>)DynamicMethod.CreateDelegate(typeof(Action<Php54Scope>));
+			
+			//Delegate.
+			return Method;
 		}
 
 		public void Push(double Value)
 		{
 			ILGenerator.Emit(OpCodes.Ldc_R8, Value);
 
-			StackCount++;
+			StackCountIncrement(typeof(double));
 
 #if CODEGEN_TRACE
 			Debug.WriteLine("PUSH<double>: {0} -> Stack: {1}", Value, StackCount);
@@ -105,7 +126,7 @@ namespace NPhp.Codegen
 					break;
 			}
 
-			StackCount++;
+			StackCountIncrement(typeof(int));
 
 #if CODEGEN_TRACE
 			Debug.WriteLine("PUSH<int>: {0} -> Stack: {1}", Value, StackCount);
@@ -116,7 +137,7 @@ namespace NPhp.Codegen
 		{
 			ILGenerator.Emit(OpCodes.Ldstr, Value);
 
-			StackCount++;
+			StackCountIncrement(typeof(string));
 
 #if CODEGEN_TRACE
 			Debug.WriteLine("PUSH<string>: '{0}' -> Stack: {1}", Value, StackCount);
@@ -134,7 +155,8 @@ namespace NPhp.Codegen
 				case "/": ILGenerator.Emit(OpCodes.Div); break;
 				default: throw (new NotImplementedException());
 			}
-			StackCount--;
+
+			StackCountDecrement(1);
 
 #if CODEGEN_TRACE
 			Debug.WriteLine("Operator: '{0}' -> Stack: {1}", Operator, StackCount);
@@ -156,8 +178,10 @@ namespace NPhp.Codegen
 
 		public void BranchIfTrue(Label Label)
 		{
+			ConvTo<bool>();
 			ILGenerator.Emit(OpCodes.Brtrue, Label);
-			StackCount--;
+			StackCountDecrement(1);
+
 #if CODEGEN_TRACE
 			Debug.WriteLine("BranchIfTrue: '{0}' -> Stack: {1}", Label, StackCount);
 #endif
@@ -165,20 +189,28 @@ namespace NPhp.Codegen
 
 		public void BranchIfFalse(Label Label)
 		{
-
+			ConvTo<bool>();
 			ILGenerator.Emit(OpCodes.Brfalse, Label);
-			StackCount--;
+			StackCountDecrement(1);
+
 #if CODEGEN_TRACE
 			Debug.WriteLine("BranchIfFalse: '{0}' -> Stack: {1}", Label, StackCount);
 #endif
 		}
 
-		public void ClearStack()
+		public void Pop(int Count)
 		{
-			for (; StackCount > 0; StackCount--)
+			for (int n = 0; n < Count; n++)
 			{
 				ILGenerator.Emit(OpCodes.Pop);
+				StackCountDecrement(1);
 			}
+		}
+
+		public void ClearStack()
+		{
+			Pop(StackCount);
+
 #if CODEGEN_TRACE
 			Debug.WriteLine("ClearStack -> Stack: {0}", StackCount);
 #endif
@@ -189,6 +221,21 @@ namespace NPhp.Codegen
 			Call(Delegate.Method);
 		}
 
+		private void StackCountDecrement(int Count)
+		{
+			for (int n = 0; n < Count; n++)
+			{
+				//StackCountDecrement(1);
+				_TypeStack.Pop();
+			}
+		}
+
+		private void StackCountIncrement(Type Type)
+		{
+			_TypeStack.Push(Type);
+			//StackCount++;
+		}
+
 		public void Call(MethodInfo MethodInfo)
 		{
 			int PrevStackCount = StackCount;
@@ -197,9 +244,13 @@ namespace NPhp.Codegen
 			int ThisCount = (!MethodInfo.IsStatic) ? 1 : 0;
 			int ArgumentCount = MethodInfo.GetParameters().Length;
 			int ReturnCount = (MethodInfo.ReturnType != typeof(void)) ? 1 : 0;
-			StackCount -= ThisCount;
-			StackCount -= ArgumentCount;
-			StackCount += ReturnCount;
+			StackCountDecrement(ThisCount);
+			StackCountDecrement(ArgumentCount);
+			if (MethodInfo.ReturnType != typeof(void))
+			{
+				StackCountIncrement(MethodInfo.ReturnType);
+			}
+
 
 #if CODEGEN_TRACE
 			Debug.WriteLine(
@@ -239,7 +290,7 @@ namespace NPhp.Codegen
 				default: ILGenerator.Emit(OpCodes.Ldarg, ArgumentIndex); break;
 			}
 
-			StackCount++;
+			StackCountIncrement(typeof(TType));
 
 #if CODEGEN_TRACE
 			Debug.WriteLine("LoadArgument<{0}>: {1} -> Stack: {2}", typeof(TType).Name, ArgumentIndex, StackCount);
@@ -279,7 +330,8 @@ namespace NPhp.Codegen
 		public void Dup()
 		{
 			ILGenerator.Emit(OpCodes.Dup);
-			StackCount++;
+			StackCountIncrement(StackTop);
+
 #if CODEGEN_TRACE
 			Debug.WriteLine("Dup -> Stack: {0}", StackCount);
 #endif
@@ -287,7 +339,7 @@ namespace NPhp.Codegen
 
 		public void Pop()
 		{
-			StackCount--;
+			StackCountDecrement(1);
 
 #if CODEGEN_TRACE
 			Debug.WriteLine("Pop -> Stack: {0}", StackCount);
@@ -305,27 +357,57 @@ namespace NPhp.Codegen
 		public void ConvTo<TType>()
 		{
 #if CODEGEN_TRACE
-			Debug.WriteLine("ConvTo: {0}", typeof(TType).Name);
+			Debug.WriteLine("ConvTo: " + typeof(TType).Name);
 #endif
+			Type ExpectedType = typeof(TType);
+			Type StackType = StackTop;
 
-			if (typeof(TType) == typeof(int))
+			//Context.MethodGenerator.Call((Func<bool>)Php54Var.Methods.ToBool);
+			if (ExpectedType == StackType)
+			{
+				return;
+			}
+
+
+			if (StackType == typeof(Php54Var))
+			{
+				if (ExpectedType == typeof(bool)) { Call((Func<bool>)Php54Var.Methods.ToBool); return; }
+				if (ExpectedType == typeof(int)) { Call((Func<int>)Php54Var.Methods.ToInt); return; }
+
+				throw (new NotImplementedException());
+			}
+
+			if (ExpectedType == typeof(Php54Var))
+			{
+				if (StackType == typeof(bool)) { Call((Func<bool, Php54Var>)Php54Var.FromBool); return; }
+				if (StackType == typeof(int)) { Call((Func<int, Php54Var>)Php54Var.FromInt); return; }
+
+				throw (new NotImplementedException());
+			}
+
+			if (ExpectedType == typeof(int))
 			{
 				ILGenerator.Emit(OpCodes.Conv_I4);
+				return;
 			}
-			else
+
+			if (ExpectedType == typeof(bool))
 			{
-				throw(new NotImplementedException());
+				ILGenerator.Emit(OpCodes.Conv_I4);
+				return;
 			}
+
+			throw (new NotImplementedException());
 		}
 
 		public void StoreToLocal(LocalBuilder Local)
 		{
 			ILGenerator.Emit(OpCodes.Stloc, Local);
 
-			StackCount--;
+			StackCountDecrement(1);
 
 #if CODEGEN_TRACE
-			Debug.WriteLine("StoreToLocal -> Stack: {0}", StackCount);
+			Debug.WriteLine("StoreToLocal({0}:{1}) -> Stack: {2}", Local.LocalType.Name, Local.LocalIndex, StackCount);
 #endif
 		}
 
@@ -333,10 +415,10 @@ namespace NPhp.Codegen
 		{
 			ILGenerator.Emit(OpCodes.Ldloc, Local);
 
-			StackCount++;
+			StackCountIncrement(Local.LocalType);
 
 #if CODEGEN_TRACE
-			Debug.WriteLine("LoadLocal -> Stack: {0}", StackCount);
+			Debug.WriteLine("LoadLocal({0}:{1}) -> Stack: {2}", Local.LocalType.Name, Local.LocalIndex, StackCount);
 #endif
 		}
 	}

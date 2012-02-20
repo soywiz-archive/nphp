@@ -4,28 +4,26 @@ using System.Linq;
 using System.Text;
 using Irony.Parsing;
 using Irony.Ast;
+using NPhp.Runtime;
 
 namespace NPhp.Codegen.Nodes
 {
 	public class BinaryExpressionNode : Node
 	{
-		ParseTreeNode Left;
-		ParseTreeNode BinaryOperator;
-		ParseTreeNode Right;
+		Node Left;
+		BinaryOperatorNode BinaryOperator;
+		Node Right;
 
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
-			Left = parseNode.ChildNodes[0];
-			BinaryOperator = parseNode.ChildNodes[1];
-			Right = parseNode.ChildNodes[2];
+			Left = parseNode.ChildNodes[0].AstNode as Node;
+			BinaryOperator = (parseNode.ChildNodes[1].AstNode as BinaryOperatorNode);
+			Right = parseNode.ChildNodes[2].AstNode as Node;
 		}
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			//base.Generate();
-			((Node)Left.AstNode).Generate(Context);
-			((Node)Right.AstNode).Generate(Context);
-			((Node)BinaryOperator.AstNode).Generate(Context);
+			BinaryOperator.Generate(Left, Right, Context);
 		}
 	}
 }

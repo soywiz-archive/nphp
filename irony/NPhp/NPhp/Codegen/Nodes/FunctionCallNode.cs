@@ -37,6 +37,7 @@ namespace NPhp.Codegen.Nodes
 				Context.MethodGenerator.Push(n);
 				{
 					(Parameters.ChildNodes[n].AstNode as Node).Generate(Context);
+					Context.MethodGenerator.ConvTo<Php54Var>();
 				}
 				Context.MethodGenerator.Call((Action<int, Php54Var>)Php54Scope.Methods.SetArgument);
 			}

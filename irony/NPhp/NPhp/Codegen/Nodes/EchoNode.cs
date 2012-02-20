@@ -12,6 +12,7 @@ namespace NPhp.Codegen.Nodes
 		{
 			Context.MethodGenerator.LoadScope();
 			base.Generate(Context);
+			Context.MethodGenerator.ConvTo<Php54Var>();
 			Context.MethodGenerator.Call((Action<Php54Scope, Php54Var>)Php54Runtime.Echo);
 		}
 	}
