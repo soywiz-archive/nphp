@@ -7,3 +7,6 @@
 /irony/NPhp/NPhp.Tests/obj
 *.suo
 *.trx
+
+/irony/NPhp/SafeILGenerator/bin
+/irony/NPhp/SafeILGenerator/obj
