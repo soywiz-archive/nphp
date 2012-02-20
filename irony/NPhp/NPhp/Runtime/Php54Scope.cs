@@ -12,7 +12,7 @@ namespace NPhp.Runtime
 		public Php54Var[] Arguments;
 		public Php54Var ReturnValue = new Php54Var(null);
 
-		static public Php54Scope NullInstance = null;
+		static readonly public Php54Scope Methods = new Php54Scope(null);
 
 		public Php54Scope(Php54Runtime Php54Runtime)
 		{
@@ -36,12 +36,22 @@ namespace NPhp.Runtime
 
 		public void LoadArgument(string Name, int Index)
 		{
-			Variables[Name] = Arguments[Index];
+			Variables[Name] = GetArgument(Index);
+		}
+
+		public Php54Var GetArgument(int Index)
+		{
+			return (Index < Arguments.Length) ? Arguments[Index] : new Php54Var(null);
 		}
 
 		public void SetReturnValue(Php54Var Value)
 		{
 			ReturnValue = Value;
+		}
+
+		public void SetReturnValueObject(object Value)
+		{
+			ReturnValue = new Php54Var(Value);
 		}
 
 		public Php54Var GetReturnValue()

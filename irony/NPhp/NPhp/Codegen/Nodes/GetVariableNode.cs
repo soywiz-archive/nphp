@@ -21,7 +21,7 @@ namespace NPhp.Codegen.Nodes
 		{
 			Context.MethodGenerator.LoadScope();
 			Context.MethodGenerator.Push(VariableName);
-			Context.MethodGenerator.Call(typeof(Php54Scope).GetMethod("GetVariable"));
+			Context.MethodGenerator.Call((Func<string, Php54Var>)Php54Scope.Methods.GetVariable);
 			//base.Generate(Context);
 		}
 	}

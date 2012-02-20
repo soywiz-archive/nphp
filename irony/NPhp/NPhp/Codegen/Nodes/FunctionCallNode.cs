@@ -26,10 +26,10 @@ namespace NPhp.Codegen.Nodes
 			Context.MethodGenerator.Comment("Call " + FunctionName);
 
 			Context.MethodGenerator.LoadScope();
-			Context.MethodGenerator.Call(typeof(Php54Scope).GetMethod("NewScope"));
+			Context.MethodGenerator.Call((Func<Php54Scope>)Php54Scope.Methods.NewScope);
 			Context.MethodGenerator.Dup();
 			Context.MethodGenerator.Push(ArgumentsCount);
-			Context.MethodGenerator.Call(typeof(Php54Scope).GetMethod("SetArgumentCount"));
+			Context.MethodGenerator.Call((Action<int>)Php54Scope.Methods.SetArgumentCount);
 
 			for (int n = 0; n < ArgumentsCount; n++)
 			{
@@ -38,14 +38,14 @@ namespace NPhp.Codegen.Nodes
 				{
 					(Parameters.ChildNodes[n].AstNode as Node).Generate(Context);
 				}
-				Context.MethodGenerator.Call(typeof(Php54Scope).GetMethod("SetArgument"));
+				Context.MethodGenerator.Call((Action<int, Php54Var>)Php54Scope.Methods.SetArgument);
 			}
 
 			Context.MethodGenerator.Dup();
 			Context.MethodGenerator.Push(FunctionName);
-			Context.MethodGenerator.Call(typeof(Php54Scope).GetMethod("CallFunctionByName"));
+			Context.MethodGenerator.Call((Action<string>)Php54Scope.Methods.CallFunctionByName);
 
-			Context.MethodGenerator.Call(typeof(Php54Scope).GetMethod("GetReturnValue"));
+			Context.MethodGenerator.Call((Func<Php54Var>)Php54Scope.Methods.GetReturnValue);
 
 			//throw (new NotImplementedException());
 		}

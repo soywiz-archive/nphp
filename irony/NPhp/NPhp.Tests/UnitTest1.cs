@@ -252,6 +252,18 @@ namespace NPhp.Tests
 				echo c(a(), b());
 			"));
 		}
+
+		[TestMethod]
+		public void StringApiTest()
+		{
+			Assert.AreEqual("el|ello|5", RunAndCaptureOutput(@"
+				echo substr('hello', 1, 2);
+				echo '|';
+				echo substr('hello', 1);
+				echo '|';
+				echo strlen('hello');
+			"));
+		}
 	}
 
 	public partial class UnitTest1
@@ -263,6 +275,7 @@ namespace NPhp.Tests
 		static public void PrepareRuntime(TestContext Context)
 		{
 			FunctionScope = new Php54FunctionScope();
+			FunctionScope.LoadAllNativeFunctions();
 			Runtime = new Php54Runtime(FunctionScope);
 		}
 

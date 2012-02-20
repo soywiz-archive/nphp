@@ -10,7 +10,9 @@ namespace NPhp.Runtime
 		//private Type Type;
 		internal bool IsRef = false;
 		private dynamic DynamicValue;
+
 		static private readonly Type BoolType = typeof(bool);
+
 		private Type Type
 		{
 			get
@@ -18,6 +20,26 @@ namespace NPhp.Runtime
 				if (DynamicValue == null) return null;
 				return DynamicValue.GetType();
 			}
+		}
+
+		static public readonly Php54Var Methods = new Php54Var(null);
+
+		public double GetDoubleOrDefault(double DefaultValue)
+		{
+			if (DynamicValue == null) return DefaultValue;
+			return DoubleValue;
+		}
+
+		public string GetStringOrDefault(string DefaultValue)
+		{
+			if (DynamicValue == null) return DefaultValue;
+			return StringValue;
+		}
+
+		public int GetIntegerOrDefault(int DefaultValue)
+		{
+			if (DynamicValue == null) return DefaultValue;
+			return IntegerValue;
 		}
 
 		/*
@@ -51,6 +73,7 @@ namespace NPhp.Runtime
 			get
 			{
 				if (Type == null) return 0;
+				if (Type == typeof(int)) return DynamicValue;
 				if (Type == typeof(double)) return DynamicValue;
 				var Str = StringValue;
 				int value = 0;
@@ -70,6 +93,58 @@ namespace NPhp.Runtime
 				return value;
 			}
 		}
+
+		public int IntegerValue
+		{
+			get
+			{
+				if (Type == null) return 0;
+				if (Type == typeof(int)) return DynamicValue;
+				if (Type == typeof(double)) return (int)(double)DynamicValue;
+				var Str = StringValue;
+				int value = 0;
+				for (int n = 0; n < Str.Length; n++)
+				{
+					if (Str[n] >= '0' && Str[n] <= '9')
+					{
+						value *= 10;
+						value += Str[n] - '0';
+					}
+					else
+					{
+						break;
+					}
+				}
+				//return double.Parse(StringValue);
+				return value;
+			}
+		}
+
+		public dynamic NumericValue
+		{
+			get
+			{
+				if (Type == null) return 0;
+				if ((Type == typeof(int)) || (Type == typeof(double))) return DynamicValue;
+				var Str = StringValue;
+				int value = 0;
+				for (int n = 0; n < Str.Length; n++)
+				{
+					if (Str[n] >= '0' && Str[n] <= '9')
+					{
+						value *= 10;
+						value += Str[n] - '0';
+					}
+					else
+					{
+						break;
+					}
+				}
+				//return double.Parse(StringValue);
+				return value;
+			}
+		}
+
 
 		public Php54Var(dynamic Value, bool IsRef = false)
 		{
@@ -110,7 +185,7 @@ namespace NPhp.Runtime
 
 		static public Php54Var Add(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DoubleValue + Right.DoubleValue);
+			return new Php54Var(Left.NumericValue + Right.NumericValue);
 		}
 
 		static public Php54Var Concat(Php54Var Left, Php54Var Right)
@@ -140,35 +215,35 @@ namespace NPhp.Runtime
 
 		static public Php54Var UnaryPostInc(Php54Var Left, int Count)
 		{
-			var Old = Left.DoubleValue;
+			var Old = Left.NumericValue;
 			Left.DynamicValue = Old + Count;
 			return new Php54Var(Old);
 		}
 
 		static public Php54Var UnaryPreInc(Php54Var Left, int Count)
 		{
-			Left.DynamicValue = Left.DoubleValue + Count;
+			Left.DynamicValue = Left.NumericValue + Count;
 			return new Php54Var(Left.DynamicValue);
 		}
 
 		static public Php54Var UnarySub(Php54Var Right)
 		{
-			return new Php54Var(-Right.DoubleValue);
+			return new Php54Var(-Right.NumericValue);
 		}
 
 		public static Php54Var CompareEquals(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DoubleValue == Right.DoubleValue);
+			return new Php54Var(Left.NumericValue == Right.NumericValue);
 		}
 
 		public static Php54Var CompareGreaterThan(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DoubleValue > Right.DoubleValue);
+			return new Php54Var(Left.NumericValue > Right.NumericValue);
 		}
 
 		public static Php54Var CompareLessThan(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DoubleValue < Right.DoubleValue);
+			return new Php54Var(Left.NumericValue < Right.NumericValue);
 		}
 
 		public static Php54Var CompareNotEquals(Php54Var Left, Php54Var Right)

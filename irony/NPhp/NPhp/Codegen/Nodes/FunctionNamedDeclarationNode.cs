@@ -39,7 +39,7 @@ namespace NPhp.Codegen.Nodes
 						Context.MethodGenerator.LoadScope();
 						Context.MethodGenerator.Push(ArgumentName);
 						Context.MethodGenerator.Push(ArgumentIndex);
-						Context.MethodGenerator.Call(typeof(Php54Scope).GetMethod("LoadArgument"));
+						Context.MethodGenerator.Call((Action<string, int>)Php54Scope.Methods.LoadArgument);
 					}
 					ArgumentIndex++;
 				}

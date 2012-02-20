@@ -5,6 +5,7 @@ using System.Text;
 using Irony.Parsing;
 using Irony.Ast;
 using NPhp.Runtime;
+using NPhp.Runtime.Functions;
 
 namespace NPhp
 {
@@ -13,12 +14,18 @@ namespace NPhp
 		static void Main(string[] args)
 		{
 			var FunctionScope = new Php54FunctionScope();
+			FunctionScope.LoadAllNativeFunctions();
+			//FunctionScope.Functions["substr"] = Php54FunctionScope.CreateNativeWrapper(((Func<string, int, int, string>)StringFunctions.substr).Method);
+
 			var Runtime = new Php54Runtime(FunctionScope);
 			var Method = Runtime.CreateMethodFromCode(@"
-				function a() { echo 'a'; return 'A'; }
-				function b() { echo 'b'; return 'B'; }
-				function c($a, $b) { return $a . $b; }
-				echo c(a(), b());
+				//echo 1;
+				//$s = '';
+				//$s = $s . substr('hello', 1);
+				//echo $s;
+				$m = 0;
+				for ($n = 0; $n < 100000; $n++) { }
+				echo $m;
 			", DumpTree: true);
 
 			var Scope = new Php54Scope(Runtime);

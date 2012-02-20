@@ -23,7 +23,7 @@ namespace NPhp.Codegen.Nodes
 		{
 			Context.MethodGenerator.LoadScope();
 			(ReturnExpression.AstNode as Node).Generate(Context);
-			Context.MethodGenerator.Call(typeof(Php54Scope).GetMethod("SetReturnValue"));
+			Context.MethodGenerator.Call((Action<Php54Var>)Php54Scope.Methods.SetReturnValue);
 			Context.MethodGenerator.Return();
 		}
 	}

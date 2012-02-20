@@ -35,6 +35,18 @@ namespace NPhp.Codegen
 			return (Action<Php54Scope>)DynamicMethod.CreateDelegate(typeof(Action<Php54Scope>));
 		}
 
+		public void Push(double Value)
+		{
+			ILGenerator.Emit(OpCodes.Ldc_R8, Value);
+
+			StackCount++;
+
+#if CODEGEN_TRACE
+			Debug.WriteLine("PUSH<double>: {0} -> Stack: {1}", Value, StackCount);
+#endif
+
+		}
+
 		public void Push(int Value)
 		{
 			switch (Value)
@@ -64,7 +76,7 @@ namespace NPhp.Codegen
 			StackCount++;
 
 #if CODEGEN_TRACE
-			Debug.WriteLine("PUSH: {0} -> Stack: {1}", Value, StackCount);
+			Debug.WriteLine("PUSH<int>: {0} -> Stack: {1}", Value, StackCount);
 #endif
 		}
 
@@ -75,7 +87,7 @@ namespace NPhp.Codegen
 			StackCount++;
 
 #if CODEGEN_TRACE
-			Debug.WriteLine("PUSH: '{0}' -> Stack: {1}", Value, StackCount);
+			Debug.WriteLine("PUSH<string>: '{0}' -> Stack: {1}", Value, StackCount);
 #endif
 		}
 
@@ -205,16 +217,21 @@ namespace NPhp.Codegen
 
 		public void Box<TType>()
 		{
+			Box(typeof(TType));
+		}
+
+		public void Box(Type Type)
+		{
 #if CODEGEN_TRACE
-			Debug.WriteLine("Box: {0}", typeof(TType).Name);
+			Debug.WriteLine("Box: " + Type.Name);
 #endif
-			ILGenerator.Emit(OpCodes.Box, typeof(TType));
+			ILGenerator.Emit(OpCodes.Box, Type);
 		}
 
 		public void Unbox<TType>()
 		{
 #if CODEGEN_TRACE
-			Debug.WriteLine("Unbox: {0}", typeof(TType).Name);
+			Debug.WriteLine("Unbox: " + typeof(TType).Name);
 #endif
 
 			ILGenerator.Emit(OpCodes.Unbox, typeof(TType));
@@ -251,6 +268,22 @@ namespace NPhp.Codegen
 #if CODEGEN_TRACE
 			Debug.WriteLine("Ret");
 #endif
+		}
+
+		public void ConvTo<TType>()
+		{
+#if CODEGEN_TRACE
+			Debug.WriteLine("ConvTo: {0}", typeof(TType).Name);
+#endif
+
+			if (typeof(TType) == typeof(int))
+			{
+				ILGenerator.Emit(OpCodes.Conv_I4);
+			}
+			else
+			{
+				throw(new NotImplementedException());
+			}
 		}
 	}
 }
