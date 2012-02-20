@@ -38,7 +38,7 @@ namespace NPhp.Codegen.Nodes
 			{
 				Context.MethodGenerator.Comment("ConditionExpresion");
 				(ConditionExpresion.AstNode as Node).Generate(Context);
-				Context.MethodGenerator.Call((Func<Php54Var, bool>)Php54Var.ToBool);
+				Context.MethodGenerator.Call((Func<bool>)Php54Var.Methods.ToBool);
 				Context.MethodGenerator.BranchIfFalse(EndLabel);
 			}
 			{

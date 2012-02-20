@@ -10,7 +10,7 @@ namespace NPhp.Runtime
 		public Php54Runtime Php54Runtime;
 		protected Dictionary<string, Php54Var> Variables = new Dictionary<string, Php54Var>();
 		public Php54Var[] Arguments;
-		public Php54Var ReturnValue = new Php54Var(null);
+		public Php54Var ReturnValue = Php54Var.FromNull();
 
 		static readonly public Php54Scope Methods = new Php54Scope(null);
 
@@ -41,7 +41,7 @@ namespace NPhp.Runtime
 
 		public Php54Var GetArgument(int Index)
 		{
-			return (Index < Arguments.Length) ? Arguments[Index] : new Php54Var(null);
+			return (Index < Arguments.Length) ? Arguments[Index] : Php54Var.FromNull();
 		}
 
 		public void SetReturnValue(Php54Var Value)
@@ -51,7 +51,7 @@ namespace NPhp.Runtime
 
 		public void SetReturnValueObject(object Value)
 		{
-			ReturnValue = new Php54Var(Value);
+			ReturnValue = Php54Var.FromObject(Value);
 		}
 
 		public Php54Var GetReturnValue()
@@ -67,7 +67,7 @@ namespace NPhp.Runtime
 
 		public Php54Var GetVariable(string Name)
 		{
-			if (!Variables.ContainsKey(Name)) Variables[Name] = new Php54Var(null);
+			if (!Variables.ContainsKey(Name)) Variables[Name] = Php54Var.FromNull();
 			return Variables[Name];
 		}
 	}

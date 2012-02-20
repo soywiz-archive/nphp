@@ -11,13 +11,6 @@ namespace NPhp.Runtime
 		internal bool IsRef = false;
 		private dynamic DynamicValue;
 
-		static private readonly Type NullType = typeof(DBNull);
-		static private readonly Type BoolType = typeof(bool);
-		static private readonly Type IntType = typeof(int);
-		static private readonly Type DoubleType = typeof(double);
-		static private readonly Type StringType = typeof(string);
-
-		/*
 		public enum TypeEnum
 		{
 			Null,
@@ -26,24 +19,33 @@ namespace NPhp.Runtime
 			Double,
 			String,
 		}
-		*/
 
-		private Type _Type;
+		static private TypeEnum TypeToTypeEnum(Type Type)
+		{
+			if (Type == typeof(int)) return TypeEnum.Int;
+			if (Type == typeof(bool)) return TypeEnum.Bool;
+			if (Type == typeof(String)) return TypeEnum.String;
+			if (Type == typeof(double)) return TypeEnum.Double;
+			if (Type == typeof(DBNull)) return TypeEnum.Null;
+			throw(new NotImplementedException());
+		}
 
-		private Type Type
+		static private TypeEnum CombineTypes(TypeEnum Type1, TypeEnum Type2)
+		{
+			return (TypeEnum)Math.Max((int)Type1, (int)Type2);
+		}
+
+		private TypeEnum _Type;
+
+		private TypeEnum Type
 		{
 			get
 			{
-				if (_Type == null)
-				{
-					if (DynamicValue == null) return null;
-					_Type = DynamicValue.GetType();
-				}
 				return _Type;
 			}
 		}
 
-		static public readonly Php54Var Methods = new Php54Var(null, null, false);
+		static public readonly Php54Var Methods = new Php54Var(null, TypeEnum.Null, false);
 
 		public double GetDoubleOrDefault(double DefaultValue)
 		{
@@ -82,8 +84,8 @@ namespace NPhp.Runtime
 		{
 			get
 			{
-				if (Type == null) return "";
-				if (Type == BoolType) return (DynamicValue) ? "1" : "";
+				if (Type == TypeEnum.Null) return "";
+				if (Type == TypeEnum.Bool) return (DynamicValue) ? "1" : "";
 				return DynamicValue.ToString();
 			}
 		}
@@ -91,7 +93,7 @@ namespace NPhp.Runtime
 		{
 			get
 			{
-				if (Type == BoolType) return DynamicValue;
+				if (Type == TypeEnum.Bool) return DynamicValue;
 				return (DynamicValue != 0);
 			}
 		}
@@ -99,9 +101,9 @@ namespace NPhp.Runtime
 		{
 			get
 			{
-				if (Type == IntType) return (double)DynamicValue;
-				if (Type == DoubleType) return DynamicValue;
-				if (Type == null) return 0;
+				if (Type == TypeEnum.Double) return DynamicValue;
+				if (Type == TypeEnum.Int) return (double)DynamicValue;
+				if (Type == TypeEnum.Null) return 0;
 				var Str = StringValue;
 				int value = 0;
 				for (int n = 0; n < Str.Length; n++)
@@ -125,8 +127,8 @@ namespace NPhp.Runtime
 		{
 			get
 			{
-				if (Type == IntType) return DynamicValue;
-				if (Type == DoubleType) return (int)(double)DynamicValue;
+				if (Type == TypeEnum.Int) return DynamicValue;
+				if (Type == TypeEnum.Double) return (int)(double)DynamicValue;
 				if (Type == null) return 0;
 				var Str = StringValue;
 				int value = 0;
@@ -151,8 +153,8 @@ namespace NPhp.Runtime
 		{
 			get
 			{
-				if (Type == null) return 0;
-				if ((Type == typeof(int)) || (Type == typeof(double))) return DynamicValue;
+				if (Type == TypeEnum.Null) return 0;
+				if (Type == TypeEnum.Int || Type == TypeEnum.Double) return DynamicValue;
 				var Str = StringValue;
 				int value = 0;
 				for (int n = 0; n < Str.Length; n++)
@@ -173,7 +175,7 @@ namespace NPhp.Runtime
 		}
 
 
-		public Php54Var(dynamic Value, Type Type = null, bool IsRef = false)
+		private Php54Var(dynamic Value, TypeEnum Type, bool IsRef = false)
 		{
 			this.DynamicValue = Value;
 			this._Type = Type;
@@ -188,53 +190,57 @@ namespace NPhp.Runtime
 
 		static public Php54Var FromInt(int Value)
 		{
-			return new Php54Var(Value, IntType);
+			return new Php54Var(Value, TypeEnum.Int);
 		}
 
 		static public Php54Var FromString(string Value)
 		{
-			return new Php54Var(Value, StringType);
+			return new Php54Var(Value, TypeEnum.String);
 		}
 
 		static public Php54Var FromTrue()
 		{
-			return new Php54Var(true, BoolType);
+			return new Php54Var(true, TypeEnum.Bool);
 		}
 
 		static public Php54Var FromFalse()
 		{
-			return new Php54Var(false, BoolType);
+			return new Php54Var(false, TypeEnum.Bool);
+		}
+
+		static public Php54Var FromObject(object Object)
+		{
+			return new Php54Var(Object, TypeToTypeEnum(Object.GetType()));
 		}
 
 		static public Php54Var FromNull()
 		{
-			return new Php54Var(null, NullType);
+			return new Php54Var(null, TypeEnum.Null);
 		}
 
 		static public Php54Var Add(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.NumericValue + Right.NumericValue);
+			return new Php54Var(Left.NumericValue + Right.NumericValue, CombineTypes(Left.Type, Right.Type));
 		}
 
 		static public Php54Var Concat(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.StringValue + Right.StringValue);
+			return new Php54Var(Left.StringValue + Right.StringValue, CombineTypes(Left.Type, Right.Type));
 		}
 
 		static public Php54Var Sub(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DynamicValue - Right.DynamicValue);
+			return new Php54Var(Left.DynamicValue - Right.DynamicValue, CombineTypes(Left.Type, Right.Type));
 		}
 
 		static public Php54Var Mul(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DynamicValue * Right.DynamicValue);
+			return new Php54Var(Left.DynamicValue * Right.DynamicValue, CombineTypes(Left.Type, Right.Type));
 		}
 
 		static public Php54Var Div(Php54Var Left, Php54Var Right)
 		{
-			//Left.Type
-			return new Php54Var(Left.DynamicValue / Right.DynamicValue);
+			return new Php54Var(Left.DynamicValue / Right.DynamicValue, CombineTypes(Left.Type, Right.Type));
 		}
 
 		static public Php54Var UnaryPostInc(Php54Var Left, int Count)
@@ -262,27 +268,27 @@ namespace NPhp.Runtime
 
 		public static Php54Var CompareEquals(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.NumericValue == Right.NumericValue, BoolType);
+			return new Php54Var(Left.NumericValue == Right.NumericValue, TypeEnum.Bool);
 		}
 
 		public static Php54Var CompareGreaterThan(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.NumericValue > Right.NumericValue, BoolType);
+			return new Php54Var(Left.NumericValue > Right.NumericValue, TypeEnum.Bool);
 		}
 
 		public static Php54Var CompareLessThan(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.NumericValue < Right.NumericValue, BoolType);
+			return new Php54Var(Left.NumericValue < Right.NumericValue, TypeEnum.Bool);
 		}
 
 		public static Php54Var CompareNotEquals(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.DynamicValue != Right.DynamicValue, BoolType);
+			return new Php54Var(Left.DynamicValue != Right.DynamicValue, TypeEnum.Bool);
 		}
 
 		public static Php54Var LogicalAnd(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.BoolValue && Right.BoolValue, BoolType);
+			return new Php54Var(Left.BoolValue && Right.BoolValue, TypeEnum.Bool);
 		}
 
 		static public void Assign(Php54Var Left, Php54Var Right)
