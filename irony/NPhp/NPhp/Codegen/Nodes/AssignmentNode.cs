@@ -12,12 +12,13 @@ namespace NPhp.Codegen.Nodes
 	public class AssignmentNode : Node
 	{
 		ParseTreeNode LeftValueNode;
+		String Operator;
 		ParseTreeNode ValueNode;
 
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
 			LeftValueNode = parseNode.ChildNodes[0];
-			Debug.Assert(parseNode.ChildNodes[1].FindTokenAndGetText() == "=");
+			Operator = parseNode.ChildNodes[1].FindTokenAndGetText();
 			ValueNode = parseNode.ChildNodes[2];
 		}
 
@@ -28,7 +29,16 @@ namespace NPhp.Codegen.Nodes
 			(ValueNode.AstNode as Node).Generate(Context);
 			Context.MethodGenerator.ConvTo<Php54Var>();
 
-			Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
+			switch (Operator) {
+				case "=":
+					Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
+					break;
+				case "+=":
+					Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.AssignAdd);
+					break;
+				default:
+					throw(new NotImplementedException("Operator: " + Operator));
+			}
 		}
 	}
 }

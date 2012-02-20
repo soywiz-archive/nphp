@@ -14,6 +14,7 @@ namespace NPhp.Runtime
 		public enum TypeEnum
 		{
 			Null,
+			Array,
 			Bool,
 			Int,
 			Double,
@@ -24,6 +25,7 @@ namespace NPhp.Runtime
 		{
 			if (Type == typeof(int)) return TypeEnum.Int;
 			if (Type == typeof(bool)) return TypeEnum.Bool;
+			if (Type.IsArray) return TypeEnum.Array;
 			if (Type == typeof(String)) return TypeEnum.String;
 			if (Type == typeof(double)) return TypeEnum.Double;
 			if (Type == typeof(DBNull)) return TypeEnum.Null;
@@ -86,6 +88,7 @@ namespace NPhp.Runtime
 			{
 				if (Type == TypeEnum.Null) return "";
 				if (Type == TypeEnum.Bool) return (DynamicValue) ? "1" : "";
+				if (Type == TypeEnum.Array) return "Array";
 				return DynamicValue.ToString();
 			}
 		}
@@ -303,6 +306,11 @@ namespace NPhp.Runtime
 			return new Php54Var(Left.NumericValue / Right.NumericValue, CombineTypes(Left.Type, Right.Type));
 		}
 
+		static public Php54Var Mod(Php54Var Left, Php54Var Right)
+		{
+			return new Php54Var(Left.NumericValue % Right.NumericValue, CombineTypes(Left.Type, Right.Type));
+		}
+
 		static public Php54Var Concat(Php54Var Left, Php54Var Right)
 		{
 			return new Php54Var(Left.StringValue + Right.StringValue, CombineTypes(Left.Type, Right.Type));
@@ -379,6 +387,12 @@ namespace NPhp.Runtime
 
 			Left.DynamicValue = Right.DynamicValue;
 			Left._Type = Right.Type;
+		}
+
+		static public void AssignAdd(Php54Var Left, Php54Var Right)
+		{
+			//Left.DynamicValue += Right.DynamicValue;
+			Assign(Left, Add(Left, Right));
 		}
 
 		public bool ToBool()

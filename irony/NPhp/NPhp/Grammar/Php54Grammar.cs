@@ -66,6 +66,7 @@ namespace NPhp.LanguageGrammar
 
 			//var unary_op = new NonTerminal("unary_op", GetCreator<OperatorNode>());
 
+			var assign_op = new NonTerminal("assign_op", GetCreator<IgnoreNode>());
 			var bin_op = new NonTerminal("bin_op", GetCreator<BinaryOperatorNode>());
 			var bin_op_expression = new NonTerminal("bin_op_expression", GetCreator<BinaryExpressionNode>());
 			var expr = new NonTerminal("expr", GetCreator<IgnoreNode>());
@@ -167,8 +168,12 @@ namespace NPhp.LanguageGrammar
 			bin_op.Rule =
 				ToTerm("<")
 				| "||" | "&&" | "|" | "^" | "&" | "==" | "!=" | ">" | "<=" | ">=" | "<<" | ">>" | "+" | "-" | "*" | "/" | "%" | "."
-				| "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
+				//| "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
 				| "is" | "as" | "??"
+			;
+
+			assign_op.Rule =
+				ToTerm("=") | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
 			;
 
 			SpecialLiteral.Rule =
@@ -222,7 +227,7 @@ namespace NPhp.LanguageGrammar
 			unary_expr.Rule = unary_op + expr;
 
 			//assignment.Rule = VariableTerminal + "=" + expr;
-			assignment.Rule = GetVariable + "=" + expr;
+			assignment.Rule = GetVariable + assign_op + expr;
 
 			func_arguments.Rule = MakeStarRule(func_arguments, comma, expr);
 

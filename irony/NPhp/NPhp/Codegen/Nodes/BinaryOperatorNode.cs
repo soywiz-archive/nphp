@@ -81,6 +81,7 @@ namespace NPhp.Codegen.Nodes
 				case ".": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Concat); break;
 				case "*": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mul); break;
 				case "/": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Div); break;
+				case "%": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mod); break;
 
 				case "&": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitAnd); break;
 				case "|": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitOr); break;

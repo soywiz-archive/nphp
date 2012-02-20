@@ -24,7 +24,16 @@ namespace NPhp
 
 			var Runtime = new Php54Runtime(FunctionScope);
 			var Method = Runtime.CreateMethodFromCode(@"
-				echo 2 < 1;
+				$start = microtime(true);
+				{
+					$a = 0;
+					function a($n, $n, $n, $n) { }
+					for ($n = 0; $n < 1000000; $n++) a($n, $n, $n, $n);
+					//for ($n = 0; $n < 1000000; $n++) if ($n % 2) $a += 1; else $a += 2;
+					echo $a;
+				}
+				$end = microtime(true);
+				echo ':' . ($end - $start);
 			", DumpTree: true, DoDebug: false);
 
 			var Scope = new Php54Scope(Runtime);
