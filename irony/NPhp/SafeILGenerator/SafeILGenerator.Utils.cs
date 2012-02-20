@@ -61,15 +61,6 @@ namespace NPhp.Codegen
 			Xor,
 		}
 
-		public enum BinaryComparison2Enum
-		{
-			Equals,
-			GreaterThanSigned,
-			GreaterThanUnsigned,
-			LessThanSigned,
-			LessThanUnsigned,
-		}
-
 		public enum BinaryComparisonEnum
 		{
 			Equals,

@@ -1,10 +1,13 @@
-﻿using System;
+﻿//#define OPTIMIZE_SPECIAL_TYPES
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Irony.Parsing;
 using Irony.Ast;
 using NPhp.Runtime;
+using System.Diagnostics;
 
 namespace NPhp.Codegen.Nodes
 {
@@ -24,11 +27,51 @@ namespace NPhp.Codegen.Nodes
 
 		public void Generate(Node Left, Node Right, NodeGenerateContext Context)
 		{
-			//base.Generate();
-			Left.Generate(Context);
-			//Context.MethodGenerator.StackTop
-			Context.MethodGenerator.ConvTo<Php54Var>();
+#if OPTIMIZE_SPECIAL_TYPES
+			var LeftType = Context.MethodGenerator.CaptureStackInformation(() =>
+			{
+				Left.Generate(Context);
+			}).GetLastest();
 
+			var RightType = Context.MethodGenerator.CaptureStackInformation(() =>
+			{
+				Right.Generate(Context);
+			}).GetLastest();
+
+			// Optimized version.
+			if (LeftType == RightType)
+			{
+				var CommonType = LeftType;
+
+				if (CommonType == typeof(int))
+				{
+					Left.Generate(Context);
+					Right.Generate(Context);
+					switch (Operator)
+					{
+						case "+": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.AdditionSigned); break;
+						case "-": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.SubstractionSigned); break;
+						case "*": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.MultiplySigned); break;
+						case "/": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.DivideSigned); break;
+						case "&": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.And); break;
+						case "|": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.Or); break;
+						case "^": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.Xor); break;
+						case "==": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.Equals); break;
+						case "!=": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.NotEquals); break;
+						case ">=": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.GreaterOrEqualSigned); break;
+						case "<=": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.LessOrEqualSigned); break;
+						case ">": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.GreaterThanSigned); break;
+						case "<": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.LessThanSigned); break;
+						default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
+					}
+					return;
+				}
+			}
+
+			Debug.WriteLine("BINARY_OPERATION: {0}, {1}", LeftType, RightType);
+#endif
+
+			Left.Generate(Context); Context.MethodGenerator.ConvTo<Php54Var>();
 			Right.Generate(Context);
 
 			switch (Operator)
@@ -54,7 +97,7 @@ namespace NPhp.Codegen.Nodes
 						Context.MethodGenerator.ConvTo<Php54Var>();
 						Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareLessThan);
 					}
-				break;
+					break;
 				case "!=": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareNotEquals); break;
 				case "&&": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.LogicalAnd); break;
 				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));

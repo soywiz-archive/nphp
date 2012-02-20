@@ -24,8 +24,8 @@ namespace NPhp
 
 			var Runtime = new Php54Runtime(FunctionScope);
 			var Method = Runtime.CreateMethodFromCode(@"
-				echo false;
-			", DumpTree: true, DoDebug: true);
+				echo 2 < 1;
+			", DumpTree: true, DoDebug: false);
 
 			var Scope = new Php54Scope(Runtime);
 

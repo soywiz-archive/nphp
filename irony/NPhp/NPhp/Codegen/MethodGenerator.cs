@@ -28,6 +28,11 @@ namespace NPhp.Codegen
 			}
 		}
 
+		public SafeILGenerator.TypeStackClass CaptureStackInformation(Action Action)
+		{
+			return SafeILGenerator.CaptureStackInformation(Action);
+		}
+
 		public MethodGenerator(bool DoDebug)
 		{
 			//MethodAttributes.
@@ -98,23 +103,15 @@ namespace NPhp.Codegen
 			SafeILGenerator.Push(Value);
 		}
 
-		/*
-		public void Operator(string Operator)
+		public void BinaryOperation(SafeILGenerator.BinaryOperatorEnum Operator)
 		{
-			//Console.WriteLine("Operator");
-			switch (Operator)
-			{
-				case "+": SafeILGenerator.BinaryOperation(Codegen.SafeILGenerator.BinaryOperatorEnum.AdditionSigned); break;
-				case "-": SafeILGenerator.BinaryOperation(Codegen.SafeILGenerator.BinaryOperatorEnum.SubstractionSigned); break;
-				case "*": ILGenerator.Emit(OpCodes.Mul); break;
-				case "/": ILGenerator.Emit(OpCodes.Div); break;
-				default: throw (new NotImplementedException());
-			}
-
-			StackCountDecrement(1);
-
+			SafeILGenerator.BinaryOperation(Operator);
 		}
-		*/
+
+		public void CompareBinary(SafeILGenerator.BinaryComparisonEnum Comparison)
+		{
+			SafeILGenerator.CompareBinary(Comparison);
+		}
 
 		public SafeILGenerator.SafeLabel DefineLabel(string Name)
 		{

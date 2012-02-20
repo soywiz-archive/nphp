@@ -312,7 +312,7 @@ namespace NPhp.Codegen
 				Debug.WriteLine(String.Format("NoOperation() :: Stack -> {0}", TypeStack.Count));
 			}
 		}
-		
+
 		public void BinaryOperation(BinaryOperatorEnum Operator)
 		{
 			if (TrackStack)
@@ -320,7 +320,14 @@ namespace NPhp.Codegen
 				var TypeRight = TypeStack.Pop();
 				var TypeLeft = TypeStack.Pop();
 
-				if (TypeLeft != TypeRight) throw (new InvalidOperationException("Binary operation mismatch"));
+				if (TypeLeft != TypeRight)
+				{
+					throw (new InvalidOperationException(String.Format(
+						"Binary operation mismatch Left:{0} != Right:{1}",
+						TypeLeft.Name,
+						TypeRight.Name
+					)));
+				}
 
 				TypeStack.Push(TypeRight);
 			}
@@ -375,7 +382,7 @@ namespace NPhp.Codegen
 			}
 		}
 
-		public void CompareBinary(BinaryComparison2Enum Comparison)
+		public void CompareBinary(BinaryComparisonEnum Comparison)
 		{
 			if (TrackStack)
 			{
@@ -391,12 +398,17 @@ namespace NPhp.Codegen
 			{
 				switch (Comparison)
 				{
-					case BinaryComparison2Enum.Equals: ILGenerator.Emit(OpCodes.Ceq); break;
-					case BinaryComparison2Enum.GreaterThanSigned: ILGenerator.Emit(OpCodes.Cgt); break;
-					case BinaryComparison2Enum.GreaterThanUnsigned: ILGenerator.Emit(OpCodes.Cgt_Un); break;
-					case BinaryComparison2Enum.LessThanSigned: ILGenerator.Emit(OpCodes.Clt); break;
-					case BinaryComparison2Enum.LessThanUnsigned: ILGenerator.Emit(OpCodes.Clt_Un); break;
-					default: throw(new NotImplementedException());
+					case BinaryComparisonEnum.Equals: ILGenerator.Emit(OpCodes.Ceq); break;
+					case BinaryComparisonEnum.NotEquals: ILGenerator.Emit(OpCodes.Ceq); ILGenerator.Emit(OpCodes.Neg); break;
+					case BinaryComparisonEnum.GreaterThanSigned: ILGenerator.Emit(OpCodes.Cgt); break;
+					case BinaryComparisonEnum.GreaterThanUnsigned: ILGenerator.Emit(OpCodes.Cgt_Un); break;
+					case BinaryComparisonEnum.GreaterOrEqualSigned: ILGenerator.Emit(OpCodes.Clt); ILGenerator.Emit(OpCodes.Neg); break;
+					case BinaryComparisonEnum.GreaterOrEqualUnsigned: ILGenerator.Emit(OpCodes.Clt_Un); ILGenerator.Emit(OpCodes.Neg); break;
+					case BinaryComparisonEnum.LessThanSigned: ILGenerator.Emit(OpCodes.Clt); break;
+					case BinaryComparisonEnum.LessThanUnsigned: ILGenerator.Emit(OpCodes.Clt_Un); break;
+					case BinaryComparisonEnum.LessOrEqualSigned: ILGenerator.Emit(OpCodes.Cgt); ILGenerator.Emit(OpCodes.Neg); break;
+					case BinaryComparisonEnum.LessOrEqualUnsigned: ILGenerator.Emit(OpCodes.Cgt_Un); ILGenerator.Emit(OpCodes.Neg); break;
+					default: throw (new NotImplementedException());
 				}
 			}
 
