@@ -14,5 +14,18 @@ namespace NPhp.Runtime.Functions
 			var LeftValue = Scope.Php54Runtime.ConstantScope.GetVariable(Name);
 			Php54Var.Assign(LeftValue, Value);
 		}
+
+		static public string gettype(Php54Var Value)
+		{
+			switch (Value.Type)
+			{
+				case Php54Var.TypeEnum.Bool: return "boolean";
+				case Php54Var.TypeEnum.Int: return "integer";
+				case Php54Var.TypeEnum.Double: return "double";
+				case Php54Var.TypeEnum.String: return "string";
+				case Php54Var.TypeEnum.Null: return "NULL";
+			}
+			throw(new NotImplementedException());
+		}
 	}
 }

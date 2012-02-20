@@ -37,7 +37,7 @@ namespace NPhp.Runtime
 
 		private TypeEnum _Type;
 
-		private TypeEnum Type
+		public TypeEnum Type
 		{
 			get
 			{
@@ -245,27 +245,67 @@ namespace NPhp.Runtime
 
 		static public Php54Var Add(Php54Var Left, Php54Var Right)
 		{
-			return new Php54Var(Left.NumericValue + Right.NumericValue, CombineTypes(Left.Type, Right.Type));
+			var CombinedType = CombineTypes(Left.Type, Right.Type);
+			switch (CombinedType)
+			{
+				case TypeEnum.Int:
+					try
+					{
+						checked
+						{
+							int Result = Left.IntegerValue + Right.IntegerValue;
+							return new Php54Var(Result, TypeEnum.Int);
+						}
+					}
+					catch (OverflowException)
+					{
+						return new Php54Var(Left.DoubleValue + Right.DoubleValue, TypeEnum.Double);
+					}
+				default:
+					{
+						return new Php54Var(Left.DoubleValue + Right.DoubleValue, TypeEnum.Double);
+					}
+			}
+		}
+
+		static public Php54Var Mul(Php54Var Left, Php54Var Right)
+		{
+			var CombinedType = CombineTypes(Left.Type, Right.Type);
+			switch (CombinedType)
+			{
+				case TypeEnum.Int:
+					try
+					{
+						checked
+						{
+							int Result = Left.IntegerValue * Right.IntegerValue;
+							return new Php54Var(Result, TypeEnum.Int);
+						}
+					}
+					catch (OverflowException)
+					{
+						return new Php54Var(Left.DoubleValue * Right.DoubleValue, TypeEnum.Double);
+					}
+				default:
+					{
+						return new Php54Var(Left.DoubleValue * Right.DoubleValue, TypeEnum.Double);
+					}
+			}
+		}
+
+		static public Php54Var Sub(Php54Var Left, Php54Var Right)
+		{
+			return new Php54Var(Left.NumericValue - Right.NumericValue, CombineTypes(Left.Type, Right.Type));
+		}
+
+		static public Php54Var Div(Php54Var Left, Php54Var Right)
+		{
+			return new Php54Var(Left.NumericValue / Right.NumericValue, CombineTypes(Left.Type, Right.Type));
 		}
 
 		static public Php54Var Concat(Php54Var Left, Php54Var Right)
 		{
 			return new Php54Var(Left.StringValue + Right.StringValue, CombineTypes(Left.Type, Right.Type));
-		}
-
-		static public Php54Var Sub(Php54Var Left, Php54Var Right)
-		{
-			return new Php54Var(Left.DynamicValue - Right.DynamicValue, CombineTypes(Left.Type, Right.Type));
-		}
-
-		static public Php54Var Mul(Php54Var Left, Php54Var Right)
-		{
-			return new Php54Var(Left.DynamicValue * Right.DynamicValue, CombineTypes(Left.Type, Right.Type));
-		}
-
-		static public Php54Var Div(Php54Var Left, Php54Var Right)
-		{
-			return new Php54Var(Left.DynamicValue / Right.DynamicValue, CombineTypes(Left.Type, Right.Type));
 		}
 
 		static public Php54Var UnaryPostInc(Php54Var Left, int Count)

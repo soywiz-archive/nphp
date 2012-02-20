@@ -302,6 +302,16 @@ namespace NPhp.Tests
 				echo 'TEST:'.(a()+TEST);
 			"));
 		}
+
+		[TestMethod]
+		public void GettypeTest()
+		{
+			Assert.AreEqual(":integer:string:double", RunAndCaptureOutput(@"
+				echo ':'.gettype(1);
+				echo ':'.gettype('test');
+				echo ':'.gettype(99999999*39);
+			"));
+		}
 	}
 
 	public partial class UnitTest1
