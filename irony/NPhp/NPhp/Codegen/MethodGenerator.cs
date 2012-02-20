@@ -27,6 +27,33 @@ namespace NPhp.Codegen
 			ILGenerator = DynamicMethod.GetILGenerator();
 		}
 
+		Dictionary<string, LocalBuilder> Locals = new Dictionary<string,LocalBuilder>();
+
+		public LocalBuilder GetCachedLocal(string Name, out bool Cached)
+		{
+			LocalBuilder LocalBuilder;
+			if (!Locals.TryGetValue(Name, out LocalBuilder))
+			{
+				Locals[Name] = LocalBuilder = DeclareLocalPhp54Var();
+				Cached = false;
+			}
+			else
+			{
+				Cached = true;
+			}
+			return LocalBuilder;
+		}
+
+		private LocalBuilder DeclareLocalPhp54Var()
+		{
+			return DeclareLocal<Php54Var>();
+		}
+
+		private LocalBuilder DeclareLocal<TType>()
+		{
+			return ILGenerator.DeclareLocal(typeof(TType));
+		}
+
 		public Action<Php54Scope> GenerateMethod()
 		{
 			ClearStack();
@@ -45,6 +72,11 @@ namespace NPhp.Codegen
 			Debug.WriteLine("PUSH<double>: {0} -> Stack: {1}", Value, StackCount);
 #endif
 
+		}
+
+		public void Push(bool Value)
+		{
+			Push(Value ? 1 : 0);
 		}
 
 		public void Push(int Value)
@@ -284,6 +316,28 @@ namespace NPhp.Codegen
 			{
 				throw(new NotImplementedException());
 			}
+		}
+
+		public void StoreToLocal(LocalBuilder Local)
+		{
+			ILGenerator.Emit(OpCodes.Stloc, Local);
+
+			StackCount--;
+
+#if CODEGEN_TRACE
+			Debug.WriteLine("StoreToLocal -> Stack: {0}", StackCount);
+#endif
+		}
+
+		public void LoadLocal(LocalBuilder Local)
+		{
+			ILGenerator.Emit(OpCodes.Ldloc, Local);
+
+			StackCount++;
+
+#if CODEGEN_TRACE
+			Debug.WriteLine("LoadLocal -> Stack: {0}", StackCount);
+#endif
 		}
 	}
 }

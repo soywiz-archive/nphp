@@ -43,6 +43,11 @@ namespace NPhp.Runtime
 							MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (int)Parameter.DefaultValue : 0);
 							MethodGenerator.Call((Func<int, int>)Php54Var.Methods.GetIntegerOrDefault);
 						}
+						else if (ParameterType == typeof(bool))
+						{
+							MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (bool)Parameter.DefaultValue : false);
+							MethodGenerator.Call((Func<bool, bool>)Php54Var.Methods.GetBooleanOrDefault);
+						}
 						else
 						{
 							throw (new NotImplementedException());

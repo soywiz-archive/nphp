@@ -6,6 +6,9 @@ using Irony.Parsing;
 using System.IO;
 using NPhp.Codegen;
 using NPhp.LanguageGrammar;
+using System.Threading;
+using System.Globalization;
+using System.Diagnostics;
 
 namespace NPhp.Runtime
 {
@@ -19,6 +22,12 @@ namespace NPhp.Runtime
 
 		public Php54Runtime(Php54FunctionScope FunctionScope)
 		{
+			if (Thread.CurrentThread.CurrentCulture.Name != "en-US")
+			{
+				Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+				Debug.WriteLine("Changed CultureInfo to en-US");
+			}
+
 			this.Grammar = new Php54Grammar();
 			this.LanguageData = new LanguageData(Grammar);
 			this.Parser = new Parser(LanguageData);

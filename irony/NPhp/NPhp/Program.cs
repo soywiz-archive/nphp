@@ -6,6 +6,8 @@ using Irony.Parsing;
 using Irony.Ast;
 using NPhp.Runtime;
 using NPhp.Runtime.Functions;
+using System.Threading;
+using System.Globalization;
 
 namespace NPhp
 {
@@ -23,9 +25,12 @@ namespace NPhp
 				//$s = '';
 				//$s = $s . substr('hello', 1);
 				//echo $s;
+				$start = microtime(true);
 				$m = 0;
 				for ($n = 0; $n < 100000; $n++) { }
 				echo $m;
+				$end = microtime(true);
+				echo ($end - $start) . '\n';
 			", DumpTree: true);
 
 			var Scope = new Php54Scope(Runtime);

@@ -61,7 +61,8 @@ namespace NPhp.Runtime
 
 		public void CallFunctionByName(string Name)
 		{
-			Php54Runtime.FunctionScope.Functions[Name](this);
+			var Method = Php54Runtime.FunctionScope.Functions[Name];
+			Method(this);
 		}
 
 		public Php54Var GetVariable(string Name)
