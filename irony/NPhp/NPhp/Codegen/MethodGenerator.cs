@@ -28,7 +28,7 @@ namespace NPhp.Codegen
 			}
 		}
 
-		public SafeILGenerator.TypeStackClass CaptureStackInformation(Action Action)
+		public SafeTypeStack CaptureStackInformation(Action Action)
 		{
 			return SafeILGenerator.CaptureStackInformation(Action);
 		}
@@ -41,7 +41,7 @@ namespace NPhp.Codegen
 				typeof(void),
 				new Type[] { typeof(Php54Scope) }
 			);
-			SafeILGenerator = new SafeILGenerator(DynamicMethod.GetILGenerator(), DoDebug);
+			SafeILGenerator = new SafeILGenerator(DynamicMethod.GetILGenerator(), CheckTypes: true, DoDebug : true);
 		}
 
 		Dictionary<string, LocalBuilder> Locals = new Dictionary<string,LocalBuilder>();
@@ -103,28 +103,28 @@ namespace NPhp.Codegen
 			SafeILGenerator.Push(Value);
 		}
 
-		public void BinaryOperation(SafeILGenerator.BinaryOperatorEnum Operator)
+		public void BinaryOperation(SafeBinaryOperator Operator)
 		{
 			SafeILGenerator.BinaryOperation(Operator);
 		}
 
-		public void CompareBinary(SafeILGenerator.BinaryComparisonEnum Comparison)
+		public void CompareBinary(SafeBinaryComparison Comparison)
 		{
 			SafeILGenerator.CompareBinary(Comparison);
 		}
 
-		public SafeILGenerator.SafeLabel DefineLabel(string Name)
+		public SafeLabel DefineLabel(string Name)
 		{
-			return SafeILGenerator.CreateLabel(Name);
+			return SafeILGenerator.DefineLabel(Name);
 		}
 
-		public void BranchIfTrue(SafeILGenerator.SafeLabel Label)
+		public void BranchIfTrue(SafeLabel Label)
 		{
 			ConvTo<bool>();
 			SafeILGenerator.BranchIfTrue(Label);
 		}
 
-		public void BranchIfFalse(SafeILGenerator.SafeLabel Label)
+		public void BranchIfFalse(SafeLabel Label)
 		{
 			ConvTo<bool>();
 			SafeILGenerator.BranchIfFalse(Label);
@@ -153,7 +153,7 @@ namespace NPhp.Codegen
 			SafeILGenerator.Call(MethodInfo);
 		}
 
-		public void BranchAlways(SafeILGenerator.SafeLabel Label)
+		public void BranchAlways(SafeLabel Label)
 		{
 			SafeILGenerator.BranchAlways(Label);
 		}

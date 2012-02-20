@@ -56,12 +56,12 @@ namespace NPhp.Codegen.Nodes
 						case "&": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.And); break;
 						case "|": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.Or); break;
 						case "^": Context.MethodGenerator.BinaryOperation(SafeILGenerator.BinaryOperatorEnum.Xor); break;
-						case "==": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.Equals); break;
-						case "!=": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.NotEquals); break;
-						case ">=": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.GreaterOrEqualSigned); break;
-						case "<=": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.LessOrEqualSigned); break;
-						case ">": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.GreaterThanSigned); break;
-						case "<": Context.MethodGenerator.CompareBinary(SafeILGenerator.BinaryComparisonEnum.LessThanSigned); break;
+						case "==": Context.MethodGenerator.CompareBinary(SafeBinaryComparison.Equals); break;
+						case "!=": Context.MethodGenerator.CompareBinary(SafeBinaryComparison.NotEquals); break;
+						case ">=": Context.MethodGenerator.CompareBinary(SafeBinaryComparison.GreaterOrEqualSigned); break;
+						case "<=": Context.MethodGenerator.CompareBinary(SafeBinaryComparison.LessOrEqualSigned); break;
+						case ">": Context.MethodGenerator.CompareBinary(SafeBinaryComparison.GreaterThanSigned); break;
+						case "<": Context.MethodGenerator.CompareBinary(SafeBinaryComparison.LessThanSigned); break;
 						default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
 					}
 					return;
