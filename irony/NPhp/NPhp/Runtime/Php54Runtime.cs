@@ -17,6 +17,7 @@ namespace NPhp.Runtime
 		Php54Grammar Grammar;
 		LanguageData LanguageData;
 		public Php54FunctionScope FunctionScope;
+		public Php54Scope ConstantScope;
 		Parser Parser;
 		TextWriter TextWriter;
 
@@ -34,6 +35,7 @@ namespace NPhp.Runtime
 			this.Parser.Context.TracingEnabled = true;
 			this.TextWriter = Console.Out;
 			this.FunctionScope = FunctionScope;
+			this.ConstantScope = new Php54Scope(this);
 		}
 
 		public Action<Php54Scope> CreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false)
@@ -60,6 +62,13 @@ namespace NPhp.Runtime
 			//Console.WriteLine("'{0}'", Tree.Root.AstNode);
 			var Action = (Tree.Root.AstNode as Node).CreateMethod(FunctionScope);
 			return Action;
+		}
+
+		static public void Include(Php54Scope Scope, string Path, bool IsRequire, bool IsOnce)
+		{
+			//Scope.Php54Runtime.TextWriter.Write(Variable);
+			//Console.Out.Write(Variable);
+			throw(new NotImplementedException("Can't find path '" + Path + "' Require:" + IsRequire + ", Once:" + IsOnce + ""));
 		}
 
 		static public void Echo(Php54Scope Scope, Php54Var Variable)

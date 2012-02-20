@@ -49,6 +49,7 @@ namespace NPhp.LanguageGrammar
 			var SpecialLiteral = new NonTerminal("SpecialLiteral", GetCreator<SpecialLiteralNode>());
 
 			var GetId = new NonTerminal("GetId", GetCreator<IdentifierNode>());
+			var constant = new NonTerminal("constant", GetCreator<GetConstantNode>());
 
 			var sentence = new NonTerminal("sentence", GetCreator<IgnoreNode>());
 			var sentence_list = new NonTerminal("sentences", GetCreator<IgnoreNode>());
@@ -89,6 +90,11 @@ namespace NPhp.LanguageGrammar
 			var func_call = new NonTerminal("func_call", GetCreator<FunctionCallNode>());
 			var func_arguments = new NonTerminal("func_arguments", GetCreator<IgnoreNode>());
 			var return_sentence = new NonTerminal("return_sentence", GetCreator<ReturnNode>());
+			var include_sentence = new NonTerminal("include_sentence", GetCreator<IncludeNode>());
+			var include_keyword = new NonTerminal("include_keyword", GetCreator<IgnoreNode>());
+
+			include_keyword.Rule = ToTerm("include") | "include_once" | "require" | "require_once";
+			include_sentence.Rule = include_keyword + expr + ";";
 
 			return_sentence.Rule = "return" + expr + ";";
 
@@ -144,6 +150,7 @@ namespace NPhp.LanguageGrammar
 				for_sentence |
 				if_else_sentence |
 				if_sentence |
+				include_sentence |
 				expression_sentence |
 				return_sentence |
 				named_func_decl
@@ -168,6 +175,13 @@ namespace NPhp.LanguageGrammar
 				ToTerm("true")
 				| "false"
 				| "null"
+				| "__DIR__"
+				| "__FILE__"
+				| "__FUNCTION__"
+				| "__CLASS__"
+				| "__METHOD__"
+				| "__LINE__"
+				| "__NAMESPACE__"
 			;
 
 			literal.Rule =
@@ -213,6 +227,7 @@ namespace NPhp.LanguageGrammar
 			func_arguments.Rule = MakeStarRule(func_arguments, comma, expr);
 
 			func_call.Rule = GetId + "(" + func_arguments + ")";
+			constant.Rule = GetId;
 
 			//var expression = new NonTerminal("comma_opt", Empty | comma);
 			expr.Rule =
@@ -223,7 +238,8 @@ namespace NPhp.LanguageGrammar
 				bin_op_expression |
 				unary_expr |
 				expr2 |
-				assignment
+				assignment |
+				constant
 			;
 
 			expr_or_empty.Rule = expr | Empty;

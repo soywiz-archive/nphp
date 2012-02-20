@@ -8,6 +8,7 @@ namespace NPhp.Codegen
 {
 	public class NodeGenerateContext
 	{
+		public string FunctionName = "";
 		public Php54FunctionScope FunctionScope { get; protected set; }
 		public MethodGenerator MethodGenerator { get; protected set; }
 

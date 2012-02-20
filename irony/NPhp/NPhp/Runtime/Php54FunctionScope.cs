@@ -24,36 +24,46 @@ namespace NPhp.Runtime
 				{
 					var ParameterType = Parameter.ParameterType;
 					{
-						MethodGenerator.LoadScope();
-						MethodGenerator.Push(ParameterIndex);
-						//Php54Var.metho
-						MethodGenerator.Call((Func<int, Php54Var>)Php54Scope.Methods.GetArgument);
-						if (ParameterType == typeof(double))
+						if (ParameterType == typeof(Php54Scope))
 						{
-							MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (double)Parameter.DefaultValue : 0);
-							MethodGenerator.Call((Func<double, double>)Php54Var.Methods.GetDoubleOrDefault);
-						}
-						else if (ParameterType == typeof(string))
-						{
-							MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (string)Parameter.DefaultValue : "");
-							MethodGenerator.Call((Func<string, string>)Php54Var.Methods.GetStringOrDefault);
-						}
-						else if (ParameterType == typeof(int))
-						{
-							MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (int)Parameter.DefaultValue : 0);
-							MethodGenerator.Call((Func<int, int>)Php54Var.Methods.GetIntegerOrDefault);
-						}
-						else if (ParameterType == typeof(bool))
-						{
-							MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (bool)Parameter.DefaultValue : false);
-							MethodGenerator.Call((Func<bool, bool>)Php54Var.Methods.GetBooleanOrDefault);
+							MethodGenerator.LoadScope();
 						}
 						else
 						{
-							throw (new NotImplementedException());
+							MethodGenerator.LoadScope();
+							MethodGenerator.Push(ParameterIndex);
+							//Php54Var.metho
+							MethodGenerator.Call((Func<int, Php54Var>)Php54Scope.Methods.GetArgument);
+							if (ParameterType == typeof(double))
+							{
+								MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (double)Parameter.DefaultValue : 0);
+								MethodGenerator.Call((Func<double, double>)Php54Var.Methods.GetDoubleOrDefault);
+							}
+							else if (ParameterType == typeof(string))
+							{
+								MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (string)Parameter.DefaultValue : "");
+								MethodGenerator.Call((Func<string, string>)Php54Var.Methods.GetStringOrDefault);
+							}
+							else if (ParameterType == typeof(int))
+							{
+								MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (int)Parameter.DefaultValue : 0);
+								MethodGenerator.Call((Func<int, int>)Php54Var.Methods.GetIntegerOrDefault);
+							}
+							else if (ParameterType == typeof(bool))
+							{
+								MethodGenerator.Push((Parameter.DefaultValue != DBNull.Value) ? (bool)Parameter.DefaultValue : false);
+								MethodGenerator.Call((Func<bool, bool>)Php54Var.Methods.GetBooleanOrDefault);
+							}
+							else if (ParameterType == typeof(Php54Var))
+							{
+							}
+							else
+							{
+								throw (new NotImplementedException());
+							}
+							ParameterIndex++;
 						}
 					}
-					ParameterIndex++;
 				}
 
 				MethodGenerator.Call(MethodInfo);
@@ -65,7 +75,7 @@ namespace NPhp.Runtime
 				}
 				else
 				{
-					MethodGenerator.Pop();
+					//MethodGenerator.Pop();
 				}
 			}
 			return Context.MethodGenerator.GenerateMethod();

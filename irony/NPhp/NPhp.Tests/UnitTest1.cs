@@ -279,6 +279,29 @@ namespace NPhp.Tests
 				echo dechex(F('1f1f1f1f', '32323232', 'e4e4e4e4'));
 			"));
 		}
+
+		[TestMethod]
+		public void SpecialTokens()
+		{
+			Assert.AreEqual("f3", RunAndCaptureOutput(@"
+				function f() {
+					return __FUNCTION__ . __LINE__; 
+				}
+				echo f();
+			"));
+		}
+
+		[TestMethod]
+		public void Constants()
+		{
+			Assert.AreEqual("TEST:20", RunAndCaptureOutput(@"
+				define('TEST', 10);
+				function a() {
+					return TEST; 
+				}
+				echo 'TEST:'.(a()+TEST);
+			"));
+		}
 	}
 
 	public partial class UnitTest1

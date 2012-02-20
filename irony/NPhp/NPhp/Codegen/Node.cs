@@ -22,6 +22,12 @@ namespace NPhp.Codegen
 			return Context.MethodGenerator.GenerateMethod();
 		}
 
+		public void GenerateAs<TType>(NodeGenerateContext Context)
+		{
+			Generate(Context);
+			Context.MethodGenerator.ConvTo<TType>();
+		}
+
 		public virtual void Generate(NodeGenerateContext Context)
 		{
 			Console.WriteLine("Generate! : {0}", this.GetType());

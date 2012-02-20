@@ -97,7 +97,13 @@ namespace NPhp.Codegen
 
 		public void Push(bool Value)
 		{
-			Push(Value ? 1 : 0);
+			ILGenerator.Emit(Value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+
+			StackCountIncrement(typeof(bool));
+
+#if CODEGEN_TRACE
+			Debug.WriteLine("PUSH<bool>: {0} -> Stack: {1}", Value, StackCount);
+#endif
 		}
 
 		public void Push(int Value)
@@ -373,6 +379,7 @@ namespace NPhp.Codegen
 			{
 				if (ExpectedType == typeof(bool)) { Call((Func<bool>)Php54Var.Methods.ToBool); return; }
 				if (ExpectedType == typeof(int)) { Call((Func<int>)Php54Var.Methods.ToInt); return; }
+				if (ExpectedType == typeof(string)) { Call((Func<string>)Php54Var.Methods.ToString); return; }
 
 				throw (new NotImplementedException());
 			}
@@ -381,6 +388,7 @@ namespace NPhp.Codegen
 			{
 				if (StackType == typeof(bool)) { Call((Func<bool, Php54Var>)Php54Var.FromBool); return; }
 				if (StackType == typeof(int)) { Call((Func<int, Php54Var>)Php54Var.FromInt); return; }
+				if (StackType == typeof(string)) { Call((Func<string, Php54Var>)Php54Var.FromString); return; }
 
 				throw (new NotImplementedException());
 			}

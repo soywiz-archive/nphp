@@ -75,5 +75,10 @@ namespace NPhp.Runtime
 			if (!Variables.ContainsKey(Name)) Variables[Name] = Php54Var.FromNull();
 			return Variables[Name];
 		}
+
+		public Php54Var GetConstant(string Name)
+		{
+			return Php54Runtime.ConstantScope.GetVariable(Name);
+		}
 	}
 }

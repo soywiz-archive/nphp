@@ -24,11 +24,14 @@ namespace NPhp
 
 			var Runtime = new Php54Runtime(FunctionScope);
 			var Method = Runtime.CreateMethodFromCode(@"
-				if (1) { }
-				$start = microtime(true);
-				for ($n = 0; $n < 100000; $n++) { }
-				$end = microtime(true);
-				echo ':' . ($end - $start) . '\n';
+				//include(__LINE__ . 'test.php');
+				define('TEST', 10);
+				echo 'TEST:' . TEST;
+				//if (1) { }
+				//$start = microtime(true);
+				//for ($n = 0; $n < 100000; $n++) { }
+				//$end = microtime(true);
+				//echo ':' . ($end - $start) . '\n';
 			", DumpTree: true);
 
 			var Scope = new Php54Scope(Runtime);

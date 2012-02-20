@@ -29,6 +29,7 @@ namespace NPhp.Codegen.Nodes
 		{
 			var Function = Context.GenerateFunction(() =>
 			{
+				Context.FunctionName = FunctionName;
 				int ArgumentIndex = 0;
 				// Load parameters?
 				foreach (var ParameterDeclartion in ParametersDeclaration.ChildNodes)

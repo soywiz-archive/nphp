@@ -56,12 +56,14 @@
     <Compile Include="Codegen\Nodes\EvalNode.cs" />
     <Compile Include="Codegen\Nodes\ForNode.cs" />
     <Compile Include="Codegen\Nodes\FunctionCallNode.cs" />
+    <Compile Include="Codegen\Nodes\GetConstantNode.cs" />
     <Compile Include="Codegen\Nodes\GetVariableNode.cs" />
     <Compile Include="Codegen\Nodes\IdentifierNameNode.cs" />
     <Compile Include="Codegen\Nodes\IdentifierNode.cs" />
     <Compile Include="Codegen\Nodes\IfNode.cs" />
     <Compile Include="Codegen\Nodes\IgnoreNode.cs" />
     <Compile Include="Codegen\Nodes\FunctionNamedDeclarationNode.cs" />
+    <Compile Include="Codegen\Nodes\IncludeNode.cs" />
     <Compile Include="Codegen\Nodes\NumberNode.cs" />
     <Compile Include="Codegen\Nodes\PostOperationNode.cs" />
     <Compile Include="Codegen\Nodes\PreOperationNode.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="Grammar\Php54Grammar.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\Functions\CoreFunctions.cs" />
     <Compile Include="Runtime\Functions\DateTimeFunctions.cs" />
     <Compile Include="Runtime\Functions\StringFunctions.cs" />
     <Compile Include="Runtime\Php54FunctionScope.cs" />
