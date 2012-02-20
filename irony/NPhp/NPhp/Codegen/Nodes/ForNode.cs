@@ -27,14 +27,14 @@ namespace NPhp.Codegen.Nodes
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			var LoopLabel = Context.MethodGenerator.DefineLabel();
-			var EndLabel = Context.MethodGenerator.DefineLabel();
+			var LoopLabel = Context.MethodGenerator.DefineLabel("Loop");
+			var EndLabel = Context.MethodGenerator.DefineLabel("End");
 
 			Context.MethodGenerator.Comment("InitialSentence");
 			(InitialSentence.AstNode as Node).Generate(Context);
 			Context.MethodGenerator.ClearStack();
 
-			Context.MethodGenerator.MarkLabel(LoopLabel);
+			LoopLabel.Mark();
 			{
 				Context.MethodGenerator.Comment("ConditionExpresion");
 				(ConditionExpresion.AstNode as Node).Generate(Context);
@@ -50,7 +50,7 @@ namespace NPhp.Codegen.Nodes
 				Context.MethodGenerator.ClearStack();
 				Context.MethodGenerator.BranchAlways(LoopLabel);
 			}
-			Context.MethodGenerator.MarkLabel(EndLabel);
+			EndLabel.Mark();
 		}
 	}
 

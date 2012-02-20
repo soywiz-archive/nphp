@@ -49,7 +49,7 @@ namespace NPhp.Codegen.Nodes
 
 				// Code
 				CodeStatements.Generate(Context);
-			});
+			}, Context.DoDebug);
 			Context.FunctionScope.Functions[FunctionName] = Function;
 			//throw(new NotImplementedException());
 			//base.Generate(Context);

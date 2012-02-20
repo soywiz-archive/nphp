@@ -38,7 +38,7 @@ namespace NPhp.Runtime
 			this.ConstantScope = new Php54Scope(this);
 		}
 
-		public Action<Php54Scope> CreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false)
+		public Action<Php54Scope> CreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
 			var Tree = Parser.Parse(Code, File);
 
@@ -60,7 +60,7 @@ namespace NPhp.Runtime
 			}
 			//Console.WriteLine("'{0}'", Tree.Root.Term.AstConfig.NodeType);
 			//Console.WriteLine("'{0}'", Tree.Root.AstNode);
-			var Action = (Tree.Root.AstNode as Node).CreateMethod(FunctionScope);
+			var Action = (Tree.Root.AstNode as Node).CreateMethod(FunctionScope, DoDebug);
 			return Action;
 		}
 

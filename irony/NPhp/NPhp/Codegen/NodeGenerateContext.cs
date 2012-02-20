@@ -12,16 +12,19 @@ namespace NPhp.Codegen
 		public Php54FunctionScope FunctionScope { get; protected set; }
 		public MethodGenerator MethodGenerator { get; protected set; }
 
-		public NodeGenerateContext(Php54FunctionScope FunctionScope)
+		public bool DoDebug { get; private set; }
+
+		public NodeGenerateContext(Php54FunctionScope FunctionScope, bool DoDebug)
 		{
-			this.MethodGenerator = new MethodGenerator();
+			this.DoDebug = DoDebug;
+			this.MethodGenerator = new MethodGenerator(DoDebug);
 			this.FunctionScope = FunctionScope;
 		}
 
-		public Action<Php54Scope> GenerateFunction(Action Action)
+		public Action<Php54Scope> GenerateFunction(Action Action, bool DoDebug)
 		{
 			var OldMethodGenerator = MethodGenerator;
-			var NewMethodGenerator = new MethodGenerator();
+			var NewMethodGenerator = new MethodGenerator(DoDebug);
 			OldMethodGenerator = MethodGenerator;
 			MethodGenerator = NewMethodGenerator;
 			try

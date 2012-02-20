@@ -23,10 +23,10 @@ namespace NPhp.Codegen.Nodes
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			var LoopLabel = Context.MethodGenerator.DefineLabel();
-			var EndLabel = Context.MethodGenerator.DefineLabel();
+			var LoopLabel = Context.MethodGenerator.DefineLabel("Loop");
+			var EndLabel = Context.MethodGenerator.DefineLabel("End");
 
-			Context.MethodGenerator.MarkLabel(LoopLabel);
+			LoopLabel.Mark();
 			{
 				(ConditionExpresion.AstNode as Node).Generate(Context);
 				Context.MethodGenerator.ConvTo<bool>();
@@ -36,7 +36,7 @@ namespace NPhp.Codegen.Nodes
 				(LoopSentence.AstNode as Node).Generate(Context);
 				Context.MethodGenerator.BranchAlways(LoopLabel);
 			}
-			Context.MethodGenerator.MarkLabel(EndLabel);
+			EndLabel.Mark();
 		}
 	}
 }

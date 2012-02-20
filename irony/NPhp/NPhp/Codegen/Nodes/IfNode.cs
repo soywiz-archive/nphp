@@ -29,8 +29,8 @@ namespace NPhp.Codegen.Nodes
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			var EndLabel = Context.MethodGenerator.DefineLabel();
-			var FalseLabel = Context.MethodGenerator.DefineLabel();
+			var EndLabel = Context.MethodGenerator.DefineLabel("End");
+			var FalseLabel = Context.MethodGenerator.DefineLabel("False");
 			// Check condition
 			{
 				(ConditionExpresion.AstNode as Node).Generate(Context);
@@ -43,13 +43,13 @@ namespace NPhp.Codegen.Nodes
 				Context.MethodGenerator.BranchAlways(EndLabel);
 			}
 			// False
-			Context.MethodGenerator.MarkLabel(FalseLabel);
+			FalseLabel.Mark();
 			if (FalseSentence != null)
 			{
 				(FalseSentence.AstNode as Node).Generate(Context);
 				Context.MethodGenerator.BranchAlways(EndLabel);
 			}
-			Context.MethodGenerator.MarkLabel(EndLabel);
+			EndLabel.Mark();
 			//base.Generate(Context);
 		}
 	}

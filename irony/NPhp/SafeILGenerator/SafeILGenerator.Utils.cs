@@ -3,17 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection.Emit;
+using System.Diagnostics;
 
 namespace NPhp.Codegen
 {
 	public partial class SafeILGenerator
 	{
 		private ILGenerator ILGenerator;
-		TypeStackClass TypeStack = new TypeStackClass();
-		List<Label> Labels = new List<Label>();
+		TypeStackClass TypeStack;
+		List<SafeLabel> Labels = new List<SafeLabel>();
 		bool OverflowCheck = false;
 		bool DoEmit = true;
 		bool TrackStack = true;
+		public bool DoDebug { get; private set; }
+
+		public SafeILGenerator(ILGenerator ILGenerator, bool DoDebug)
+		{
+			this.ILGenerator = ILGenerator;
+			this.TypeStack = new TypeStackClass(this);
+			this.DoDebug = DoDebug;
+		}
+
+		public TypeStackClass GetCurrentTypeStack()
+		{
+			return TypeStack;
+		}
 
 		public enum UnaryOperatorEnum
 		{
@@ -44,6 +58,7 @@ namespace NPhp.Codegen
 			ShiftRightUnsigned,
 			SubstractionSigned,
 			SubstractionUnsigned,
+			Xor,
 		}
 
 		public enum BinaryComparison2Enum
@@ -79,6 +94,12 @@ namespace NPhp.Codegen
 		{
 			//public List<Type> List;
 			private LinkedList<Type> Stack = new LinkedList<Type>();
+			private SafeILGenerator SafeILGenerator;
+
+			internal TypeStackClass(SafeILGenerator SafeILGenerator)
+			{
+				this.SafeILGenerator = SafeILGenerator;
+			}
 
 			public int Count
 			{
@@ -95,6 +116,10 @@ namespace NPhp.Codegen
 
 			public Type Pop()
 			{
+				if (SafeILGenerator.DoDebug)
+				{
+					Debug.WriteLine(String.Format("## TypeStackClass.Pop: {0}", Stack.First.Value.Name));
+				}
 				try
 				{
 					return Stack.First.Value;
@@ -107,12 +132,16 @@ namespace NPhp.Codegen
 
 			public void Push(Type Type)
 			{
+				if (SafeILGenerator.DoDebug)
+				{
+					Debug.WriteLine(String.Format("## TypeStackClass.Push: {0}", Type.Name));
+				}
 				Stack.AddFirst(Type);
 			}
 
 			public TypeStackClass Clone()
 			{
-				var NewTypeStack = new TypeStackClass();
+				var NewTypeStack = new TypeStackClass(SafeILGenerator);
 				NewTypeStack.Stack = new LinkedList<Type>(Stack);
 				return NewTypeStack;
 			}
@@ -147,16 +176,18 @@ namespace NPhp.Codegen
 			}
 		}
 
-		public class Label
+		public class SafeLabel
 		{
 			private SafeILGenerator SafeILGenerator;
 			internal System.Reflection.Emit.Label ReflectionLabel { get; private set; }
-			private bool Marked;
+			public bool Marked { get; private set; }
+			public string Name;
 
-			internal Label(SafeILGenerator SafeILGenerator)
+			internal SafeLabel(SafeILGenerator SafeILGenerator, string Name)
 			{
 				this.SafeILGenerator = SafeILGenerator;
 				this.ReflectionLabel = SafeILGenerator.ILGenerator.DefineLabel();
+				this.Name = Name;
 			}
 
 			public void Mark()
@@ -164,18 +195,18 @@ namespace NPhp.Codegen
 				SafeILGenerator.ILGenerator.MarkLabel(ReflectionLabel);
 				Marked = true;
 			}
+
+			public override string ToString()
+			{
+				return String.Format("Label({0})", Name);
+			}
 		}
 
-		public Label CreateLabel()
+		public SafeLabel CreateLabel(string Name)
 		{
-			var Label = new Label(this);
+			var Label = new SafeLabel(this, Name);
 			Labels.Add(Label);
 			return Label;
-		}
-
-		public SafeILGenerator(ILGenerator ILGenerator)
-		{
-			this.ILGenerator = ILGenerator;
 		}
 
 		public void DoOverflowCheck(Action Action)
@@ -189,6 +220,76 @@ namespace NPhp.Codegen
 			finally
 			{
 				OverflowCheck = OldOverflowCheck;
+			}
+		}
+
+
+		public void PendingOpcodes()
+		{
+			//OpCodes.Endfilter;
+			//OpCodes.Endfinally;
+			//OpCodes.Initblk;
+			//OpCodes.Initobj;
+			//OpCodes.Isinst;
+			//OpCodes.Newarr;
+			//OpCodes.Newobj;
+			//OpCodes.Prefix1;
+			//OpCodes.Prefix2;
+			//OpCodes.Prefix3;
+			//OpCodes.Prefix4;
+			//OpCodes.Prefix5;
+			//OpCodes.Prefix6;
+			//OpCodes.Prefix7;
+			//OpCodes.Prefixref;
+			//OpCodes.Readonly
+			//OpCodes.Refanytype
+			//OpCodes.Refanyval
+			//OpCodes.Sizeof
+			//OpCodes.Unaligned
+			//OpCodes.Unbox
+			//OpCodes.Volatile
+			//OpCodes.Stobj
+			//OpCodes.Stfld
+			//OpCodes.Stind_Ref
+			//OpCodes.Stelem_Ref
+			//OpCodes.Ldobj;
+			//OpCodes.Ldsfld;
+			//OpCodes.Ldsflda;
+			//OpCodes.Ldtoken;
+			//OpCodes.Ldvirtftn;
+			//OpCodes.Leave;
+			//OpCodes.Leave_S;
+			//OpCodes.Localloc;
+			//OpCodes.Mkrefany;
+			//OpCodes.Ldarga;
+			//OpCodes.Ldarga_S;
+			//OpCodes.
+			throw (new NotImplementedException());
+		}
+
+		public LocalBuilder DeclareLocal<TType>()
+		{
+			return ILGenerator.DeclareLocal(typeof(TType));
+		}
+
+		public void CheckAndFinalize()
+		{
+			foreach (var Label in Labels)
+			{
+				if (!Label.Marked) throw(new InvalidOperationException("Label '" + Label + "' not marked"));
+			}
+			ResetStack();
+		}
+
+		public void Comment(string Comment)
+		{
+		}
+
+		public int StackCount
+		{
+			get
+			{
+				return TypeStack.Count;
 			}
 		}
 	}

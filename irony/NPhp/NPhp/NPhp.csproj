@@ -88,7 +88,12 @@
     <Compile Include="Runtime\Php54Scope.cs" />
     <Compile Include="Runtime\Php54Var.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\SafeILGenerator\SafeILGenerator.csproj">
+      <Project>{9A93C7E4-09DA-46CF-B7DD-6BB09681D5AB}</Project>
+      <Name>SafeILGenerator</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

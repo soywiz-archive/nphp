@@ -15,9 +15,9 @@ namespace NPhp.Codegen
 			//throw new NotImplementedException();
 		}
 
-		public Action<Php54Scope> CreateMethod(Php54FunctionScope FunctionScope)
+		public Action<Php54Scope> CreateMethod(Php54FunctionScope FunctionScope, bool DoDebug)
 		{
-			var Context = new NodeGenerateContext(FunctionScope);
+			var Context = new NodeGenerateContext(FunctionScope, DoDebug);
 			Generate(Context);
 			return Context.MethodGenerator.GenerateMethod();
 		}

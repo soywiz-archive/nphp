@@ -1,6 +1,4 @@
-﻿//#define CODEGEN_TRACE
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,27 +12,23 @@ namespace NPhp.Codegen
 	public class MethodGenerator
 	{
 		private DynamicMethod DynamicMethod;
-		private ILGenerator ILGenerator;
+		private SafeILGenerator SafeILGenerator;
 		public int StackCount
 		{
 			get
 			{
-				return _TypeStack.Count;
+				return SafeILGenerator.StackCount;
 			}
 		}
-		public Stack<Type> _TypeStack = new Stack<Type>();
-
 		public Type StackTop
 		{
 			get
 			{
-				var Type = _TypeStack.Pop();
-				_TypeStack.Push(Type);
-				return Type;
+				return SafeILGenerator.GetCurrentTypeStack().GetLastest();
 			}
 		}
 
-		public MethodGenerator()
+		public MethodGenerator(bool DoDebug)
 		{
 			//MethodAttributes.
 			DynamicMethod = new DynamicMethod(
@@ -42,7 +36,7 @@ namespace NPhp.Codegen
 				typeof(void),
 				new Type[] { typeof(Php54Scope) }
 			);
-			ILGenerator = DynamicMethod.GetILGenerator();
+			SafeILGenerator = new SafeILGenerator(DynamicMethod.GetILGenerator(), DoDebug);
 		}
 
 		Dictionary<string, LocalBuilder> Locals = new Dictionary<string,LocalBuilder>();
@@ -69,14 +63,15 @@ namespace NPhp.Codegen
 
 		private LocalBuilder DeclareLocal<TType>()
 		{
-			return ILGenerator.DeclareLocal(typeof(TType));
+			return SafeILGenerator.DeclareLocal<TType>();
 		}
 
 		public Action<Php54Scope> GenerateMethod()
 		{
 			ClearStack();
-			ILGenerator.Emit(OpCodes.Ret);
+			SafeILGenerator.Return();
 
+			SafeILGenerator.CheckAndFinalize();
 			var Method = (Action<Php54Scope>)DynamicMethod.CreateDelegate(typeof(Action<Php54Scope>));
 			
 			//Delegate.
@@ -85,78 +80,32 @@ namespace NPhp.Codegen
 
 		public void Push(double Value)
 		{
-			ILGenerator.Emit(OpCodes.Ldc_R8, Value);
-
-			StackCountIncrement(typeof(double));
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("PUSH<double>: {0} -> Stack: {1}", Value, StackCount);
-#endif
-
+			SafeILGenerator.Push(Value);
 		}
 
 		public void Push(bool Value)
 		{
-			ILGenerator.Emit(Value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
-
-			StackCountIncrement(typeof(bool));
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("PUSH<bool>: {0} -> Stack: {1}", Value, StackCount);
-#endif
+			SafeILGenerator.Push(Value);
 		}
 
 		public void Push(int Value)
 		{
-			switch (Value)
-			{
-				case -1: ILGenerator.Emit(OpCodes.Ldc_I4_M1); break;
-				case 0: ILGenerator.Emit(OpCodes.Ldc_I4_0); break;
-				case 1: ILGenerator.Emit(OpCodes.Ldc_I4_1); break;
-				case 2: ILGenerator.Emit(OpCodes.Ldc_I4_2); break;
-				case 3: ILGenerator.Emit(OpCodes.Ldc_I4_3); break;
-				case 4: ILGenerator.Emit(OpCodes.Ldc_I4_4); break;
-				case 5: ILGenerator.Emit(OpCodes.Ldc_I4_5); break;
-				case 6: ILGenerator.Emit(OpCodes.Ldc_I4_6); break;
-				case 7: ILGenerator.Emit(OpCodes.Ldc_I4_7); break;
-				case 8: ILGenerator.Emit(OpCodes.Ldc_I4_8); break;
-				default:
-					if ((int)(sbyte)Value == (int)Value)
-					{
-						ILGenerator.Emit(OpCodes.Ldc_I4_S, (sbyte)Value);
-					}
-					else
-					{
-						ILGenerator.Emit(OpCodes.Ldc_I4, Value);
-					}
-					break;
-			}
-
-			StackCountIncrement(typeof(int));
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("PUSH<int>: {0} -> Stack: {1}", Value, StackCount);
-#endif
+			SafeILGenerator.Push(Value);
 		}
 
 		public void Push(string Value)
 		{
-			ILGenerator.Emit(OpCodes.Ldstr, Value);
-
-			StackCountIncrement(typeof(string));
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("PUSH<string>: '{0}' -> Stack: {1}", Value, StackCount);
-#endif
+			SafeILGenerator.Push(Value);
 		}
 
+		/*
 		public void Operator(string Operator)
 		{
 			//Console.WriteLine("Operator");
 			switch (Operator)
 			{
-				case "+": ILGenerator.Emit(OpCodes.Add); break;
-				case "-": ILGenerator.Emit(OpCodes.Sub); break;
+				case "+": SafeILGenerator.BinaryOperation(Codegen.SafeILGenerator.BinaryOperatorEnum.AdditionSigned); break;
+				case "-": SafeILGenerator.BinaryOperation(Codegen.SafeILGenerator.BinaryOperatorEnum.SubstractionSigned); break;
 				case "*": ILGenerator.Emit(OpCodes.Mul); break;
 				case "/": ILGenerator.Emit(OpCodes.Div); break;
 				default: throw (new NotImplementedException());
@@ -164,62 +113,37 @@ namespace NPhp.Codegen
 
 			StackCountDecrement(1);
 
-#if CODEGEN_TRACE
-			Debug.WriteLine("Operator: '{0}' -> Stack: {1}", Operator, StackCount);
-#endif
 		}
+		*/
 
-		public Label DefineLabel()
+		public SafeILGenerator.SafeLabel DefineLabel(string Name)
 		{
-			return ILGenerator.DefineLabel();
+			return SafeILGenerator.CreateLabel(Name);
 		}
 
-		public void MarkLabel(Label Label)
-		{
-#if CODEGEN_TRACE
-			Debug.WriteLine("MarkLabel: '{0}'", Label);
-#endif
-			ILGenerator.MarkLabel(Label);
-		}
-
-		public void BranchIfTrue(Label Label)
+		public void BranchIfTrue(SafeILGenerator.SafeLabel Label)
 		{
 			ConvTo<bool>();
-			ILGenerator.Emit(OpCodes.Brtrue, Label);
-			StackCountDecrement(1);
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("BranchIfTrue: '{0}' -> Stack: {1}", Label, StackCount);
-#endif
+			SafeILGenerator.BranchIfTrue(Label);
 		}
 
-		public void BranchIfFalse(Label Label)
+		public void BranchIfFalse(SafeILGenerator.SafeLabel Label)
 		{
 			ConvTo<bool>();
-			ILGenerator.Emit(OpCodes.Brfalse, Label);
-			StackCountDecrement(1);
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("BranchIfFalse: '{0}' -> Stack: {1}", Label, StackCount);
-#endif
+			SafeILGenerator.BranchIfFalse(Label);
 		}
 
 		public void Pop(int Count)
 		{
 			for (int n = 0; n < Count; n++)
 			{
-				ILGenerator.Emit(OpCodes.Pop);
-				StackCountDecrement(1);
+				SafeILGenerator.Pop();
 			}
 		}
 
 		public void ClearStack()
 		{
 			Pop(StackCount);
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("ClearStack -> Stack: {0}", StackCount);
-#endif
 		}
 
 		public void Call(Delegate Delegate)
@@ -227,57 +151,14 @@ namespace NPhp.Codegen
 			Call(Delegate.Method);
 		}
 
-		private void StackCountDecrement(int Count)
-		{
-			for (int n = 0; n < Count; n++)
-			{
-				//StackCountDecrement(1);
-				_TypeStack.Pop();
-			}
-		}
-
-		private void StackCountIncrement(Type Type)
-		{
-			_TypeStack.Push(Type);
-			//StackCount++;
-		}
-
 		public void Call(MethodInfo MethodInfo)
 		{
-			int PrevStackCount = StackCount;
-
-			ILGenerator.Emit(OpCodes.Call, MethodInfo);
-			int ThisCount = (!MethodInfo.IsStatic) ? 1 : 0;
-			int ArgumentCount = MethodInfo.GetParameters().Length;
-			int ReturnCount = (MethodInfo.ReturnType != typeof(void)) ? 1 : 0;
-			StackCountDecrement(ThisCount);
-			StackCountDecrement(ArgumentCount);
-			if (MethodInfo.ReturnType != typeof(void))
-			{
-				StackCountIncrement(MethodInfo.ReturnType);
-			}
-
-
-#if CODEGEN_TRACE
-			Debug.WriteLine(
-				"Call: {0}.{1} (this:{2}, args:{3}, ret:{4}) -> Stack: {5} -> {6}",
-				MethodInfo.DeclaringType.Name,
-				MethodInfo.Name,
-				ThisCount,
-				ArgumentCount,
-				ReturnCount,
-				PrevStackCount,
-				StackCount
-			);
-#endif
+			SafeILGenerator.Call(MethodInfo);
 		}
 
-		public void BranchAlways(Label Label)
+		public void BranchAlways(SafeILGenerator.SafeLabel Label)
 		{
-			ILGenerator.Emit(OpCodes.Br, Label);
-#if CODEGEN_TRACE
-			Debug.WriteLine("BranchAlways: '{0}'", Label);
-#endif
+			SafeILGenerator.BranchAlways(Label);
 		}
 
 		public void LoadScope()
@@ -287,21 +168,7 @@ namespace NPhp.Codegen
 
 		private void LoadArgument<TType>(int ArgumentIndex)
 		{
-			switch (ArgumentIndex)
-			{
-				case 0: ILGenerator.Emit(OpCodes.Ldarg_0); break;
-				case 1: ILGenerator.Emit(OpCodes.Ldarg_1); break;
-				case 2: ILGenerator.Emit(OpCodes.Ldarg_2); break;
-				case 3: ILGenerator.Emit(OpCodes.Ldarg_3); break;
-				default: ILGenerator.Emit(OpCodes.Ldarg, ArgumentIndex); break;
-			}
-
-			StackCountIncrement(typeof(TType));
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("LoadArgument<{0}>: {1} -> Stack: {2}", typeof(TType).Name, ArgumentIndex, StackCount);
-#endif
-			//throw new NotImplementedException();
+			SafeILGenerator.LoadArgument<TType>(ArgumentIndex);
 		}
 
 		public void Box<TType>()
@@ -311,60 +178,36 @@ namespace NPhp.Codegen
 
 		public void Box(Type Type)
 		{
-#if CODEGEN_TRACE
-			Debug.WriteLine("Box: " + Type.Name);
-#endif
-			ILGenerator.Emit(OpCodes.Box, Type);
+			SafeILGenerator.Box(Type);
 		}
 
 		public void Unbox<TType>()
 		{
-#if CODEGEN_TRACE
-			Debug.WriteLine("Unbox: " + typeof(TType).Name);
-#endif
-
-			ILGenerator.Emit(OpCodes.Unbox, typeof(TType));
+			SafeILGenerator.Unbox(typeof(TType));
 		}
 
 		public void Comment(string Comment)
 		{
-#if CODEGEN_TRACE
-			Debug.WriteLine("--- " + Comment);
-#endif
+			SafeILGenerator.Comment(Comment);
 		}
 
 		public void Dup()
 		{
-			ILGenerator.Emit(OpCodes.Dup);
-			StackCountIncrement(StackTop);
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("Dup -> Stack: {0}", StackCount);
-#endif
+			SafeILGenerator.Duplicate();
 		}
 
 		public void Pop()
 		{
-			StackCountDecrement(1);
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("Pop -> Stack: {0}", StackCount);
-#endif
+			SafeILGenerator.Pop();
 		}
 
 		public void Return()
 		{
-			ILGenerator.Emit(OpCodes.Ret);
-#if CODEGEN_TRACE
-			Debug.WriteLine("Ret");
-#endif
+			SafeILGenerator.Return();
 		}
 
 		public void ConvTo<TType>()
 		{
-#if CODEGEN_TRACE
-			Debug.WriteLine("ConvTo: " + typeof(TType).Name);
-#endif
 			Type ExpectedType = typeof(TType);
 			Type StackType = StackTop;
 
@@ -395,13 +238,13 @@ namespace NPhp.Codegen
 
 			if (ExpectedType == typeof(int))
 			{
-				ILGenerator.Emit(OpCodes.Conv_I4);
+				SafeILGenerator.ConvertTo<int>();
 				return;
 			}
 
 			if (ExpectedType == typeof(bool))
 			{
-				ILGenerator.Emit(OpCodes.Conv_I4);
+				SafeILGenerator.ConvertTo<bool>();
 				return;
 			}
 
@@ -410,24 +253,12 @@ namespace NPhp.Codegen
 
 		public void StoreToLocal(LocalBuilder Local)
 		{
-			ILGenerator.Emit(OpCodes.Stloc, Local);
-
-			StackCountDecrement(1);
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("StoreToLocal({0}:{1}) -> Stack: {2}", Local.LocalType.Name, Local.LocalIndex, StackCount);
-#endif
+			SafeILGenerator.StoreLocal(Local);
 		}
 
 		public void LoadLocal(LocalBuilder Local)
 		{
-			ILGenerator.Emit(OpCodes.Ldloc, Local);
-
-			StackCountIncrement(Local.LocalType);
-
-#if CODEGEN_TRACE
-			Debug.WriteLine("LoadLocal({0}:{1}) -> Stack: {2}", Local.LocalType.Name, Local.LocalIndex, StackCount);
-#endif
+			SafeILGenerator.LoadLocal(Local);
 		}
 	}
 }

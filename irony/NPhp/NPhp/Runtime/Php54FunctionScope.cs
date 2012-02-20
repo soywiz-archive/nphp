@@ -14,7 +14,7 @@ namespace NPhp.Runtime
 		static public Action<Php54Scope> CreateNativeWrapper(MethodInfo MethodInfo)
 		{
 			//var MethodInfo = Delegate.Method;
-			var Context = new NodeGenerateContext(null);
+			var Context = new NodeGenerateContext(null, false);
 			var MethodGenerator = Context.MethodGenerator;
 			{
 				MethodGenerator.LoadScope();

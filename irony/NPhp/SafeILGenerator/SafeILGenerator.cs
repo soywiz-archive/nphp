@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection.Emit;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace NPhp.Codegen
 {
@@ -20,6 +21,7 @@ namespace NPhp.Codegen
 
 				TypeStack.Push(TypeRight);
 			}
+
 			if (DoEmit)
 			{
 				switch (Operator)
@@ -28,6 +30,11 @@ namespace NPhp.Codegen
 					case UnaryOperatorEnum.Not: ILGenerator.Emit(OpCodes.Not); break;
 					default: throw (new NotImplementedException());
 				}
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("UnaryOperation({0}) :: Stack -> {1}", Operator, TypeStack.Count));
 			}
 		}
 
@@ -52,6 +59,11 @@ namespace NPhp.Codegen
 					if (Type == typeof(double)) { ILGenerator.Emit(OpCodes.Stelem_R8); break; }
 					throw (new NotImplementedException());
 				}
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("StoreElement({0}) :: Stack -> {1}", Type.Name, TypeStack.Count));
 			}
 		}
 
@@ -81,6 +93,11 @@ namespace NPhp.Codegen
 					throw(new NotImplementedException());
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("StoreIndirect({0}) :: Stack -> {1}", Type.Name, TypeStack.Count));
+			}
 		}
 
 		public void StoreIndirect<TType>()
@@ -88,11 +105,12 @@ namespace NPhp.Codegen
 			StoreIndirect(typeof(TType));
 		}
 
-		public void StoreLocation<TType>(LocalBuilder Local)
+		public void StoreLocal(LocalBuilder Local)
 		{
 			if (TrackStack)
 			{
 				var StoreValueType = TypeStack.Pop();
+				if (StoreValueType != Local.LocalType) throw(new InvalidOperationException());
 			}
 
 			if (DoEmit)
@@ -107,6 +125,11 @@ namespace NPhp.Codegen
 					default: ILGenerator.Emit(((int)(byte)LocalIndex == (int)LocalIndex) ? OpCodes.Stloc_S : OpCodes.Stloc, Local); break;
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("StoreLocal({0}) :: Stack -> {1}", Local.LocalType, TypeStack.Count));
+			}
 		}
 
 		public void StoreArgument<TType>(int ArgumentIndex)
@@ -120,6 +143,11 @@ namespace NPhp.Codegen
 			if (DoEmit)
 			{
 				ILGenerator.Emit(((int)(byte)ArgumentIndex == (int)ArgumentIndex) ? OpCodes.Starg_S : OpCodes.Starg, ArgumentIndex);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("StoreArgument<{0}>({1}) :: Stack -> {2}", typeof(TType).Name, ArgumentIndex, TypeStack.Count));
 			}
 		}
 
@@ -141,6 +169,11 @@ namespace NPhp.Codegen
 			{
 				ILGenerator.Emit(OpCodes.Box, Type);
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Box({0}) :: Stack -> {1}", Type, TypeStack.Count));
+			}
 		}
 
 		public void Unbox(Type Type)
@@ -154,6 +187,11 @@ namespace NPhp.Codegen
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Unbox);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Unbox({0}) :: Stack -> {1}", Type, TypeStack.Count));
 			}
 		}
 
@@ -182,6 +220,11 @@ namespace NPhp.Codegen
 					ILGenerator.Emit(OpCodes.Volatile);
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("SetPointerAttributes({0}) :: Stack -> {1}", Attributes, TypeStack.Count));
+			}
 		}
 
 		public void Tailcall()
@@ -190,7 +233,7 @@ namespace NPhp.Codegen
 			//ILGenerator.Emit(OpCodes.Tailcall);
 		}
 
-		public void Switch(Dictionary<int, Label> Labels, Label DefaultLabel)
+		public void Switch(Dictionary<int, SafeLabel> Labels, SafeLabel DefaultLabel)
 		{
 			var MinKey = Labels.Keys.Min();
 			var MaxKey = Labels.Keys.Max();
@@ -200,7 +243,7 @@ namespace NPhp.Codegen
 			throw (new NotImplementedException());
 		}
 
-		public void Switch(Label[] Labels)
+		public void Switch(SafeLabel[] Labels)
 		{
 			if (TrackStack)
 			{
@@ -210,6 +253,11 @@ namespace NPhp.Codegen
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Switch, Labels.Select(Label => Label.ReflectionLabel).ToArray());
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Switch({0}) :: Stack -> {1}", Labels, TypeStack.Count));
 			}
 		}
 
@@ -225,20 +273,30 @@ namespace NPhp.Codegen
 			{
 				ILGenerator.Emit(OpCodes.Sizeof);
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Sizeof() :: Stack -> {0}", TypeStack.Count));
+			}
 		}
 
-		public void Ret()
+		public void Return()
 		{
 			if (TrackStack)
 			{
 				// @TODO CHECK RETURN TYPE
 				//var ReturnType = TypeStack.Pop();
-				throw(new NotImplementedException());
+				//throw(new NotImplementedException());
 			}
 
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Ret);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Return() :: Stack -> {0}", TypeStack.Count));
 			}
 		}
 
@@ -247,6 +305,11 @@ namespace NPhp.Codegen
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Nop);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("NoOperation() :: Stack -> {0}", TypeStack.Count));
 			}
 		}
 		
@@ -285,6 +348,11 @@ namespace NPhp.Codegen
 					default: throw (new NotImplementedException());
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("BinaryOperation({0}) :: Stack -> {1}", Operator, TypeStack.Count));
+			}
 		}
 
 		public void Duplicate()
@@ -299,6 +367,11 @@ namespace NPhp.Codegen
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Dup);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Duplicate() :: Stack -> {0}", TypeStack.Count));
 			}
 		}
 
@@ -326,10 +399,16 @@ namespace NPhp.Codegen
 					default: throw(new NotImplementedException());
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("CompareBinary({0}) :: Stack -> {1}", Comparison, TypeStack.Count));
+			}
 		}
 
 		public void ConvertTo<TType>()
 		{
+			ConvertTo(typeof(TType));
 		}
 
 		public void ConvertTo(Type Type)
@@ -361,6 +440,11 @@ namespace NPhp.Codegen
 					throw (new NotImplementedException());
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("ConvertTo({0}) :: Stack -> {1}", Type, TypeStack.Count));
+			}
 		}
 
 		public void CopyBlock()
@@ -377,6 +461,11 @@ namespace NPhp.Codegen
 				ILGenerator.Emit(OpCodes.Cpblk);
 			}
 
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("CopyBlock() :: Stack -> {0}", TypeStack.Count));
+			}
+
 			throw (new NotImplementedException());
 		}
 
@@ -387,6 +476,11 @@ namespace NPhp.Codegen
 				ILGenerator.Emit(OpCodes.Cpobj);
 			}
 
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("CopyObject() :: Stack -> {0}", TypeStack.Count));
+			}
+
 			throw (new NotImplementedException());
 		}
 
@@ -395,6 +489,11 @@ namespace NPhp.Codegen
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Constrained);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Constrained() :: Stack -> {0}", TypeStack.Count));
 			}
 		}
 
@@ -409,9 +508,14 @@ namespace NPhp.Codegen
 			{
 				ILGenerator.Emit(OpCodes.Ckfinite);
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("CheckFinite() :: Stack -> {0}", TypeStack.Count));
+			}
 		}
 
-		public void BranchBinaryComparison(BinaryComparisonEnum Comparison, Label Label)
+		public void BranchBinaryComparison(BinaryComparisonEnum Comparison, SafeLabel Label)
 		{
 			if (TrackStack)
 			{
@@ -441,9 +545,14 @@ namespace NPhp.Codegen
 					default: throw (new NotImplementedException());
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("BranchBinaryComparison({0}, {1}) :: Stack -> {2}", Comparison, Label, TypeStack.Count));
+			}
 		}
 
-		private void _BranchUnaryComparison(UnaryComparisonEnum Comparison, Label Label)
+		private void _BranchUnaryComparison(UnaryComparisonEnum Comparison, SafeLabel Label)
 		{
 			if (TrackStack)
 			{
@@ -461,26 +570,56 @@ namespace NPhp.Codegen
 					default: throw (new NotImplementedException());
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("_BranchUnaryComparison({0}, {1}) :: Stack -> {2}", Comparison, Label, TypeStack.Count));
+			}
 		}
 
-		public void BranchIfTrue(Label Label)
+		public void BranchIfTrue(SafeLabel Label)
 		{
 			_BranchUnaryComparison(UnaryComparisonEnum.True, Label);
 		}
 
-		public void BranchIfFalse(Label Label)
+		public void BranchIfFalse(SafeLabel Label)
 		{
 			_BranchUnaryComparison(UnaryComparisonEnum.False, Label);
 		}
 
 		private void _Jmp_Call(OpCode OpCode, MethodInfo MethodInfo)
 		{
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("_Jmp_Call({0}, {1}) :: Stack -> {2}", OpCode.Name, MethodInfo, TypeStack.Count));
+			}
+
 			if (TrackStack)
 			{
+				int CurrentArgumentIndex = 0;
 				foreach (var Parameter in MethodInfo.GetParameters().Reverse())
 				{
+					var FunctionParameterType = Parameter.ParameterType;
 					var StackParameterType = TypeStack.Pop();
-					if (Parameter.ParameterType != StackParameterType) throw (new InvalidOperationException("Type mismatch"));
+					
+					if (FunctionParameterType == typeof(bool)) FunctionParameterType = typeof(int);
+					if (StackParameterType == typeof(bool)) StackParameterType = typeof(int);
+
+					if (FunctionParameterType != StackParameterType)
+					{
+						throw (new InvalidOperationException(
+							String.Format(
+								"Type mismatch : Argument{0}. Expected: '{1}' but found on Stack: '{2}'",
+								CurrentArgumentIndex, FunctionParameterType.Name, StackParameterType.Name
+							)
+						));
+					}
+					CurrentArgumentIndex++;
+				}
+
+				if (!MethodInfo.IsStatic)
+				{
+					var ThisType = TypeStack.Pop();
 				}
 
 				if (MethodInfo.ReturnType != typeof(void))
@@ -519,13 +658,23 @@ namespace NPhp.Codegen
 			{
 				ILGenerator.Emit(OpCodes.Break);
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Break() :: Stack -> {0}", TypeStack.Count));
+			}
 		}
 
-		public void BranchAlways(Label Label)
+		public void BranchAlways(SafeLabel Label)
 		{
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Br, Label.ReflectionLabel);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("BranchAlways() :: Stack -> {0}", TypeStack.Count));
 			}
 		}
 
@@ -540,9 +689,14 @@ namespace NPhp.Codegen
 			{
 				ILGenerator.Emit(OpCodes.Pop);
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Pop() :: Stack -> {0}", TypeStack.Count));
+			}
 		}
 
-		public void LoadArgument<TType>(int Index)
+		public void LoadArgument<TType>(int ArgumentIndex)
 		{
 			if (TrackStack)
 			{
@@ -551,14 +705,19 @@ namespace NPhp.Codegen
 
 			if (DoEmit)
 			{
-				switch (Index)
+				switch (ArgumentIndex)
 				{
 					case 0: ILGenerator.Emit(OpCodes.Ldarg_0); break;
 					case 1: ILGenerator.Emit(OpCodes.Ldarg_1); break;
 					case 2: ILGenerator.Emit(OpCodes.Ldarg_2); break;
 					case 3: ILGenerator.Emit(OpCodes.Ldarg_3); break;
-					default: ILGenerator.Emit(((int)(byte)Index == (int)Index) ? OpCodes.Ldarg_S : OpCodes.Ldarg, Index); break;
+					default: ILGenerator.Emit(((int)(byte)ArgumentIndex == (int)ArgumentIndex) ? OpCodes.Ldarg_S : OpCodes.Ldarg, ArgumentIndex); break;
 				}
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("LoadArgument<{0}>({1}) :: Stack -> {2}", typeof(TType).Name, ArgumentIndex,  TypeStack.Count));
 			}
 		}
 
@@ -578,16 +737,17 @@ namespace NPhp.Codegen
 				ILGenerator.Emit(OpCodes.Ldarg_S);
 			}
 
-			//OpCodes.Ldarga;
-			//OpCodes.Ldarga_S;
-			//OpCodes.
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("LoadArgumentFromIndexAtStack() :: Stack -> {0}", TypeStack.Count));
+			}
 		}
 
-		public void Push(int Value)
+		private void _PushIntAs<TType>(int Value)
 		{
 			if (TrackStack)
 			{
-				TypeStack.Push(typeof(int));
+				TypeStack.Push(typeof(TType));
 			}
 
 			if (DoEmit)
@@ -616,6 +776,21 @@ namespace NPhp.Codegen
 						break;
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Push({0}) :: Stack -> {1}", Value, TypeStack.Count));
+			}
+		}
+
+		public void Push(bool Value)
+		{
+			_PushIntAs<bool>(Value ? 1 : 0);
+		}
+
+		public void Push(int Value)
+		{
+			_PushIntAs<int>(Value);
 		}
 
 		public void Push(long Value)
@@ -628,6 +803,11 @@ namespace NPhp.Codegen
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Ldc_I8, Value);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Push({0}) :: Stack -> {1}", Value, TypeStack.Count));
 			}
 		}
 
@@ -642,6 +822,11 @@ namespace NPhp.Codegen
 			{
 				ILGenerator.Emit(OpCodes.Ldc_R4, Value);
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Push({0}) :: Stack -> {1}", Value, TypeStack.Count));
+			}
 		}
 
 		public void Push(double Value)
@@ -655,6 +840,11 @@ namespace NPhp.Codegen
 			{
 				ILGenerator.Emit(OpCodes.Ldc_R8, Value);
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Push({0}) :: Stack -> {1}", Value, TypeStack.Count));
+			}
 		}
 
 		public void Push(string Value)
@@ -667,6 +857,11 @@ namespace NPhp.Codegen
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Ldstr, Value);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("Push('{0}') :: Stack -> {1}", Value, TypeStack.Count));
 			}
 		}
 
@@ -683,6 +878,11 @@ namespace NPhp.Codegen
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCode);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("_LoadElement_Reference_Address({0}) :: Stack -> {1}", OpCode.Name, TypeStack.Count));
 			}
 		}
 
@@ -706,9 +906,15 @@ namespace NPhp.Codegen
 				// @TODO: Field reference
 				TypeStack.Push(typeof(object));
 			}
+	
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Ldfld);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("_LoadField_Address({0}) :: Stack -> {1}", OpCode.Name, TypeStack.Count));
 			}
 		}
 
@@ -732,9 +938,15 @@ namespace NPhp.Codegen
 				// @TODO: Field reference
 				TypeStack.Push(typeof(object));
 			}
+
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Ldftn);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("LoadMethodAddress() :: Stack -> {0}", TypeStack.Count));
 			}
 			//OpCodes.Ldind_I
 		}
@@ -746,9 +958,15 @@ namespace NPhp.Codegen
 				var ArrayType = TypeStack.Pop();
 				TypeStack.Push(typeof(int));
 			}
+
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Ldlen); 
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("LoadLength() :: Stack -> {0}", TypeStack.Count));
 			}
 		}
 
@@ -758,6 +976,7 @@ namespace NPhp.Codegen
 			{
 				TypeStack.Push(Local.LocalType);
 			}
+
 			if (DoEmit)
 			{
 				int LocalIndex = Local.LocalIndex;
@@ -770,6 +989,11 @@ namespace NPhp.Codegen
 					default: ILGenerator.Emit(((int)(byte)LocalIndex == (int)LocalIndex) ? OpCodes.Ldloc_S : OpCodes.Ldloc, Local); break;
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("LoadLocal({0}) :: Stack -> {1}", Local, TypeStack.Count));
+			}
 		}
 
 		public void LoadLocalAddress(LocalBuilder Local)
@@ -779,11 +1003,17 @@ namespace NPhp.Codegen
 				// @TODO: Address
 				TypeStack.Push(Local.LocalType);
 			}
+
 			if (DoEmit)
 			{
 				int LocalIndex = Local.LocalIndex;
 
 				ILGenerator.Emit(((int)(byte)LocalIndex == (int)LocalIndex) ? OpCodes.Ldloca_S : OpCodes.Ldloca);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("LoadLocalAddress({0}) :: Stack -> {1}", Local, TypeStack.Count));
 			}
 		}
 
@@ -793,9 +1023,15 @@ namespace NPhp.Codegen
 			{
 				TypeStack.Push(typeof(DBNull));
 			}
+
 			if (DoEmit)
 			{
 				ILGenerator.Emit(OpCodes.Ldnull);
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("LoadNull() :: Stack -> {0}", TypeStack.Count));
 			}
 		}
 
@@ -824,6 +1060,11 @@ namespace NPhp.Codegen
 					//ILGenerator.Emit(OpCodes.Ldelem);
 					throw (new NotImplementedException());
 				}
+			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("LoadIndirect({0}) :: Stack -> {1}", Type, TypeStack.Count));
 			}
 		}
 
@@ -854,6 +1095,11 @@ namespace NPhp.Codegen
 					throw (new NotImplementedException());
 				}
 			}
+
+			if (DoDebug)
+			{
+				Debug.WriteLine(String.Format("LoadElementFromArray({0}) :: Stack -> {1}", Type, TypeStack.Count));
+			}
 		}
 
 		public void LoadElementFromArray<TType>()
@@ -869,46 +1115,6 @@ namespace NPhp.Codegen
 		public void Push(ulong Value)
 		{
 			Push(unchecked((long)Value));
-		}
-
-		public void PendingOpcodes()
-		{
-			//OpCodes.Endfilter;
-			//OpCodes.Endfinally;
-			//OpCodes.Initblk;
-			//OpCodes.Initobj;
-			//OpCodes.Isinst;
-			//OpCodes.Newarr;
-			//OpCodes.Newobj;
-			//OpCodes.Prefix1;
-			//OpCodes.Prefix2;
-			//OpCodes.Prefix3;
-			//OpCodes.Prefix4;
-			//OpCodes.Prefix5;
-			//OpCodes.Prefix6;
-			//OpCodes.Prefix7;
-			//OpCodes.Prefixref;
-			//OpCodes.Readonly
-			//OpCodes.Refanytype
-			//OpCodes.Refanyval
-			//OpCodes.Sizeof
-			//OpCodes.Unaligned
-			//OpCodes.Unbox
-			//OpCodes.Volatile
-			//OpCodes.Stobj
-			//OpCodes.Stfld
-			//OpCodes.Stind_Ref
-			//OpCodes.Stelem_Ref
-			//OpCodes.Ldobj;
-			//OpCodes.Ldsfld;
-			//OpCodes.Ldsflda;
-			//OpCodes.Ldtoken;
-			//OpCodes.Ldvirtftn;
-			//OpCodes.Leave;
-			//OpCodes.Leave_S;
-			//OpCodes.Localloc;
-			//OpCodes.Mkrefany;
-			throw (new NotImplementedException());
 		}
 	}
 }
