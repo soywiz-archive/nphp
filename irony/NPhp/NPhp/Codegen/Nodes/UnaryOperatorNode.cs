@@ -23,6 +23,8 @@ namespace NPhp.Codegen.Nodes
 			{
 				case "+": Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.UnaryAdd); break;
 				case "-": Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.UnarySub); break;
+				case "~": Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.UnaryBitNot); break;
+				case "!": Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.UnaryLogicNot); break;
 				case "&": Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.CreateRef); break;
 				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
 			}

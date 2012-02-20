@@ -46,5 +46,49 @@ namespace NPhp.Runtime.Functions
 		{
 			return base_string.Length;
 		}
+
+		static private int _hexdec(char hexstr)
+		{
+			if (hexstr >= '0' && hexstr <= '9') return hexstr - '0' + 0x0;
+			if (hexstr >= 'a' && hexstr <= 'f') return hexstr - 'a' + 0xA;
+			if (hexstr >= 'A' && hexstr <= 'F') return hexstr - 'f' + 0xF;
+			throw(new InvalidCastException("Invalid hex digit '" + hexstr + "'"));
+		}
+
+		//static private readonly string DecHexLookupString = "0123456789ABCDEF";
+		static private readonly string DecHexLookupString = "0123456789abcdef";
+
+		static private char _dechex(int value)
+		{
+			return DecHexLookupString[value];
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="hexstr"></param>
+		/// <returns></returns>
+		static public int hexdec(string hexstr)
+		{
+			int value = 0;
+			for (int n = 0; n < hexstr.Length; n++)
+			{
+				value <<= 4;
+				value |= _hexdec(hexstr[n]);
+			}
+			return value;
+		}
+
+		static public string dechex(int _value)
+		{
+			uint value = (uint)_value;
+			string hexstr = "";
+			while (value > 0)
+			{
+				hexstr = _dechex((int)(value & 0xF)) + hexstr;
+				value >>= 4;
+			}
+			return hexstr;
+		}
 	}
 }

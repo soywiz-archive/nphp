@@ -264,6 +264,21 @@ namespace NPhp.Tests
 				echo strlen('hello');
 			"));
 		}
+
+		[TestMethod]
+		public void HexDecTest()
+		{
+			Assert.AreEqual("f2f2f2f2", RunAndCaptureOutput(@"
+				function F($X, $Y, $Z){
+					$X = hexdec($X);
+					$Y = hexdec($Y);
+					$Z = hexdec($Z);
+					$calc = (($X & $Y) | ((~ $X) & $Z)); // X AND Y OR NOT X AND Z
+					return  $calc; 
+				}
+				echo dechex(F('1f1f1f1f', '32323232', 'e4e4e4e4'));
+			"));
+		}
 	}
 
 	public partial class UnitTest1

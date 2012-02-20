@@ -33,11 +33,15 @@ namespace NPhp.Codegen.Nodes
 
 			switch (Operator)
 			{
-				case "+": Context.MethodGenerator.ConvTo<Php54Var>();  Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Add); break;
+				case "+": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Add); break;
 				case "-": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Sub); break;
 				case ".": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Concat); break;
 				case "*": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mul); break;
 				case "/": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Div); break;
+
+				case "&": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitAnd); break;
+				case "|": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitOr); break;
+
 				case "==": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareEquals); break;
 				case ">": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareGreaterThan); break;
 				case "<":

@@ -223,6 +223,26 @@ namespace NPhp.Runtime
 			return new Php54Var(null, TypeEnum.Null);
 		}
 
+		static public Php54Var BitAnd(Php54Var Left, Php54Var Right)
+		{
+			return new Php54Var(Left.IntegerValue & Right.IntegerValue, TypeEnum.Int);
+		}
+
+		static public Php54Var BitOr(Php54Var Left, Php54Var Right)
+		{
+			return new Php54Var(Left.IntegerValue | Right.IntegerValue, TypeEnum.Int);
+		}
+
+		static public Php54Var UnaryBitNot(Php54Var Left)
+		{
+			return new Php54Var(~Left.IntegerValue, TypeEnum.Int);
+		}
+
+		static public Php54Var UnaryLogicNot(Php54Var Left)
+		{
+			return new Php54Var(!Left.BoolValue, TypeEnum.Bool);
+		}
+
 		static public Php54Var Add(Php54Var Left, Php54Var Right)
 		{
 			return new Php54Var(Left.NumericValue + Right.NumericValue, CombineTypes(Left.Type, Right.Type));

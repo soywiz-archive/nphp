@@ -61,7 +61,12 @@ namespace NPhp.Runtime
 
 		public void CallFunctionByName(string Name)
 		{
-			var Method = Php54Runtime.FunctionScope.Functions[Name];
+			Action<Php54Scope> Method;
+
+			if (!Php54Runtime.FunctionScope.Functions.TryGetValue(Name, out Method))
+			{
+				throw(new KeyNotFoundException("Can't find function '" + Name + "'"));
+			}
 			Method(this);
 		}
 
