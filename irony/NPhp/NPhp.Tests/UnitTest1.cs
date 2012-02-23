@@ -312,6 +312,30 @@ namespace NPhp.Tests
 				echo ':'.gettype(99999999*39);
 			"));
 		}
+
+		[TestMethod]
+		public void SimpleArrayTest()
+		{
+			Assert.AreEqual("[1,\"test\",2]", RunAndCaptureOutput(@"
+				echo json_encode(array(1,'test',2));
+			"));
+		}
+
+		[TestMethod]
+		public void SimpleArray2Test()
+		{
+			Assert.AreEqual("[1,\"test\",2]", RunAndCaptureOutput(@"
+				echo json_encode([1,'test',2]);
+			"));
+		}
+
+		[TestMethod]
+		public void ComplexArrayTest()
+		{
+			Assert.AreEqual("[1,[\"test\",[],2,[false]],3]", RunAndCaptureOutput(@"
+				echo json_encode([1,['test',[],2,[false]],3]);
+			"));
+		}
 	}
 
 	public partial class UnitTest1

@@ -51,7 +51,7 @@ namespace NPhp.Codegen
 			LocalBuilder LocalBuilder;
 			if (!Locals.TryGetValue(Name, out LocalBuilder))
 			{
-				Locals[Name] = LocalBuilder = DeclareLocalPhp54Var();
+				Locals[Name] = LocalBuilder = DeclareLocalPhp54Var(Name);
 				Cached = false;
 			}
 			else
@@ -61,14 +61,15 @@ namespace NPhp.Codegen
 			return LocalBuilder;
 		}
 
-		private LocalBuilder DeclareLocalPhp54Var()
+		private LocalBuilder DeclareLocalPhp54Var(string Name)
 		{
-			return DeclareLocal<Php54Var>();
+			return DeclareLocal<Php54Var>(Name);
 		}
 
-		private LocalBuilder DeclareLocal<TType>()
+		private LocalBuilder DeclareLocal<TType>(string Name)
 		{
-			return SafeILGenerator.DeclareLocal<TType>();
+			//return SafeILGenerator.DeclareLocal<TType>(Name);
+			return SafeILGenerator.DeclareLocal<TType>(null);
 		}
 
 		public Action<Php54Scope> GenerateMethod()

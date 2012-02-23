@@ -94,6 +94,13 @@ namespace NPhp.LanguageGrammar
 			var include_sentence = new NonTerminal("include_sentence", GetCreator<IncludeNode>());
 			var include_keyword = new NonTerminal("include_keyword", GetCreator<IgnoreNode>());
 
+			var number_or_string = new NonTerminal("number_or_string", GetCreator<IgnoreNode>());
+			var array_key_value_element = new NonTerminal("array_key_value_element", GetCreator<IgnoreNode>());
+			var array_element = new NonTerminal("array_element", GetCreator<IgnoreNode>());
+			var array_elements = new NonTerminal("array_elements", GetCreator<IgnoreNode>());
+			var array_expr = new NonTerminal("array_expr", GetCreator<ArrayNode>());
+			var array_expr2 = new NonTerminal("array_expr2", GetCreator<ArrayNode>());
+
 			include_keyword.Rule = ToTerm("include") | "include_once" | "require" | "require_once";
 			include_sentence.Rule = include_keyword + expr + ";";
 
@@ -144,17 +151,17 @@ namespace NPhp.LanguageGrammar
 			;
 
 			base_sentence.Rule =
-				curly_sentence |
-				echo_base_sentence |
-				eval_base_sentence |
-				while_sentence |
-				for_sentence |
-				if_else_sentence |
-				if_sentence |
-				include_sentence |
-				expression_sentence |
-				return_sentence |
-				named_func_decl
+				curly_sentence
+				| echo_base_sentence
+				| eval_base_sentence
+				| while_sentence
+				| for_sentence
+				| if_else_sentence
+				| if_sentence
+				| include_sentence
+				| expression_sentence
+				| return_sentence
+				| named_func_decl
 			;
 
 			sentence_list.Rule = MakeStarRule(sentence_list, sentence);
@@ -189,9 +196,14 @@ namespace NPhp.LanguageGrammar
 				| "__NAMESPACE__"
 			;
 
-			literal.Rule =
+			number_or_string.Rule =
 				Number
 				| StringSingleQuoteTerminal
+			;
+
+
+			literal.Rule =
+				number_or_string
 				| GetVariable
 				| SpecialLiteral
 			;
@@ -220,7 +232,7 @@ namespace NPhp.LanguageGrammar
 			RegisterBracePair("[", "]");
 			//MarkTransient(Term, Expr, Statement, BinOp, UnOp, IncDecOp, AssignmentOp, ParExpr, ObjectRef);
 
-			expr2.Rule = "(" + expr + ")";
+			expr2.Rule = ToTerm("(") + expr + ")";
 
 			unary_op.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~") | ToTerm("&");
 
@@ -234,17 +246,29 @@ namespace NPhp.LanguageGrammar
 			func_call.Rule = GetId + "(" + func_arguments + ")";
 			constant.Rule = GetId;
 
+			array_key_value_element.Rule = number_or_string + "=>" + expr;
+
+			array_element.Rule =
+				//array_key_value_element |
+				expr
+			;
+			array_elements.Rule = MakeStarRule(array_elements, comma, array_element);
+			array_expr.Rule = ToTerm("array") + PreferShiftHere() + "(" + array_elements + ")";
+			array_expr2.Rule = ToTerm("[") + PreferShiftHere() + array_elements + "]";
+
 			//var expression = new NonTerminal("comma_opt", Empty | comma);
 			expr.Rule =
-				func_call |
-				literal_pre |
-				literal |
-				literal_post |
-				bin_op_expression |
-				unary_expr |
-				expr2 |
-				assignment |
-				constant
+				func_call
+				| array_expr
+				| array_expr2
+				| literal_pre
+				| literal
+				| literal_post
+				| bin_op_expression
+				| unary_expr
+				| expr2
+				| assignment
+				| constant
 			;
 
 			expr_or_empty.Rule = expr | Empty;

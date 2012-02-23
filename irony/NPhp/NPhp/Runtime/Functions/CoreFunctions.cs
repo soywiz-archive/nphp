@@ -27,5 +27,36 @@ namespace NPhp.Runtime.Functions
 			}
 			throw(new NotImplementedException());
 		}
+
+		static public void print_r(Php54Var Value)
+		{
+			switch (Value.Type)
+			{
+				case Php54Var.TypeEnum.Null:
+					Console.WriteLine("");
+					break;
+				case Php54Var.TypeEnum.Int:
+					Console.WriteLine("{0}", Value.IntegerValue);
+					break;
+				case Php54Var.TypeEnum.String:
+					Console.WriteLine("{0}", Value.StringValue);
+					break;
+				case Php54Var.TypeEnum.Array:
+					Console.WriteLine("Array");
+					Console.WriteLine("(");
+					int Index = 0;
+					foreach (var Element in Value.ArrayValue.Elements)
+					{
+						Console.Write("    [{0}] => ", Index);
+						print_r(Element);
+						//Console.WriteLine("");
+						Index++;
+					}
+					Console.WriteLine(")");
+					break;
+				default:
+					throw(new NotImplementedException());
+			}
+		}
 	}
 }
