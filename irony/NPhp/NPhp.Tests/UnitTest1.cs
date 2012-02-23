@@ -281,6 +281,28 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void HexLiteralsTest()
+		{
+			Assert.AreEqual("f2f2f2f2", RunAndCaptureOutput(@"
+				function _F($X, $Y, $Z){
+					return  (($X & $Y) | ((~ $X) & $Z)); // X AND Y OR NOT X AND Z
+				}
+				echo dechex(_F(0x1f1f1f1f, 0x32323232, 0xe4e4e4e4));
+			"));
+		}
+
+		[TestMethod]
+		public void NonDecimalLiteralsTest()
+		{
+			Assert.AreEqual("63:63:511:", RunAndCaptureOutput(@"
+				echo 0x3F . ':';
+				echo 0x3f . ':';
+				echo 0777 . ':';
+				//echo 0b10101 . ':';
+			"));
+		}
+
+		[TestMethod]
 		public void SpecialTokens()
 		{
 			Assert.AreEqual("f3", RunAndCaptureOutput(@"

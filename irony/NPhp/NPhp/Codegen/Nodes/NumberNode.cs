@@ -5,6 +5,7 @@ using System.Text;
 using Irony.Parsing;
 using Irony.Ast;
 using NPhp.Runtime;
+using NPhp.Common;
 
 namespace NPhp.Codegen.Nodes
 {
@@ -14,8 +15,7 @@ namespace NPhp.Codegen.Nodes
 
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
-
-			Value = int.Parse(parseNode.FindTokenAndGetText());
+			Value = Php54Utils.StringToInteger(parseNode.FindTokenAndGetText());
 		}
 
 		public override void Generate(NodeGenerateContext Context)
