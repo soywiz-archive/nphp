@@ -19,6 +19,14 @@ namespace NPhp.Tests
 				echo 2;
 			"));
 		}
+
+		[TestMethod]
+		public void SimpleForeachTest()
+		{
+			Assert.AreEqual("123", RunAndCaptureOutput(@"
+				foreach ([1,2,3] as $v) echo $v;
+			"));
+		}
 		
 		[TestMethod]
 		public void SimpleIfTest()

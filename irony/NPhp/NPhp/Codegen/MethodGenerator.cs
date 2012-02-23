@@ -119,6 +119,11 @@ namespace NPhp.Codegen
 			return SafeILGenerator.DefineLabel(Name);
 		}
 
+		public LocalBuilder CreateLocal<TType>(string Name)
+		{
+			return SafeILGenerator.DeclareLocal<TType>(Name);
+		}
+
 		public void BranchIfTrue(SafeLabel Label)
 		{
 			ConvTo<bool>();
@@ -215,6 +220,7 @@ namespace NPhp.Codegen
 				return;
 			}
 
+			if (StackType == null) throw(new NullReferenceException("Argument on the stack is null!"));
 
 			if (StackType == typeof(Php54Var))
 			{
@@ -230,6 +236,7 @@ namespace NPhp.Codegen
 				if (StackType == typeof(bool)) { Call((Func<bool, Php54Var>)Php54Var.FromBool); return; }
 				if (StackType == typeof(int)) { Call((Func<int, Php54Var>)Php54Var.FromInt); return; }
 				if (StackType == typeof(string)) { Call((Func<string, Php54Var>)Php54Var.FromString); return; }
+				//if (StackType == typeof(object)) { SafeILGenerator.CastClass<Php54Var>(); return; }
 
 				throw (new NotImplementedException());
 			}

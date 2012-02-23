@@ -55,6 +55,7 @@
     <Compile Include="Codegen\Nodes\BinaryOperatorNode.cs" />
     <Compile Include="Codegen\Nodes\EchoNode.cs" />
     <Compile Include="Codegen\Nodes\EvalNode.cs" />
+    <Compile Include="Codegen\Nodes\ForeachNode.cs" />
     <Compile Include="Codegen\Nodes\ForNode.cs" />
     <Compile Include="Codegen\Nodes\FunctionCallNode.cs" />
     <Compile Include="Codegen\Nodes\GetConstantNode.cs" />

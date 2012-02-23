@@ -81,6 +81,10 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal array_expr = new NonTerminal("array_expr", GetCreator<ArrayNode>());
 		public readonly NonTerminal array_expr2 = new NonTerminal("array_expr2", GetCreator<ArrayNode>());
 
+		public readonly NonTerminal foreach_sentence = new NonTerminal("foreach_sentence", GetCreator<ForeachNode>());
+		public readonly NonTerminal foreach_pair_sentence = new NonTerminal("foreach_pair_sentence", GetCreator<ForeachNode>());
+		
+
 		public Php54Grammar()
 			: base(caseSensitive: false)
 		{
@@ -146,6 +150,16 @@ namespace NPhp.LanguageGrammar
 				sentence
 			;
 
+			foreach_sentence.Rule =
+				ToTerm("foreach") + "(" + expr + "as" + GetVariable + ")" +
+				sentence
+			;
+
+			foreach_pair_sentence.Rule =
+				ToTerm("foreach") + "(" + expr + "as" + GetVariable + "=>" + GetVariable + ")" +
+				sentence
+			;
+
 			for_sentence.Rule =
 				ToTerm("for") + "(" + expr_or_empty + ";" + expr_or_empty + ";" + expr_or_empty + ")" +
 				sentence
@@ -156,6 +170,8 @@ namespace NPhp.LanguageGrammar
 				| echo_base_sentence
 				| eval_base_sentence
 				| while_sentence
+				| foreach_sentence
+				//| foreach_pair_sentence
 				| for_sentence
 				| if_else_sentence
 				| if_sentence
@@ -228,7 +244,7 @@ namespace NPhp.LanguageGrammar
 			RegisterOperators(40, "*", "/");
 			RegisterOperators(50, Associativity.Right, "**");
 
-			MarkPunctuation("(", ")", "?", ":", ";", "[", "]", "{", "}", "=>");
+			MarkPunctuation("(", ")", "?", ":", ";", "[", "]", "{", "}", "=>", "as");
 			RegisterBracePair("(", ")");
 			RegisterBracePair("[", "]");
 			//MarkTransient(Term, Expr, Statement, BinOp, UnOp, IncDecOp, AssignmentOp, ParExpr, ObjectRef);

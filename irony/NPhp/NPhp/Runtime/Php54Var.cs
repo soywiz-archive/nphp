@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections;
 
 namespace NPhp.Runtime
 {
@@ -434,6 +435,26 @@ namespace NPhp.Runtime
 				if (this.Type != TypeEnum.Array) throw (new NotImplementedException());
 				return DynamicValue as Php54Array;
 			}
+		}
+
+		public IEnumerator<Php54Var> GetValuesIterator()
+		{
+			if (this.Type != TypeEnum.Array)
+			{
+				return (new Php54Var[] { }).Select(Item => Item).GetEnumerator();
+				throw (new NotImplementedException());
+			}
+			return (this.DynamicValue as Php54Array).GetEnumerator().Select(Item => Item.Value).GetEnumerator();
+		}
+
+		static public bool IteratorMoveNext(IEnumerator<Php54Var> Iterator)
+		{
+			return Iterator.MoveNext();
+		}
+
+		static public Php54Var IteratorGetCurrent(IEnumerator<Php54Var> Iterator)
+		{
+			return (Php54Var)Iterator.Current;
 		}
 	}
 
