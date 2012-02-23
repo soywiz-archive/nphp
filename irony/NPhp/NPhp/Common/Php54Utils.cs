@@ -28,6 +28,11 @@ namespace NPhp.Common
 			return int.Parse(Text);
 		}
 
+		static public string NormalizeFunctionName(string Name)
+		{
+			return Name.ToLower();
+		}
+
 		static public string StringQuote(string String)
 		{
 			return "\"" + String + "\"";

@@ -437,24 +437,50 @@ namespace NPhp.Runtime
 			}
 		}
 
-		public IEnumerator<Php54Var> GetValuesIterator()
+		public IEnumerator<KeyValuePair<Php54Var, Php54Var>> GetArrayIterator()
 		{
 			if (this.Type != TypeEnum.Array)
 			{
-				return (new Php54Var[] { }).Select(Item => Item).GetEnumerator();
-				throw (new NotImplementedException());
+				return (new KeyValuePair<Php54Var, Php54Var>[] { }).Select(Item => Item).GetEnumerator();
+				//throw (new NotImplementedException());
 			}
-			return (this.DynamicValue as Php54Array).GetEnumerator().Select(Item => Item.Value).GetEnumerator();
+			return (this.DynamicValue as Php54Array).GetEnumerator().Select(Item => Item).GetEnumerator();
 		}
 
-		static public bool IteratorMoveNext(IEnumerator<Php54Var> Iterator)
+		static public bool IteratorMoveNext(IEnumerator<KeyValuePair<Php54Var, Php54Var>> Iterator)
 		{
 			return Iterator.MoveNext();
 		}
 
-		static public Php54Var IteratorGetCurrent(IEnumerator<Php54Var> Iterator)
+		static public Php54Var IteratorGetCurrentValue(IEnumerator<KeyValuePair<Php54Var, Php54Var>> Iterator)
 		{
-			return (Php54Var)Iterator.Current;
+			return Iterator.Current.Value;
+		}
+
+		static public Php54Var IteratorGetCurrentKey(IEnumerator<KeyValuePair<Php54Var, Php54Var>> Iterator)
+		{
+			return Iterator.Current.Key;
+		}
+
+		static public bool operator ==(Php54Var Left, Php54Var Right)
+		{
+			return (Left.Type == Right.Type) && (Left.DynamicValue == Right.DynamicValue);
+		}
+
+		static public bool operator !=(Php54Var Left, Php54Var Right)
+		{
+			return !(Left == Right);
+		}
+
+		public override bool Equals(object that)
+		{
+			if (that.GetType() != this.GetType()) return false;
+			return this == (Php54Var)that;
+		}
+
+		public override int GetHashCode()
+		{
+			return DynamicValue.GetHashCode();
 		}
 	}
 

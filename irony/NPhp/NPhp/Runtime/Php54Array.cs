@@ -8,10 +8,10 @@ namespace NPhp.Runtime
 {
 	public sealed class Php54Array
 	{
-		private int LastNumericIndex = -1;
-		private List<object> Keys = new List<object>();
+		private int LastNumericIndex = 0;
+		private List<Php54Var> Keys = new List<Php54Var>();
 		private List<Php54Var> Values = new List<Php54Var>();
-		private Dictionary<object, Php54Var> Dictionary = new Dictionary<object, Php54Var>();
+		private Dictionary<Php54Var, int> KeyIndices = new Dictionary<Php54Var, int>();
 		public bool PureArray { get; private set; }
 
 		public Php54Array()
@@ -19,13 +19,13 @@ namespace NPhp.Runtime
 			PureArray = true;
 		}
 
-		public IEnumerable<KeyValuePair<object, Php54Var>> GetEnumerator()
+		public IEnumerable<KeyValuePair<Php54Var, Php54Var>> GetEnumerator()
 		{
 			var KeysEnumerator = Keys.GetEnumerator();
 			var ValuesEnumerator = Values.GetEnumerator();
 			while (KeysEnumerator.MoveNext() && ValuesEnumerator.MoveNext())
 			{
-				yield return new KeyValuePair<object, Php54Var>(KeysEnumerator.Current, ValuesEnumerator.Current);
+				yield return new KeyValuePair<Php54Var, Php54Var>(KeysEnumerator.Current, ValuesEnumerator.Current);
 			}
 		}
 
@@ -38,7 +38,7 @@ namespace NPhp.Runtime
 				var IntKey = Key.IntegerValue;
 				if (IntKey > LastNumericIndex)
 				{
-					LastNumericIndex = IntKey;
+					LastNumericIndex = IntKey + 1;
 					PureArray = false;
 				}
 				else
@@ -54,18 +54,29 @@ namespace NPhp.Runtime
 
 		public void AddElement(Php54Var Value)
 		{
-			var Key = ++LastNumericIndex;
+			var KeyInt = LastNumericIndex++;
+			var Key = Php54Var.FromInt(KeyInt);
 			Keys.Add(Key);
 			Values.Add(Value);
-			Dictionary[Key] = Value;
+			KeyIndices[Key] = Keys.Count - 1;
 		}
 
 		public void AddPair(Php54Var Key, Php54Var Value)
 		{
 			UpdateLastNumericIndex(Key);
-			Keys.Add(Key);
-			Values.Add(Value);
-			Dictionary[Key] = Value;
+			// Add new
+			if (!KeyIndices.ContainsKey(Key))
+			{
+				Keys.Add(Key);
+				Values.Add(Value);
+				KeyIndices[Key] = Keys.Count - 1;
+			}
+			// Update
+			else
+			{
+				int Index = KeyIndices[Key];
+				Values[Index] = Value;
+			}
 		}
 	}
 }

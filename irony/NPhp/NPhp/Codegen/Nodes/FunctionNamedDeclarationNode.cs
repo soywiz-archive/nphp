@@ -6,6 +6,7 @@ using Irony.Ast;
 using Irony.Parsing;
 using System.Diagnostics;
 using NPhp.Runtime;
+using NPhp.Common;
 
 namespace NPhp.Codegen.Nodes
 {
@@ -18,7 +19,7 @@ namespace NPhp.Codegen.Nodes
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
 			Debug.Assert(parseNode.ChildNodes[0].FindTokenAndGetText() == "function");
-			FunctionName = parseNode.ChildNodes[1].FindTokenAndGetText();
+			FunctionName = Php54Utils.NormalizeFunctionName(parseNode.ChildNodes[1].FindTokenAndGetText());
 			ParametersDeclaration = parseNode.ChildNodes[2];
 			CodeStatements = (parseNode.ChildNodes[3].AstNode as Node);
 

@@ -27,6 +27,31 @@ namespace NPhp.Tests
 				foreach ([1,2,3] as $v) echo $v;
 			"));
 		}
+
+		[TestMethod]
+		public void SimpleForeachKeyValueTest()
+		{
+			Assert.AreEqual("01:12:23:", RunAndCaptureOutput(@"
+				foreach ([1,2,3] as $k => $v) echo $k . $v . ':';
+			"));
+		}
+
+		[TestMethod]
+		public void PairForeachKeyValueTest()
+		{
+			Assert.AreEqual("test1:22:13:34:", RunAndCaptureOutput(@"
+				foreach (['test' => 1, 2 => 2, 1 => 3, 3 => 4] as $k => $v) echo $k . $v . ':';
+			"));
+		}
+
+		[TestMethod]
+		public void AssocArrayRepeatKeyTest()
+		{
+			Assert.AreEqual("[2]{\"1\":2}", RunAndCaptureOutput(@"
+				echo JsOn_EncodE(array(0 => 1, 0 => 2));
+				echo JSon_ENCODE(array(1 => 1, 1 => 2));
+			"));
+		}
 		
 		[TestMethod]
 		public void SimpleIfTest()

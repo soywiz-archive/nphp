@@ -171,7 +171,7 @@ namespace NPhp.LanguageGrammar
 				| eval_base_sentence
 				| while_sentence
 				| foreach_sentence
-				//| foreach_pair_sentence
+				| foreach_pair_sentence
 				| for_sentence
 				| if_else_sentence
 				| if_sentence
