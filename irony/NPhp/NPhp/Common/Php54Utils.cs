@@ -27,5 +27,31 @@ namespace NPhp.Common
 			}
 			return int.Parse(Text);
 		}
+
+		static public string StringQuote(string String)
+		{
+			return "\"" + String + "\"";
+		}
+
+		static public bool IsCompletelyNumeric(string String)
+		{
+			int StringLength = String.Length;
+			if (StringLength > 0)
+			{
+				if (String[0] == '-') return IsCompletelyNumeric(String.Substring(1));
+				for (int n = 0; n < StringLength; n++)
+				{
+					if (String[n] >= '0' && String[n] <= '9')
+					{
+					}
+					else
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			return false;
+		}
 	}
 }

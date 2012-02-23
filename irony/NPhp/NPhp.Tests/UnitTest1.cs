@@ -336,6 +336,15 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void EmptyArrayTest()
+		{
+			Assert.AreEqual("[][]", RunAndCaptureOutput(@"
+				echo json_encode(array());
+				echo json_encode([]);
+			"));
+		}
+
+		[TestMethod]
 		public void SimpleArrayTest()
 		{
 			Assert.AreEqual("[1,\"test\",2]", RunAndCaptureOutput(@"
@@ -356,6 +365,16 @@ namespace NPhp.Tests
 		{
 			Assert.AreEqual("[1,[\"test\",[],2,[false]],3]", RunAndCaptureOutput(@"
 				echo json_encode([1,['test',[],2,[false]],3]);
+			"));
+		}
+
+		[TestMethod]
+		public void AssociativeArray()
+		{
+			Assert.AreEqual("{\"0\":1,\"2\":\"test\",\"3\":2}{\"0\":1,\"2\":\"test\",\"3\":2}{\"0\":1,\"2a\":\"test\",\"1\":2}", RunAndCaptureOutput(@"
+				echo json_encode(array(1,2=>'test',2));
+				echo json_encode(array(1,'2'=>'test',2));
+				echo json_encode(array(1,'2a'=>'test',2));
 			"));
 		}
 	}

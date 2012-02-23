@@ -45,10 +45,13 @@ namespace NPhp.Runtime.Functions
 					Console.WriteLine("Array");
 					Console.WriteLine("(");
 					int Index = 0;
-					foreach (var Element in Value.ArrayValue.Elements)
+
+					//if (!Value.ArrayValue.PureArray) throw(new NotImplementedException());
+
+					foreach (var Pair in Value.ArrayValue.GetEnumerator())
 					{
-						Console.Write("    [{0}] => ", Index);
-						print_r(Element);
+						Console.Write("    [{0}] => ", Pair.Key);
+						print_r(Pair.Value);
 						//Console.WriteLine("");
 						Index++;
 					}

@@ -5,16 +5,6 @@ using System.Text;
 
 namespace NPhp.Runtime
 {
-	public sealed class Php54Array
-	{
-		public List<Php54Var> Elements = new List<Php54Var>();
-
-		public void AddElement(Php54Var Element)
-		{
-			Elements.Add(Element);
-		}
-	}
-
 	public sealed class Php54Var
 	{
 		//private Type Type;
@@ -429,6 +419,12 @@ namespace NPhp.Runtime
 		{
 			if (this.Type != TypeEnum.Array) throw(new NotImplementedException());
 			(this.DynamicValue as Php54Array).AddElement(Entry);
+		}
+
+		public void AddKeyValuePair(Php54Var Key, Php54Var Value)
+		{
+			if (this.Type != TypeEnum.Array) throw (new NotImplementedException());
+			(this.DynamicValue as Php54Array).AddPair(Key, Value);
 		}
 
 		public Php54Array ArrayValue

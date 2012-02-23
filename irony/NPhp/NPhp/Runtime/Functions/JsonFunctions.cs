@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NPhp.Common;
 
 namespace NPhp.Runtime.Functions
 {
@@ -23,15 +24,29 @@ namespace NPhp.Runtime.Functions
 				case Php54Var.TypeEnum.Bool: return Variable.BoolValue ? "true" : "false";
 				case Php54Var.TypeEnum.Int: return Variable.IntegerValue.ToString();
 				case Php54Var.TypeEnum.Null: return "null";
-				case Php54Var.TypeEnum.String: return String.Format("\"{0}\"", Variable.StringValue);
+				case Php54Var.TypeEnum.String: return Php54Utils.StringQuote(Variable.StringValue);
 				case Php54Var.TypeEnum.Array:
+					if (Variable.ArrayValue.PureArray)
 					{
 						var ElementsArray = new List<string>();
-						foreach (var Element in Variable.ArrayValue.Elements)
+						foreach (var Pair in Variable.ArrayValue.GetEnumerator())
 						{
-							ElementsArray.Add(json_encode(Element));
+							ElementsArray.Add(json_encode(Pair.Value));
 						}
 						return "[" + String.Join(",", ElementsArray) + "]";
+					}
+					else
+					{
+						var ElementsArray = new List<string>();
+						foreach (var Pair in Variable.ArrayValue.GetEnumerator())
+						{
+							ElementsArray.Add(
+								Php54Utils.StringQuote(Pair.Key.ToString()) +
+								":" +
+								json_encode(Pair.Value)
+							);
+						}
+						return "{" + String.Join(",", ElementsArray) + "}";
 					}
 				default: throw(new NotImplementedException());
 			}

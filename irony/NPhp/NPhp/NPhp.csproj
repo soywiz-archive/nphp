@@ -77,6 +77,7 @@
     <Compile Include="Codegen\Nodes\UnaryPreOperationNode.cs" />
     <Compile Include="Codegen\Nodes\VariableNameNode.cs" />
     <Compile Include="Codegen\Nodes\WhileNode.cs" />
+    <Compile Include="Common\Php54Utils.cs" />
     <Compile Include="Grammar\Php54Grammar.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Runtime\Functions\DateTimeFunctions.cs" />
     <Compile Include="Runtime\Functions\JsonFunctions.cs" />
     <Compile Include="Runtime\Functions\StringFunctions.cs" />
+    <Compile Include="Runtime\Php54Array.cs" />
     <Compile Include="Runtime\Php54FunctionScope.cs" />
     <Compile Include="Runtime\Php54NativeLibraryAttribute.cs" />
     <Compile Include="Runtime\Php54Runtime.cs" />
