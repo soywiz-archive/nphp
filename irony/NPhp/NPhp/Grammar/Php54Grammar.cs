@@ -29,67 +29,67 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal SpecialLiteral = new NonTerminal("SpecialLiteral", GetCreator<SpecialLiteralNode>());
 
 		public readonly NonTerminal GetId = new NonTerminal("GetId", GetCreator<IdentifierNode>());
-		public readonly NonTerminal constant = new NonTerminal("constant", GetCreator<GetConstantNode>());
+		public readonly NonTerminal Constant = new NonTerminal("constant", GetCreator<GetConstantNode>());
 
-		public readonly NonTerminal sentence = new NonTerminal("sentence", GetCreator<IgnoreNode>());
-		public readonly NonTerminal sentence_list = new NonTerminal("sentences", GetCreator<IgnoreNode>());
-		public readonly NonTerminal base_sentence = new NonTerminal("base_sentence", GetCreator<IgnoreNode>());
-		public readonly NonTerminal echo_base_sentence = new NonTerminal("echo_base_sentence", GetCreator<EchoNode>());
-		public readonly NonTerminal eval_base_sentence = new NonTerminal("eval_base_sentence", GetCreator<EvalNode>());
-		public readonly NonTerminal curly_sentence = new NonTerminal("curly_sentence", GetCreator<IgnoreNode>());
-		public readonly NonTerminal if_sentence = new NonTerminal("if_sentence", GetCreator<IfNode>());
-		public readonly NonTerminal if_else_sentence = new NonTerminal("if_else_sentence", GetCreator<IfNode>());
-		public readonly NonTerminal while_sentence = new NonTerminal("while_sentence", GetCreator<WhileNode>());
-		public readonly NonTerminal for_sentence = new NonTerminal("for_sentence", GetCreator<ForNode>());
+		public readonly NonTerminal Sentence = new NonTerminal("sentence", GetCreator<IgnoreNode>());
+		public readonly NonTerminal SentenceList = new NonTerminal("sentences", GetCreator<IgnoreNode>());
+		public readonly NonTerminal BaseSentence = new NonTerminal("base_sentence", GetCreator<IgnoreNode>());
+		public readonly NonTerminal EchoSentence = new NonTerminal("echo_base_sentence", GetCreator<EchoNode>());
+		public readonly NonTerminal EvalSentence = new NonTerminal("eval_base_sentence", GetCreator<EvalNode>());
+		public readonly NonTerminal CurlySentence = new NonTerminal("curly_sentence", GetCreator<IgnoreNode>());
+		public readonly NonTerminal IfSentence = new NonTerminal("if_sentence", GetCreator<IfNode>());
+		public readonly NonTerminal IfElseSentence = new NonTerminal("if_else_sentence", GetCreator<IfNode>());
+		public readonly NonTerminal WhileSentence = new NonTerminal("while_sentence", GetCreator<WhileNode>());
+		public readonly NonTerminal ForSentence = new NonTerminal("for_sentence", GetCreator<ForNode>());
 
-		public readonly NonTerminal expression_sentence = new NonTerminal("expression_sentence", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ExpressionSentence = new NonTerminal("expression_sentence", GetCreator<IgnoreNode>());
 
 		//var unary_op = new NonTerminal("unary_op", GetCreator<OperatorNode>());
 
-		public readonly NonTerminal assign_op = new NonTerminal("assign_op", GetCreator<IgnoreNode>());
-		public readonly NonTerminal bin_op = new NonTerminal("bin_op", GetCreator<BinaryOperatorNode>());
-		public readonly NonTerminal bin_op_expression = new NonTerminal("bin_op_expression", GetCreator<BinaryExpressionNode>());
-		public readonly NonTerminal expr = new NonTerminal("expr", GetCreator<IgnoreNode>());
-		public readonly NonTerminal expr_or_empty = new NonTerminal("expr_or_empty", GetCreator<IgnoreNode>());
-		public readonly NonTerminal expr2 = new NonTerminal("expr2", GetCreator<IgnoreNode>());
-		public readonly NonTerminal literal = new NonTerminal("literal", GetCreator<IgnoreNode>());
-		public readonly NonTerminal assignment = new NonTerminal("assignment", GetCreator<AssignmentNode>());
+		public readonly NonTerminal AssignmentOperator = new NonTerminal("assign_op", GetCreator<IgnoreNode>());
+		public readonly NonTerminal BinaryOperator = new NonTerminal("bin_op", GetCreator<BinaryOperatorNode>());
+		public readonly NonTerminal BinaryOperation = new NonTerminal("bin_op_expression", GetCreator<BinaryExpressionNode>());
+		public readonly NonTerminal Expression = new NonTerminal("expr", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ExpressionOrEmpty = new NonTerminal("expr_or_empty", GetCreator<IgnoreNode>());
+		public readonly NonTerminal Expression2 = new NonTerminal("expr2", GetCreator<IgnoreNode>());
+		public readonly NonTerminal Literal = new NonTerminal("literal", GetCreator<IgnoreNode>());
+		public readonly NonTerminal Assignment = new NonTerminal("assignment", GetCreator<AssignmentNode>());
 		public readonly NonTerminal GetVariable = new NonTerminal("get_variable", GetCreator<GetVariableNode>());
 
-		public readonly NonTerminal unary_op = new NonTerminal("unary_op", GetCreator<UnaryOperatorNode>());
-		public readonly NonTerminal unary_expr = new NonTerminal("unary_expr", GetCreator<UnaryExpressionNode>());
+		public readonly NonTerminal UnaryOperator = new NonTerminal("unary_op", GetCreator<UnaryOperatorNode>());
+		public readonly NonTerminal UnaryExpression = new NonTerminal("unary_expr", GetCreator<UnaryExpressionNode>());
 
-		public readonly NonTerminal post = new NonTerminal("post", GetCreator<UnaryPostOperationNode>());
-		public readonly NonTerminal literal_post = new NonTerminal("literal_post", GetCreator<PostOperationNode>());
+		public readonly NonTerminal PostOperator = new NonTerminal("post", GetCreator<UnaryPostOperationNode>());
+		public readonly NonTerminal LeftValuePostOperation = new NonTerminal("literal_post", GetCreator<PostOperationNode>());
 
-		public readonly NonTerminal pre = new NonTerminal("pre", GetCreator<UnaryPreOperationNode>());
-		public readonly NonTerminal literal_pre = new NonTerminal("literal_pret", GetCreator<PreOperationNode>());
+		public readonly NonTerminal PreOperator = new NonTerminal("pre", GetCreator<UnaryPreOperationNode>());
+		public readonly NonTerminal LeftValuePreOperation = new NonTerminal("literal_pret", GetCreator<PreOperationNode>());
 
-		public readonly NonTerminal named_func_decl = new NonTerminal("named_func_decl", GetCreator<FunctionNamedDeclarationNode>());
+		public readonly NonTerminal NamedFunctionDeclarationSentence = new NonTerminal("named_func_decl", GetCreator<FunctionNamedDeclarationNode>());
 
-		public readonly NonTerminal func_decl_args = new NonTerminal("func_decl_args", GetCreator<IgnoreNode>());
-		public readonly NonTerminal func_call = new NonTerminal("func_call", GetCreator<FunctionCallNode>());
-		public readonly NonTerminal func_arguments = new NonTerminal("func_arguments", GetCreator<IgnoreNode>());
-		public readonly NonTerminal return_sentence = new NonTerminal("return_sentence", GetCreator<ReturnNode>());
-		public readonly NonTerminal include_sentence = new NonTerminal("include_sentence", GetCreator<IncludeNode>());
-		public readonly NonTerminal include_keyword = new NonTerminal("include_keyword", GetCreator<IgnoreNode>());
+		public readonly NonTerminal FunctionDeclarationArguments = new NonTerminal("func_decl_args", GetCreator<IgnoreNode>());
+		public readonly NonTerminal FunctionCall = new NonTerminal("func_call", GetCreator<FunctionCallNode>());
+		public readonly NonTerminal FunctionArguments = new NonTerminal("func_arguments", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ReturnSentence = new NonTerminal("return_sentence", GetCreator<ReturnNode>());
+		public readonly NonTerminal IncludeSentence = new NonTerminal("include_sentence", GetCreator<IncludeNode>());
+		public readonly NonTerminal IncludeKeyword = new NonTerminal("include_keyword", GetCreator<IgnoreNode>());
 
-		public readonly NonTerminal number_or_string = new NonTerminal("number_or_string", GetCreator<IgnoreNode>());
-		public readonly NonTerminal array_key_value_element = new NonTerminal("array_key_value_element", GetCreator<IgnoreNode>());
-		public readonly NonTerminal array_element = new NonTerminal("array_element", GetCreator<IgnoreNode>());
-		public readonly NonTerminal array_elements = new NonTerminal("array_elements", GetCreator<IgnoreNode>());
-		public readonly NonTerminal array_expr = new NonTerminal("array_expr", GetCreator<ArrayNode>());
-		public readonly NonTerminal array_expr2 = new NonTerminal("array_expr2", GetCreator<ArrayNode>());
+		public readonly NonTerminal NumberOrString = new NonTerminal("number_or_string", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ArrayKeyValueElement = new NonTerminal("array_key_value_element", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ArrayElement = new NonTerminal("array_element", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ArrayElements = new NonTerminal("array_elements", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ArrayExpression1 = new NonTerminal("array_expr", GetCreator<ArrayNode>());
+		public readonly NonTerminal ArrayExpression2 = new NonTerminal("array_expr2", GetCreator<ArrayNode>());
 
-		public readonly NonTerminal foreach_sentence = new NonTerminal("foreach_sentence", GetCreator<ForeachNode>());
-		public readonly NonTerminal foreach_pair_sentence = new NonTerminal("foreach_pair_sentence", GetCreator<ForeachNode>());
+		public readonly NonTerminal ForeachSentence = new NonTerminal("foreach_sentence", GetCreator<ForeachNode>());
+		public readonly NonTerminal ForeachPairSentence = new NonTerminal("foreach_pair_sentence", GetCreator<ForeachNode>());
 		
 
 		public Php54Grammar()
 			: base(caseSensitive: false)
 		{
-			var semi = ToTerm(";", "semi");
-			var comma = ToTerm(",", "comma");
+			var SemiColon = ToTerm(";", "semi");
+			var Comma = ToTerm(",", "comma");
 
 
 			this.GrammarComments = "PHP 5.4";
@@ -106,14 +106,14 @@ namespace NPhp.LanguageGrammar
 			Number.AstConfig.NodeCreator = GetCreator<NumberNode>();
 			//var semi_opt = new NonTerminal("semi?");
 
-			include_keyword.Rule = ToTerm("include") | "include_once" | "require" | "require_once";
-			include_sentence.Rule = include_keyword + expr + ";";
+			IncludeKeyword.Rule = ToTerm("include") | "include_once" | "require" | "require_once";
+			IncludeSentence.Rule = IncludeKeyword + Expression + ";";
 
-			return_sentence.Rule = "return" + expr + ";";
+			ReturnSentence.Rule = "return" + Expression + ";";
 
-			func_decl_args.Rule = MakeStarRule(func_decl_args, comma, GetVariable);
+			FunctionDeclarationArguments.Rule = MakeStarRule(FunctionDeclarationArguments, Comma, GetVariable);
 
-			named_func_decl.Rule = ToTerm("function") + GetId + "(" + func_decl_args + ")" + "{" + sentence_list + "}";
+			NamedFunctionDeclarationSentence.Rule = ToTerm("function") + GetId + "(" + FunctionDeclarationArguments + ")" + "{" + SentenceList + "}";
 
 			GetId.Rule = IdTerminal;
 
@@ -121,82 +121,82 @@ namespace NPhp.LanguageGrammar
 
 			GetVariable.Rule = VariableTerminal;
 
-			echo_base_sentence.Rule =
-				"echo" + expr + ";"
+			EchoSentence.Rule =
+				"echo" + Expression + ";"
 			;
 
-			eval_base_sentence.Rule =
-				"eval" + expr + ";"
+			EvalSentence.Rule =
+				"eval" + Expression + ";"
 			;
 
-			expression_sentence.Rule =
-				expr + ";"
+			ExpressionSentence.Rule =
+				Expression + ";"
 			;
 
-			curly_sentence.Rule = "{" + sentence_list + "}";
+			CurlySentence.Rule = "{" + SentenceList + "}";
 
-			if_else_sentence.Rule =
-				ToTerm("if") + "(" + expr + ")" + sentence +
+			IfElseSentence.Rule =
+				ToTerm("if") + "(" + Expression + ")" + Sentence +
 				PreferShiftHere() +
-				ToTerm("else") + sentence
+				ToTerm("else") + Sentence
 			;
 
-			if_sentence.Rule =
-				ToTerm("if") + "(" + expr + ")" +
-				sentence;
+			IfSentence.Rule =
+				ToTerm("if") + "(" + Expression + ")" +
+				Sentence;
 
-			while_sentence.Rule =
-				ToTerm("while") + "(" + expr + ")" +
-				sentence
+			WhileSentence.Rule =
+				ToTerm("while") + "(" + Expression + ")" +
+				Sentence
 			;
 
-			foreach_sentence.Rule =
-				ToTerm("foreach") + "(" + expr + "as" + GetVariable + ")" +
-				sentence
+			ForeachSentence.Rule =
+				ToTerm("foreach") + "(" + Expression + "as" + GetVariable + ")" +
+				Sentence
 			;
 
-			foreach_pair_sentence.Rule =
-				ToTerm("foreach") + "(" + expr + "as" + GetVariable + "=>" + GetVariable + ")" +
-				sentence
+			ForeachPairSentence.Rule =
+				ToTerm("foreach") + "(" + Expression + "as" + GetVariable + "=>" + GetVariable + ")" +
+				Sentence
 			;
 
-			for_sentence.Rule =
-				ToTerm("for") + "(" + expr_or_empty + ";" + expr_or_empty + ";" + expr_or_empty + ")" +
-				sentence
+			ForSentence.Rule =
+				ToTerm("for") + "(" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ")" +
+				Sentence
 			;
 
-			base_sentence.Rule =
-				curly_sentence
-				| echo_base_sentence
-				| eval_base_sentence
-				| while_sentence
-				| foreach_sentence
-				| foreach_pair_sentence
-				| for_sentence
-				| if_else_sentence
-				| if_sentence
-				| include_sentence
-				| expression_sentence
-				| return_sentence
-				| named_func_decl
+			BaseSentence.Rule =
+				CurlySentence
+				| EchoSentence
+				| EvalSentence
+				| WhileSentence
+				| ForeachSentence
+				| ForeachPairSentence
+				| ForSentence
+				| IfSentence
+				| IfElseSentence
+				| IncludeSentence
+				| ExpressionSentence
+				| ReturnSentence
+				| NamedFunctionDeclarationSentence
 			;
 
-			sentence_list.Rule = MakeStarRule(sentence_list, sentence);
+			SentenceList.Rule = MakeStarRule(SentenceList, Sentence);
 
-			sentence.Rule =
-				base_sentence
+			Sentence.Rule =
+				BaseSentence
 			;
 
-			bin_op_expression.Rule = expr + bin_op + expr;
+			BinaryOperation.Rule = Expression + BinaryOperator + Expression;
 
-			bin_op.Rule =
+			BinaryOperator.Rule =
 				ToTerm("<")
 				| "||" | "&&" | "|" | "^" | "&" | "==" | "!=" | ">" | "<=" | ">=" | "<<" | ">>" | "+" | "-" | "*" | "/" | "%" | "."
 				//| "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
 				| "is" | "as" | "??"
 			;
 
-			assign_op.Rule =
+			AssignmentOperator.Rule =
 				ToTerm("=") | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
 			;
 
@@ -213,28 +213,28 @@ namespace NPhp.LanguageGrammar
 				| "__NAMESPACE__"
 			;
 
-			number_or_string.Rule =
+			NumberOrString.Rule =
 				Number
 				| StringSingleQuoteTerminal
 			;
 
 
-			literal.Rule =
-				number_or_string
+			Literal.Rule =
+				NumberOrString
 				| GetVariable
 				| SpecialLiteral
 			;
 
-			post.Rule = ToTerm("++") | "--";
+			PostOperator.Rule = ToTerm("++") | "--";
 
-			literal_post.Rule =
-				GetVariable + post
+			LeftValuePostOperation.Rule =
+				GetVariable + PostOperator
 			;
 
-			pre.Rule = ToTerm("++") | "--";
+			PreOperator.Rule = ToTerm("++") | "--";
 
-			literal_pre.Rule =
-				pre + GetVariable
+			LeftValuePreOperation.Rule =
+				PreOperator + GetVariable
 			;
 
 			RegisterOperators(10, "?");
@@ -249,48 +249,48 @@ namespace NPhp.LanguageGrammar
 			RegisterBracePair("[", "]");
 			//MarkTransient(Term, Expr, Statement, BinOp, UnOp, IncDecOp, AssignmentOp, ParExpr, ObjectRef);
 
-			expr2.Rule = ToTerm("(") + expr + ")";
+			Expression2.Rule = ToTerm("(") + Expression + ")";
 
-			unary_op.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~") | ToTerm("&");
+			UnaryOperator.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~") | ToTerm("&");
 
-			unary_expr.Rule = unary_op + expr;
+			UnaryExpression.Rule = UnaryOperator + Expression;
 
 			//assignment.Rule = VariableTerminal + "=" + expr;
-			assignment.Rule = GetVariable + assign_op + expr;
+			Assignment.Rule = GetVariable + AssignmentOperator + Expression;
 
-			func_arguments.Rule = MakeStarRule(func_arguments, comma, expr);
+			FunctionArguments.Rule = MakeStarRule(FunctionArguments, Comma, Expression);
 
-			func_call.Rule = GetId + "(" + func_arguments + ")";
-			constant.Rule = GetId;
+			FunctionCall.Rule = GetId + "(" + FunctionArguments + ")";
+			Constant.Rule = GetId;
 
-			array_key_value_element.Rule = number_or_string + "=>" + expr;
+			ArrayKeyValueElement.Rule = NumberOrString + "=>" + Expression;
 
-			array_element.Rule =
-				array_key_value_element |
-				expr
+			ArrayElement.Rule =
+				ArrayKeyValueElement |
+				Expression
 			;
-			array_elements.Rule = MakeStarRule(array_elements, comma, array_element);
-			array_expr.Rule = ToTerm("array") + PreferShiftHere() + "(" + array_elements + ")";
-			array_expr2.Rule = ToTerm("[") + PreferShiftHere() + array_elements + "]";
+			ArrayElements.Rule = MakeStarRule(ArrayElements, Comma, ArrayElement);
+			ArrayExpression1.Rule = ToTerm("array") + PreferShiftHere() + "(" + ArrayElements + ")";
+			ArrayExpression2.Rule = ToTerm("[") + PreferShiftHere() + ArrayElements + "]";
 
 			//var expression = new NonTerminal("comma_opt", Empty | comma);
-			expr.Rule =
-				func_call
-				| array_expr
-				| array_expr2
-				| literal_pre
-				| literal
-				| literal_post
-				| bin_op_expression
-				| unary_expr
-				| expr2
-				| assignment
-				| constant
+			Expression.Rule =
+				FunctionCall
+				| ArrayExpression1
+				| ArrayExpression2
+				| LeftValuePreOperation
+				| Literal
+				| LeftValuePostOperation
+				| BinaryOperation
+				| UnaryExpression
+				| Expression2
+				| Assignment
+				| Constant
 			;
 
-			expr_or_empty.Rule = expr | Empty;
+			ExpressionOrEmpty.Rule = Expression | Empty;
 
-			Root = sentence_list;
+			Root = SentenceList;
 			Root.AstConfig.DefaultNodeCreator = () => { return null; };
 
 			LanguageFlags = LanguageFlags.CreateAst;

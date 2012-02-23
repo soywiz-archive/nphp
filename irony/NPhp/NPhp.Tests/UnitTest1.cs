@@ -410,6 +410,14 @@ namespace NPhp.Tests
 				echo json_encode(array(1,'2a'=>'test',2));
 			"));
 		}
+
+		[TestMethod]
+		public void OrdChr()
+		{
+			Assert.AreEqual("64", RunAndCaptureOutput(@"
+				echo ord(chr(0x40));
+			"));
+		}
 	}
 
 	public partial class UnitTest1

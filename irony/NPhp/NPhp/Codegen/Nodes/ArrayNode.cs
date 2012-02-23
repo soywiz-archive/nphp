@@ -36,7 +36,7 @@ namespace NPhp.Codegen.Nodes
 			Context.MethodGenerator.Call((Func<Php54Var>)Php54Var.FromNewArray);
 			foreach (var ParseNode in Childs)
 			{
-				if (ParseNode.ChildNodes[0].Term.Name == Php54Grammar.array_key_value_element.Name)
+				if (ParseNode.ChildNodes[0].Term.Name == Php54Grammar.ArrayKeyValueElement.Name)
 				{
 					//ParseNode.ChildNodes[0].ChildNodes[2]
 

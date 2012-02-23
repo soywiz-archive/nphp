@@ -90,5 +90,25 @@ namespace NPhp.Runtime.Functions
 			}
 			return hexstr;
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="String"></param>
+		/// <returns></returns>
+		static public int ord(string String)
+		{
+			return (int)String[0];
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Ascii"></param>
+		/// <returns></returns>
+		static public string chr(int Ascii)
+		{
+			return char.ConvertFromUtf32(Ascii);
+		}
 	}
 }
