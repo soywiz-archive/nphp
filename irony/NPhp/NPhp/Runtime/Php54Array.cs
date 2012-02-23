@@ -78,5 +78,10 @@ namespace NPhp.Runtime
 				Values[Index] = Value;
 			}
 		}
+
+		public Php54Var GetElementByKey(Php54Var Key)
+		{
+			return Values[KeyIndices[Key]];
+		}
 	}
 }

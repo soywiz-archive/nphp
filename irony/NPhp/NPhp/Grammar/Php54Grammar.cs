@@ -85,6 +85,11 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal ForeachPairSentence = new NonTerminal("foreach_pair_sentence", GetCreator<ForeachNode>());
 		
 
+		public readonly NonTerminal GetVariableRankElement = new NonTerminal("GetVariableRankElement", GetCreator<IgnoreNode>());
+		public readonly NonTerminal GetVariableRank = new NonTerminal("GetVariableRank", GetCreator<IgnoreNode>());
+		public readonly NonTerminal GetVariableRankOpt = new NonTerminal("GetVariableRankOpt", GetCreator<IgnoreNode>());
+		public readonly NonTerminal GetVariableBase = new NonTerminal("GetVariableBase", GetCreator<IgnoreNode>());
+
 		public Php54Grammar()
 			: base(caseSensitive: false)
 		{
@@ -109,7 +114,7 @@ namespace NPhp.LanguageGrammar
 			IncludeKeyword.Rule = ToTerm("include") | "include_once" | "require" | "require_once";
 			IncludeSentence.Rule = IncludeKeyword + Expression + ";";
 
-			ReturnSentence.Rule = "return" + Expression + ";";
+			ReturnSentence.Rule = ToTerm("return") + Expression + ";";
 
 			FunctionDeclarationArguments.Rule = MakeStarRule(FunctionDeclarationArguments, Comma, GetVariable);
 
@@ -119,7 +124,11 @@ namespace NPhp.LanguageGrammar
 
 			//semi_opt.Rule = Empty | semi;
 
-			GetVariable.Rule = VariableTerminal;
+			GetVariableRankElement.Rule = ToTerm("[") + Expression + ToTerm("]");
+			GetVariableRank.Rule = MakeStarRule(GetVariableRank, GetVariableRankElement);
+			//GetVariableRankOpt.Rule = GetVariableRank.Q();
+			GetVariableBase.Rule = VariableTerminal;
+			GetVariable.Rule = GetVariableBase + GetVariableRank;
 
 			EchoSentence.Rule =
 				"echo" + Expression + ";"

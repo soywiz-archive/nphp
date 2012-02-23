@@ -24,8 +24,12 @@ namespace NPhp
 
 			var Runtime = new Php54Runtime(FunctionScope);
 			var Method = Runtime.CreateMethodFromCode(@"
-				foreach ([1,2,3] as $k => $v) echo $k . $v . ':';
-				//foreach ([1,2,3] as $v) echo $v . ':';
+				$array = [1, 2, 3, 4];
+				$array[0] = 3;
+				$array[2] = 0;
+				$str = 'hello';
+				echo $str[1];
+				echo json_encode($array);
 			", DumpTree: true, DoDebug: false);
 
 			var Scope = new Php54Scope(Runtime);

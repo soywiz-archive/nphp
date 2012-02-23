@@ -447,6 +447,20 @@ namespace NPhp.Runtime
 			return (this.DynamicValue as Php54Array).GetEnumerator().Select(Item => Item).GetEnumerator();
 		}
 
+		public Php54Var Access(Php54Var Item)
+		{
+			switch (this.Type)
+			{
+				case TypeEnum.Array:
+					return this.ArrayValue.GetElementByKey(Item);
+				case TypeEnum.String:
+					return Php54Var.FromString("" + this.StringValue[Item.IntegerValue]);
+				case TypeEnum.Null:
+					return this;
+			}
+			throw (new NotImplementedException());
+		}
+
 		static public bool IteratorMoveNext(IEnumerator<KeyValuePair<Php54Var, Php54Var>> Iterator)
 		{
 			return Iterator.MoveNext();

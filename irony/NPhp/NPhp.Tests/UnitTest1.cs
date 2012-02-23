@@ -418,6 +418,29 @@ namespace NPhp.Tests
 				echo ord(chr(0x40));
 			"));
 		}
+
+		[TestMethod]
+		public void SimpleArrayAccess()
+		{
+			Assert.AreEqual("e[3,2,0,4]", RunAndCaptureOutput(@"
+				$array = [1, 2, 3, 4];
+				$array[0] = 3;
+				$array[2] = 0;
+				$str = 'hello';
+				echo $str[1];
+				echo json_encode($array);
+			"));
+		}
+
+		[TestMethod]
+		public void ArrayAccessTest()
+		{
+			Assert.AreEqual("[1,[2,[3,[0,[5,6]]]]]", RunAndCaptureOutput(@"
+				$array = [1, [2, [3, [4, [5, 6]]]]];
+				$array[1][1][1][0] = 0;
+				echo json_encode($array);
+			"));
+		}
 	}
 
 	public partial class UnitTest1

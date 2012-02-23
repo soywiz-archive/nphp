@@ -13,10 +13,12 @@ namespace NPhp.Codegen.Nodes
 	public class GetVariableNode : Node
 	{
 		String VariableName;
+		ParseTreeNode RanksParseNode;
 
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
-			VariableName = parseNode.FindTokenAndGetText();
+			VariableName = parseNode.ChildNodes[0].FindTokenAndGetText();
+			RanksParseNode = parseNode.ChildNodes[1];
 		}
 
 		public override void Generate(NodeGenerateContext Context)
@@ -36,6 +38,13 @@ namespace NPhp.Codegen.Nodes
 			}
 
 			Context.MethodGenerator.LoadLocal(Local);
+
+			foreach (var RankTree in RanksParseNode.ChildNodes)
+			{
+				(RankTree.AstNode as Node).Generate(Context);
+				Context.MethodGenerator.ConvTo<Php54Var>();
+				Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.Methods.Access);
+			}
 #else
 				Context.MethodGenerator.LoadScope();
 				Context.MethodGenerator.Push(VariableName);
