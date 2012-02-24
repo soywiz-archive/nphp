@@ -93,9 +93,9 @@ namespace NPhp.LanguageGrammar
 		public readonly RawContentTerminal RawContentTerminal  = new RawContentTerminal("RawContentTerminal");
 		public readonly NonTerminal RawContent = new NonTerminal("RawContent", GetCreator<OutsidePhpNode>());
 		public readonly NonTerminal RawContentPlusPhpCode = new NonTerminal("RawContentPlusPhpCode", GetCreator<IgnoreNode>());
-		public readonly NonTerminal EndPhpCode = new NonTerminal("EndPhpCode", GetCreator<IgnoreNode>());
-		public readonly NonTerminal StartPhpCode = new NonTerminal("StartPhpCode", GetCreator<IgnoreNode>());
+		public readonly NonTerminal PhpCode = new NonTerminal("PhpCode", GetCreator<IgnoreNode>());
 		public readonly NonTerminal PhpFile = new NonTerminal("PhpFile", GetCreator<IgnoreNode>());
+		public readonly NonTerminal PhpFilePart = new NonTerminal("PhpFilePart", GetCreator<IgnoreNode>());
 		public readonly NonTerminal PhpFileOpt = new NonTerminal("PhpFileOpt", GetCreator<IgnoreNode>());
 		
 
@@ -146,31 +146,6 @@ namespace NPhp.LanguageGrammar
 			ForeachSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + ")" + Sentence;
 			ForeachPairSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + "=>" + GetVariable + ")" + Sentence;
 			ForSentence.Rule = ToTerm("for") + "(" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ")" + Sentence;
-
-			//EndPhpCode.Rule = ToTerm("?>") + PhpFileOpt;
-
-			BaseSentence.Rule =
-				CurlySentence
-				| EchoSentence
-				| EvalSentence
-				| WhileSentence
-				| ForeachSentence
-				| ForeachPairSentence
-				| ForSentence
-				| IfSentence
-				| IfElseSentence
-				| IncludeSentence
-				| ExpressionSentence
-				| ReturnSentence
-				| NamedFunctionDeclarationSentence
-				//| EndPhpCode
-			;
-
-			SentenceList.Rule = MakeStarRule(SentenceList, Sentence);
-
-			Sentence.Rule =
-				BaseSentence
-			;
 
 			BinaryOperation.Rule = Expression + BinaryOperator + Expression;
 
@@ -273,18 +248,39 @@ namespace NPhp.LanguageGrammar
 				| Constant
 			;
 
-			ExpressionOrEmpty.Rule = Expression | Empty;
-
-			StartPhpCode.Rule = ToTerm("<?php") + SentenceList;
-			RawContent.Rule = RawContentTerminal;
-			RawContentPlusPhpCode.Rule = RawContent + StartPhpCode;
-
-			PhpFile.Rule =
-				RawContent
-				| RawContentPlusPhpCode
+			BaseSentence.Rule =
+				CurlySentence
+				| EchoSentence
+				| EvalSentence
+				| WhileSentence
+				| ForeachSentence
+				| ForeachPairSentence
+				| ForSentence
+				| IfSentence
+				| IfElseSentence
+				| IncludeSentence
+				| ExpressionSentence
+				| ReturnSentence
+				| NamedFunctionDeclarationSentence
 			;
 
-			PhpFileOpt.Rule = PhpFile | Empty;
+			Sentence.Rule =
+				BaseSentence
+			;
+
+			SentenceList.Rule = MakeStarRule(SentenceList, Sentence);
+
+			ExpressionOrEmpty.Rule = Expression | Empty;
+			PhpCode.Rule = ToTerm("<?php") + SentenceList + ToTerm("?>");
+			RawContent.Rule = RawContentTerminal;
+
+			PhpFilePart.Rule =
+				PhpCode
+				| RawContent
+				//| Empty
+			;
+
+			PhpFile.Rule = MakeStarRule(PhpFile, null, PhpFilePart);
 
 			//Root = PhpFile;
 			Root = SentenceList;
@@ -308,6 +304,7 @@ namespace NPhp.LanguageGrammar
 
 		public override Token TryMatch(ParsingContext context, ISourceStream source)
 		{
+			if (source.MatchSymbol("<?php")) return null;
 			var Text = source.Text;
 			int StartRawContent = Text.LastIndexOf("?>", source.Position, source.Position);
 			int EndRawContent = Text.IndexOf("<?php", source.Position);

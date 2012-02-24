@@ -40,8 +40,11 @@ namespace NPhp.Runtime
 
 		public Action<Php54Scope> CreateMethodFromPhpCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
-			//return InternalCreateMethodFromCode("<?php " + Code + " ?>", File, DumpTree, DoDebug);
+#if false
+			return InternalCreateMethodFromCode("<?php " + Code + " ?>", File, DumpTree, DoDebug);
+#else
 			return InternalCreateMethodFromCode(Code, File, DumpTree, DoDebug);
+#endif
 		}
 
 		public Action<Php54Scope> CreateMethodFromPhpFile(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
