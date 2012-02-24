@@ -92,7 +92,12 @@ namespace NPhp.LanguageGrammar
 
 		public readonly RawContentTerminal RawContentTerminal  = new RawContentTerminal("RawContentTerminal");
 		public readonly NonTerminal RawContent = new NonTerminal("RawContent", GetCreator<OutsidePhpNode>());
+		public readonly NonTerminal RawContentPlusPhpCode = new NonTerminal("RawContentPlusPhpCode", GetCreator<IgnoreNode>());
+		public readonly NonTerminal EndPhpCode = new NonTerminal("EndPhpCode", GetCreator<IgnoreNode>());
+		public readonly NonTerminal StartPhpCode = new NonTerminal("StartPhpCode", GetCreator<IgnoreNode>());
 		public readonly NonTerminal PhpFile = new NonTerminal("PhpFile", GetCreator<IgnoreNode>());
+		public readonly NonTerminal PhpFileOpt = new NonTerminal("PhpFileOpt", GetCreator<IgnoreNode>());
+		
 
 		public Php54Grammar()
 			: base(caseSensitive: false)
@@ -107,6 +112,7 @@ namespace NPhp.LanguageGrammar
 			VariableTerminal.AstConfig.NodeCreator = GetCreator<VariableNameNode>();
 			VariableTerminal.AddPrefix("$", IdOptions.None);
 
+			RawContentTerminal.AstConfig.NodeCreator = GetCreator<IgnoreNode>();
 
 			Number.AstConfig.NodeCreator = GetCreator<NumberNode>();
 
@@ -141,6 +147,8 @@ namespace NPhp.LanguageGrammar
 			ForeachPairSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + "=>" + GetVariable + ")" + Sentence;
 			ForSentence.Rule = ToTerm("for") + "(" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ")" + Sentence;
 
+			//EndPhpCode.Rule = ToTerm("?>") + PhpFileOpt;
+
 			BaseSentence.Rule =
 				CurlySentence
 				| EchoSentence
@@ -155,6 +163,7 @@ namespace NPhp.LanguageGrammar
 				| ExpressionSentence
 				| ReturnSentence
 				| NamedFunctionDeclarationSentence
+				//| EndPhpCode
 			;
 
 			SentenceList.Rule = MakeStarRule(SentenceList, Sentence);
@@ -266,9 +275,19 @@ namespace NPhp.LanguageGrammar
 
 			ExpressionOrEmpty.Rule = Expression | Empty;
 
-			PhpFile.Rule = SentenceList;
+			StartPhpCode.Rule = ToTerm("<?php") + SentenceList;
+			RawContent.Rule = RawContentTerminal;
+			RawContentPlusPhpCode.Rule = RawContent + StartPhpCode;
 
-			Root = PhpFile;
+			PhpFile.Rule =
+				RawContent
+				| RawContentPlusPhpCode
+			;
+
+			PhpFileOpt.Rule = PhpFile | Empty;
+
+			//Root = PhpFile;
+			Root = SentenceList;
 			Root.AstConfig.DefaultNodeCreator = () => { return null; };
 
 			LanguageFlags = LanguageFlags.CreateAst;
@@ -290,7 +309,14 @@ namespace NPhp.LanguageGrammar
 		public override Token TryMatch(ParsingContext context, ISourceStream source)
 		{
 			var Text = source.Text;
-			return null;
+			int StartRawContent = Text.LastIndexOf("?>", source.Position, source.Position);
+			int EndRawContent = Text.IndexOf("<?php", source.Position);
+			StartRawContent = (StartRawContent == -1) ? 0 : (StartRawContent + 2);
+			EndRawContent = (EndRawContent == -1) ? Text.Length : EndRawContent;
+			source.PreviewPosition = EndRawContent;
+			var Token = source.CreateToken(this);
+			Token.Value = Text.Substr(StartRawContent, EndRawContent - StartRawContent);
+			return Token;
 		}
 	}
 }

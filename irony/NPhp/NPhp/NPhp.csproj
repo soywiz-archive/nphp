@@ -80,6 +80,7 @@
     <Compile Include="Codegen\Nodes\VariableNameNode.cs" />
     <Compile Include="Codegen\Nodes\WhileNode.cs" />
     <Compile Include="Common\Php54Utils.cs" />
+    <Compile Include="Common\StringExtensions.cs" />
     <Compile Include="Grammar\Php54Grammar.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -56,13 +56,23 @@ namespace NPhp.Runtime
 			//Console.WriteLine(Tree);
 			if (Tree.HasErrors())
 			{
+				var Lines = Code.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
 				var Errors = "";
 				foreach (var Message in Tree.ParserMessages)
 				{
+					Errors += String.Format("{0}: {1}\r\n", Message.Location.Line + 1, Lines[Message.Location.Line]);
 					Errors += String.Format("Error: {0} at {1}", Message.Message, Message.Location);
 				}
 				Console.Error.WriteLine(Errors);
-				throw (new Exception(Errors));
+				if (Environment.UserInteractive)
+				{
+					Console.ReadKey();
+					Environment.Exit(-1);
+				}
+				else
+				{
+					throw (new Exception(Errors));
+				}
 			}
 
 			if (DumpTree)
