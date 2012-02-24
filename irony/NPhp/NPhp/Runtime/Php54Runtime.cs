@@ -40,7 +40,7 @@ namespace NPhp.Runtime
 
 		public Action<Php54Scope> CreateMethodFromPhpCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
-#if false
+#if true
 			return InternalCreateMethodFromCode("<?php " + Code + " ?>", File, DumpTree, DoDebug);
 #else
 			return InternalCreateMethodFromCode(Code, File, DumpTree, DoDebug);
@@ -60,21 +60,25 @@ namespace NPhp.Runtime
 			if (Tree.HasErrors())
 			{
 				var Lines = Code.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
-				var Errors = "";
+				var Errors = new List<string>();
 				foreach (var Message in Tree.ParserMessages)
 				{
-					Errors += String.Format("{0}: {1}\r\n", Message.Location.Line + 1, Lines[Message.Location.Line]);
-					Errors += String.Format("Error: {0} at {1}", Message.Message, Message.Location);
+					Errors.Add(String.Format("Error: {0} at {1}", Message.Message, Message.Location));
+					var Line = Lines[Message.Location.Line];
+					Errors.Add(String.Format("{0}: {1}", Message.Location.Line + 1, Line.Substr(0, Message.Location.Column) + "^^" + Line.Substr(Message.Location.Column)));
 				}
-				Console.Error.WriteLine(Errors);
+				var ErrorsString = String.Join("\r\n", Errors);
+				Console.Error.WriteLine(ErrorsString);
+#if false
 				if (Environment.UserInteractive)
 				{
 					Console.ReadKey();
 					Environment.Exit(-1);
 				}
 				else
+#endif
 				{
-					throw (new Exception(Errors));
+					throw (new Exception(ErrorsString));
 				}
 			}
 

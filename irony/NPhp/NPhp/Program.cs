@@ -23,11 +23,7 @@ namespace NPhp
 			Debug.WriteLine("=========================");
 
 			var Runtime = new Php54Runtime(FunctionScope);
-			var Method = Runtime.CreateMethodFromPhpFile(@"
-				sadasdas <?php
-					echo json_encode(1);
-				?> asdsa
-			", DumpTree: true, DoDebug: false);
+			var Method = Runtime.CreateMethodFromPhpFile(@"123", DumpTree: true, DoDebug: false);
 
 			var Scope = new Php54Scope(Runtime);
 

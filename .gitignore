@@ -10,3 +10,5 @@
 
 /irony/NPhp/SafeILGenerator/bin
 /irony/NPhp/SafeILGenerator/obj
+/irony/NPhp/NPhp.PhpTests/bin
+/irony/NPhp/NPhp.PhpTests/obj

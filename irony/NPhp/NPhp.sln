@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SafeILGenerator", "SafeILGenerator\SafeILGenerator.csproj", "{9A93C7E4-09DA-46CF-B7DD-6BB09681D5AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NPhp.PhpTests", "NPhp.PhpTests\NPhp.PhpTests.csproj", "{C4D9D987-A486-4481-92D4-82EF71388655}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = NPhp.vsmdi
@@ -57,6 +59,16 @@ Global
 		{9A93C7E4-09DA-46CF-B7DD-6BB09681D5AB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{9A93C7E4-09DA-46CF-B7DD-6BB09681D5AB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9A93C7E4-09DA-46CF-B7DD-6BB09681D5AB}.Release|x86.ActiveCfg = Release|Any CPU
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Debug|x86.ActiveCfg = Debug|x86
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Debug|x86.Build.0 = Debug|x86
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Release|Any CPU.ActiveCfg = Release|x86
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Release|Mixed Platforms.Build.0 = Release|x86
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Release|x86.ActiveCfg = Release|x86
+		{C4D9D987-A486-4481-92D4-82EF71388655}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

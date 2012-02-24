@@ -23,8 +23,9 @@ namespace NPhp.LanguageGrammar
 		}
 
 		public readonly StringLiteral StringSingleQuoteTerminal = new StringLiteral("StringSingleQuoteTerminal", "'", StringOptions.AllowsAllEscapes);
+		public readonly StringLiteral StringDoubleQuoteTerminal = new StringLiteral("StringDoubleQuoteTerminal", "\"", StringOptions.AllowsAllEscapes);
 		public readonly IdentifierTerminal IdTerminal = new IdentifierTerminal("IdTerminal", IdOptions.None);
-		public readonly IdentifierTerminal VariableTerminal = new IdentifierTerminal("VariableTerminal", IdOptions.None);
+		public readonly IdentifierTerminal PhpVariableTerminal = new PhpVariableTerminal("PhpVariableTerminal");
 		public readonly NumberLiteral Number = TerminalFactory.CreateCSharpNumber("Number");
 		public readonly NonTerminal SpecialLiteral = new NonTerminal("SpecialLiteral", GetCreator<SpecialLiteralNode>());
 
@@ -97,6 +98,7 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal PhpFile = new NonTerminal("PhpFile", GetCreator<IgnoreNode>());
 		public readonly NonTerminal PhpFilePart = new NonTerminal("PhpFilePart", GetCreator<IgnoreNode>());
 		public readonly NonTerminal PhpFileOpt = new NonTerminal("PhpFileOpt", GetCreator<IgnoreNode>());
+		public readonly NonTerminal PhpEndCode = new NonTerminal("PhpEndCode", GetCreator<IgnoreNode>());
 		
 
 		public Php54Grammar()
@@ -107,11 +109,9 @@ namespace NPhp.LanguageGrammar
 			NonGrammarTerminals.Add(new CommentTerminal("DelimitedComment", "/*", "*/"));
 
 			StringSingleQuoteTerminal.AstConfig.NodeCreator = GetCreator<StringNode>();
+			StringDoubleQuoteTerminal.AstConfig.NodeCreator = GetCreator<StringNode>();
 			IdTerminal.AstConfig.NodeCreator = GetCreator<IdentifierNameNode>();
-
-			VariableTerminal.AstConfig.NodeCreator = GetCreator<VariableNameNode>();
-			VariableTerminal.AddPrefix("$", IdOptions.None);
-
+			PhpVariableTerminal.AstConfig.NodeCreator = GetCreator<VariableNameNode>();
 			RawContentTerminal.AstConfig.NodeCreator = GetCreator<IgnoreNode>();
 
 			Number.AstConfig.NodeCreator = GetCreator<NumberNode>();
@@ -132,12 +132,11 @@ namespace NPhp.LanguageGrammar
 			GetVariableRankElement.Rule = ToTerm("[") + Expression + ToTerm("]");
 			GetVariableRank.Rule = MakeStarRule(GetVariableRank, GetVariableRankElement);
 			//GetVariableRankOpt.Rule = GetVariableRank.Q();
-			GetVariableBase.Rule = VariableTerminal;
+			GetVariableBase.Rule = PhpVariableTerminal;
 			GetVariable.Rule = GetVariableBase + GetVariableRank;
 
 			EchoSentence.Rule = ToTerm("echo") + Expression + ToTerm(";");
 			EvalSentence.Rule = ToTerm("eval") + Expression + ToTerm(";");
-			ExpressionSentence.Rule = Expression + ToTerm(";");
 			CurlySentence.Rule = ToTerm("{") + SentenceList + ToTerm("}");
 
 			IfElseSentence.Rule = ToTerm("if") + "(" + Expression + ")" + Sentence + PreferShiftHere() + ToTerm("else") + Sentence;
@@ -176,6 +175,7 @@ namespace NPhp.LanguageGrammar
 			NumberOrString.Rule =
 				Number
 				| StringSingleQuoteTerminal
+				| StringDoubleQuoteTerminal
 			;
 
 
@@ -226,30 +226,31 @@ namespace NPhp.LanguageGrammar
 			ArrayKeyValueElement.Rule = NumberOrString + "=>" + Expression;
 
 			ArrayElement.Rule =
-				ArrayKeyValueElement |
 				Expression
+				| ArrayKeyValueElement
 			;
 			ArrayElements.Rule = MakeStarRule(ArrayElements, ToTerm(","), ArrayElement);
-			ArrayExpression1.Rule = ToTerm("array") + PreferShiftHere() + "(" + ArrayElements + ")";
-			ArrayExpression2.Rule = ToTerm("[") + PreferShiftHere() + ArrayElements + "]";
+			ArrayExpression1.Rule = ToTerm("array") + "(" + ArrayElements + ")";
+			ArrayExpression2.Rule = ToTerm("[") + ArrayElements + "]";
 
-			//var expression = new NonTerminal("comma_opt", Empty | comma);
 			Expression.Rule =
-				FunctionCall
-				| ArrayExpression1
-				| ArrayExpression2
+				Literal
+				| Constant
+				| UnaryExpression
 				| LeftValuePreOperation
-				| Literal
 				| LeftValuePostOperation
 				| BinaryOperation
-				| UnaryExpression
-				| SubExpression
 				| Assignment
-				| Constant
+				| SubExpression
+				| FunctionCall
+				| ArrayExpression1
+				| ArrayExpression2
 			;
 
+			ExpressionSentence.Rule = Expression + ToTerm(";");
+
 			BaseSentence.Rule =
-				CurlySentence
+				ExpressionSentence
 				| EchoSentence
 				| EvalSentence
 				| WhileSentence
@@ -259,7 +260,7 @@ namespace NPhp.LanguageGrammar
 				| IfSentence
 				| IfElseSentence
 				| IncludeSentence
-				| ExpressionSentence
+				| CurlySentence
 				| ReturnSentence
 				| NamedFunctionDeclarationSentence
 			;
@@ -271,7 +272,9 @@ namespace NPhp.LanguageGrammar
 			SentenceList.Rule = MakeStarRule(SentenceList, Sentence);
 
 			ExpressionOrEmpty.Rule = Expression | Empty;
-			PhpCode.Rule = ToTerm("<?php") + SentenceList + ToTerm("?>");
+			//PhpEndCode.Rule = ToTerm("?>") | Empty;
+			PhpEndCode.Rule = ToTerm("?>") | Eof;
+			PhpCode.Rule = ToTerm("<?php") + SentenceList + PhpEndCode;
 			RawContent.Rule = RawContentTerminal;
 
 			PhpFilePart.Rule =
@@ -282,8 +285,8 @@ namespace NPhp.LanguageGrammar
 
 			PhpFile.Rule = MakeStarRule(PhpFile, null, PhpFilePart);
 
-			//Root = PhpFile;
-			Root = SentenceList;
+			Root = PhpFile;
+			//Root = SentenceList;
 			Root.AstConfig.DefaultNodeCreator = () => { return null; };
 
 			LanguageFlags = LanguageFlags.CreateAst;
@@ -292,6 +295,47 @@ namespace NPhp.LanguageGrammar
 		public override void BuildAst(LanguageData language, ParseTree parseTree)
 		{
 			base.BuildAst(language, parseTree);
+		}
+	}
+
+	public class PhpVariableTerminal : IdentifierTerminal
+	{
+		public PhpVariableTerminal(string Name)
+			: base(Name)
+		{
+		}
+
+		static public bool IsValidCharacter(char Char)
+		{
+			if (Char >= '0' && Char <= '9') return true;
+			if (Char >= 'a' && Char <= 'z') return true;
+			if (Char >= 'A' && Char <= 'Z') return true;
+			return false;
+		}
+
+		static public bool IsValidFirstCharacter(char Char)
+		{
+			return IsValidCharacter(Char);
+		}
+
+		public override Token TryMatch(ParsingContext context, ISourceStream source)
+		{
+			//Console.WriteLine("PhpVariableTerminal.TryMatch: '{0}'", source.PreviewChar);
+			if (source.PreviewChar != '$') return null;
+			source.PreviewPosition++;
+			if (!IsValidFirstCharacter(source.PreviewChar)) return null;
+			while (true)
+			{
+				source.PreviewPosition++;
+				if (!IsValidCharacter(source.PreviewChar))
+				{
+					//source.PreviewPosition--;
+					break;
+				}
+			}
+			var Token = source.CreateToken(this);
+			//Console.WriteLine("'{0}'", Token.Text);
+			return Token;
 		}
 	}
 
@@ -304,8 +348,9 @@ namespace NPhp.LanguageGrammar
 
 		public override Token TryMatch(ParsingContext context, ISourceStream source)
 		{
-			if (source.MatchSymbol("<?php")) return null;
 			var Text = source.Text;
+			//if (Text.Substr(source.Position, 4) == "<?php") return null;
+			if (source.MatchSymbol("<?php")) return null;
 			int StartRawContent = Text.LastIndexOf("?>", source.Position, source.Position);
 			int EndRawContent = Text.IndexOf("<?php", source.Position);
 			StartRawContent = (StartRawContent == -1) ? 0 : (StartRawContent + 2);

@@ -32,9 +32,7 @@ namespace NPhp.Runtime.Functions
 		/// </returns>
 		static public string substr(string base_string, int start, int length = int.MaxValue)
 		{
-			if (start < 0) start = base_string.Length + start;
-			if (length > base_string.Length - start) length = base_string.Length - start;
-			return base_string.Substring(start, length);
+			return base_string.Substr(start, length);
 		}
 
 		/// <summary>
