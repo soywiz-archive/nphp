@@ -23,7 +23,7 @@ namespace NPhp
 			Debug.WriteLine("=========================");
 
 			var Runtime = new Php54Runtime(FunctionScope);
-			var Method = Runtime.CreateMethodFromCode(@"
+			var Method = Runtime.CreateMethodFromPhpFile(@"
 				$array = [1, 2, 3, 4];
 				$array[0] = 3;
 				$array[2] = 0;

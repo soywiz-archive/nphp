@@ -7,6 +7,7 @@ using Irony.Parsing;
 using System.Diagnostics;
 using NPhp.Runtime;
 using System.Collections;
+using NPhp.LanguageGrammar;
 
 namespace NPhp.Codegen.Nodes
 {
@@ -21,7 +22,7 @@ namespace NPhp.Codegen.Nodes
 		{
 			Debug.Assert(parseNode.ChildNodes[0].FindTokenAndGetText() == "foreach");
 			IterableExpressionParseNode = parseNode.ChildNodes[1];
-			if (parseNode.ChildNodes[3].Term.Name == "get_variable")
+			if (parseNode.ChildNodes[3].Term.Name == (context.Language.Grammar as Php54Grammar).GetVariable.Name)
 			{
 				VariableKeyGetParseNode = parseNode.ChildNodes[2];
 				VariableValueGetParseNode = parseNode.ChildNodes[3];

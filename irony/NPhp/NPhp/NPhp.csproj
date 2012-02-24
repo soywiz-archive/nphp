@@ -67,6 +67,7 @@
     <Compile Include="Codegen\Nodes\FunctionNamedDeclarationNode.cs" />
     <Compile Include="Codegen\Nodes\IncludeNode.cs" />
     <Compile Include="Codegen\Nodes\NumberNode.cs" />
+    <Compile Include="Codegen\Nodes\OutsidePhpNode.cs" />
     <Compile Include="Codegen\Nodes\PostOperationNode.cs" />
     <Compile Include="Codegen\Nodes\PreOperationNode.cs" />
     <Compile Include="Codegen\Nodes\ReturnNode.cs" />

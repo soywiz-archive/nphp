@@ -38,7 +38,18 @@ namespace NPhp.Runtime
 			this.ConstantScope = new Php54Scope(this);
 		}
 
-		public Action<Php54Scope> CreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
+		public Action<Php54Scope> CreateMethodFromPhpCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
+		{
+			//return InternalCreateMethodFromCode("<?php " + Code + " ?>", File, DumpTree, DoDebug);
+			return InternalCreateMethodFromCode(Code, File, DumpTree, DoDebug);
+		}
+
+		public Action<Php54Scope> CreateMethodFromPhpFile(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
+		{
+			return InternalCreateMethodFromCode(Code, File, DumpTree, DoDebug);
+		}
+
+		private Action<Php54Scope> InternalCreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
 			var Tree = Parser.Parse(Code, File);
 
@@ -79,7 +90,7 @@ namespace NPhp.Runtime
 
 		static public void Eval(Php54Scope Scope, Php54Var Variable)
 		{
-			var Action = Scope.Php54Runtime.CreateMethodFromCode(Variable.StringValue, "eval()");
+			var Action = Scope.Php54Runtime.CreateMethodFromPhpCode(Variable.StringValue, "eval()");
 			Action(Scope);
 		}
 	}

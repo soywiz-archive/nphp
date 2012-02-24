@@ -22,67 +22,67 @@ namespace NPhp.LanguageGrammar
 			};
 		}
 
-		public readonly StringLiteral StringSingleQuoteTerminal = new StringLiteral("StringLiteral", "'", StringOptions.AllowsAllEscapes);
-		public readonly IdentifierTerminal IdTerminal = new IdentifierTerminal("identifier", IdOptions.None);
-		public readonly IdentifierTerminal VariableTerminal = new IdentifierTerminal("variable", IdOptions.None);
+		public readonly StringLiteral StringSingleQuoteTerminal = new StringLiteral("StringSingleQuoteTerminal", "'", StringOptions.AllowsAllEscapes);
+		public readonly IdentifierTerminal IdTerminal = new IdentifierTerminal("IdTerminal", IdOptions.None);
+		public readonly IdentifierTerminal VariableTerminal = new IdentifierTerminal("VariableTerminal", IdOptions.None);
 		public readonly NumberLiteral Number = TerminalFactory.CreateCSharpNumber("Number");
 		public readonly NonTerminal SpecialLiteral = new NonTerminal("SpecialLiteral", GetCreator<SpecialLiteralNode>());
 
 		public readonly NonTerminal GetId = new NonTerminal("GetId", GetCreator<IdentifierNode>());
-		public readonly NonTerminal Constant = new NonTerminal("constant", GetCreator<GetConstantNode>());
+		public readonly NonTerminal Constant = new NonTerminal("Constant", GetCreator<GetConstantNode>());
 
-		public readonly NonTerminal Sentence = new NonTerminal("sentence", GetCreator<IgnoreNode>());
-		public readonly NonTerminal SentenceList = new NonTerminal("sentences", GetCreator<IgnoreNode>());
-		public readonly NonTerminal BaseSentence = new NonTerminal("base_sentence", GetCreator<IgnoreNode>());
-		public readonly NonTerminal EchoSentence = new NonTerminal("echo_base_sentence", GetCreator<EchoNode>());
-		public readonly NonTerminal EvalSentence = new NonTerminal("eval_base_sentence", GetCreator<EvalNode>());
-		public readonly NonTerminal CurlySentence = new NonTerminal("curly_sentence", GetCreator<IgnoreNode>());
-		public readonly NonTerminal IfSentence = new NonTerminal("if_sentence", GetCreator<IfNode>());
-		public readonly NonTerminal IfElseSentence = new NonTerminal("if_else_sentence", GetCreator<IfNode>());
-		public readonly NonTerminal WhileSentence = new NonTerminal("while_sentence", GetCreator<WhileNode>());
-		public readonly NonTerminal ForSentence = new NonTerminal("for_sentence", GetCreator<ForNode>());
+		public readonly NonTerminal Sentence = new NonTerminal("Sentence", GetCreator<IgnoreNode>());
+		public readonly NonTerminal SentenceList = new NonTerminal("SentenceList", GetCreator<IgnoreNode>());
+		public readonly NonTerminal BaseSentence = new NonTerminal("BaseSentence", GetCreator<IgnoreNode>());
+		public readonly NonTerminal EchoSentence = new NonTerminal("EchoSentence", GetCreator<EchoNode>());
+		public readonly NonTerminal EvalSentence = new NonTerminal("EvalSentence", GetCreator<EvalNode>());
+		public readonly NonTerminal CurlySentence = new NonTerminal("CurlySentence", GetCreator<IgnoreNode>());
+		public readonly NonTerminal IfSentence = new NonTerminal("IfSentence", GetCreator<IfNode>());
+		public readonly NonTerminal IfElseSentence = new NonTerminal("IfElseSentence", GetCreator<IfNode>());
+		public readonly NonTerminal WhileSentence = new NonTerminal("WhileSentence", GetCreator<WhileNode>());
+		public readonly NonTerminal ForSentence = new NonTerminal("ForSentence", GetCreator<ForNode>());
 
-		public readonly NonTerminal ExpressionSentence = new NonTerminal("expression_sentence", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ExpressionSentence = new NonTerminal("ExpressionSentence", GetCreator<IgnoreNode>());
 
 		//var unary_op = new NonTerminal("unary_op", GetCreator<OperatorNode>());
 
-		public readonly NonTerminal AssignmentOperator = new NonTerminal("assign_op", GetCreator<IgnoreNode>());
-		public readonly NonTerminal BinaryOperator = new NonTerminal("bin_op", GetCreator<BinaryOperatorNode>());
-		public readonly NonTerminal BinaryOperation = new NonTerminal("bin_op_expression", GetCreator<BinaryExpressionNode>());
-		public readonly NonTerminal Expression = new NonTerminal("expr", GetCreator<IgnoreNode>());
-		public readonly NonTerminal ExpressionOrEmpty = new NonTerminal("expr_or_empty", GetCreator<IgnoreNode>());
-		public readonly NonTerminal Expression2 = new NonTerminal("expr2", GetCreator<IgnoreNode>());
-		public readonly NonTerminal Literal = new NonTerminal("literal", GetCreator<IgnoreNode>());
-		public readonly NonTerminal Assignment = new NonTerminal("assignment", GetCreator<AssignmentNode>());
-		public readonly NonTerminal GetVariable = new NonTerminal("get_variable", GetCreator<GetVariableNode>());
+		public readonly NonTerminal AssignmentOperator = new NonTerminal("AssignmentOperator", GetCreator<IgnoreNode>());
+		public readonly NonTerminal BinaryOperator = new NonTerminal("BinaryOperator", GetCreator<BinaryOperatorNode>());
+		public readonly NonTerminal BinaryOperation = new NonTerminal("BinaryOperation", GetCreator<BinaryExpressionNode>());
+		public readonly NonTerminal Expression = new NonTerminal("Expression", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ExpressionOrEmpty = new NonTerminal("ExpressionOrEmpty", GetCreator<IgnoreNode>());
+		public readonly NonTerminal SubExpression = new NonTerminal("SubExpression", GetCreator<IgnoreNode>());
+		public readonly NonTerminal Literal = new NonTerminal("Literal", GetCreator<IgnoreNode>());
+		public readonly NonTerminal Assignment = new NonTerminal("Assignment", GetCreator<AssignmentNode>());
+		public readonly NonTerminal GetVariable = new NonTerminal("GetVariable", GetCreator<GetVariableNode>());
 
-		public readonly NonTerminal UnaryOperator = new NonTerminal("unary_op", GetCreator<UnaryOperatorNode>());
-		public readonly NonTerminal UnaryExpression = new NonTerminal("unary_expr", GetCreator<UnaryExpressionNode>());
+		public readonly NonTerminal UnaryOperator = new NonTerminal("UnaryOperator", GetCreator<UnaryOperatorNode>());
+		public readonly NonTerminal UnaryExpression = new NonTerminal("UnaryExpression", GetCreator<UnaryExpressionNode>());
 
-		public readonly NonTerminal PostOperator = new NonTerminal("post", GetCreator<UnaryPostOperationNode>());
-		public readonly NonTerminal LeftValuePostOperation = new NonTerminal("literal_post", GetCreator<PostOperationNode>());
+		public readonly NonTerminal PostOperator = new NonTerminal("PostOperator", GetCreator<UnaryPostOperationNode>());
+		public readonly NonTerminal LeftValuePostOperation = new NonTerminal("LeftValuePostOperation", GetCreator<PostOperationNode>());
 
-		public readonly NonTerminal PreOperator = new NonTerminal("pre", GetCreator<UnaryPreOperationNode>());
-		public readonly NonTerminal LeftValuePreOperation = new NonTerminal("literal_pret", GetCreator<PreOperationNode>());
+		public readonly NonTerminal PreOperator = new NonTerminal("PreOperator", GetCreator<UnaryPreOperationNode>());
+		public readonly NonTerminal LeftValuePreOperation = new NonTerminal("LeftValuePreOperation", GetCreator<PreOperationNode>());
 
-		public readonly NonTerminal NamedFunctionDeclarationSentence = new NonTerminal("named_func_decl", GetCreator<FunctionNamedDeclarationNode>());
+		public readonly NonTerminal NamedFunctionDeclarationSentence = new NonTerminal("NamedFunctionDeclarationSentence", GetCreator<FunctionNamedDeclarationNode>());
 
-		public readonly NonTerminal FunctionDeclarationArguments = new NonTerminal("func_decl_args", GetCreator<IgnoreNode>());
-		public readonly NonTerminal FunctionCall = new NonTerminal("func_call", GetCreator<FunctionCallNode>());
-		public readonly NonTerminal FunctionArguments = new NonTerminal("func_arguments", GetCreator<IgnoreNode>());
-		public readonly NonTerminal ReturnSentence = new NonTerminal("return_sentence", GetCreator<ReturnNode>());
-		public readonly NonTerminal IncludeSentence = new NonTerminal("include_sentence", GetCreator<IncludeNode>());
-		public readonly NonTerminal IncludeKeyword = new NonTerminal("include_keyword", GetCreator<IgnoreNode>());
+		public readonly NonTerminal FunctionDeclarationArguments = new NonTerminal("FunctionDeclarationArguments", GetCreator<IgnoreNode>());
+		public readonly NonTerminal FunctionCall = new NonTerminal("FunctionCall", GetCreator<FunctionCallNode>());
+		public readonly NonTerminal FunctionArguments = new NonTerminal("FunctionArguments", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ReturnSentence = new NonTerminal("ReturnSentence", GetCreator<ReturnNode>());
+		public readonly NonTerminal IncludeSentence = new NonTerminal("IncludeSentence", GetCreator<IncludeNode>());
+		public readonly NonTerminal IncludeKeyword = new NonTerminal("IncludeKeyword", GetCreator<IgnoreNode>());
 
-		public readonly NonTerminal NumberOrString = new NonTerminal("number_or_string", GetCreator<IgnoreNode>());
-		public readonly NonTerminal ArrayKeyValueElement = new NonTerminal("array_key_value_element", GetCreator<IgnoreNode>());
-		public readonly NonTerminal ArrayElement = new NonTerminal("array_element", GetCreator<IgnoreNode>());
-		public readonly NonTerminal ArrayElements = new NonTerminal("array_elements", GetCreator<IgnoreNode>());
-		public readonly NonTerminal ArrayExpression1 = new NonTerminal("array_expr", GetCreator<ArrayNode>());
-		public readonly NonTerminal ArrayExpression2 = new NonTerminal("array_expr2", GetCreator<ArrayNode>());
+		public readonly NonTerminal NumberOrString = new NonTerminal("NumberOrString", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ArrayKeyValueElement = new NonTerminal("ArrayKeyValueElement", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ArrayElement = new NonTerminal("ArrayElement", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ArrayElements = new NonTerminal("ArrayElements", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ArrayExpression1 = new NonTerminal("ArrayExpression1", GetCreator<ArrayNode>());
+		public readonly NonTerminal ArrayExpression2 = new NonTerminal("ArrayExpression2", GetCreator<ArrayNode>());
 
-		public readonly NonTerminal ForeachSentence = new NonTerminal("foreach_sentence", GetCreator<ForeachNode>());
-		public readonly NonTerminal ForeachPairSentence = new NonTerminal("foreach_pair_sentence", GetCreator<ForeachNode>());
+		public readonly NonTerminal ForeachSentence = new NonTerminal("ForeachSentence", GetCreator<ForeachNode>());
+		public readonly NonTerminal ForeachPairSentence = new NonTerminal("ForeachPairSentence", GetCreator<ForeachNode>());
 		
 
 		public readonly NonTerminal GetVariableRankElement = new NonTerminal("GetVariableRankElement", GetCreator<IgnoreNode>());
@@ -90,13 +90,13 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal GetVariableRankOpt = new NonTerminal("GetVariableRankOpt", GetCreator<IgnoreNode>());
 		public readonly NonTerminal GetVariableBase = new NonTerminal("GetVariableBase", GetCreator<IgnoreNode>());
 
+		public readonly RawContentTerminal RawContentTerminal  = new RawContentTerminal("RawContentTerminal");
+		public readonly NonTerminal RawContent = new NonTerminal("RawContent", GetCreator<OutsidePhpNode>());
+		public readonly NonTerminal PhpFile = new NonTerminal("PhpFile", GetCreator<IgnoreNode>());
+
 		public Php54Grammar()
 			: base(caseSensitive: false)
 		{
-			var SemiColon = ToTerm(";", "semi");
-			var Comma = ToTerm(",", "comma");
-
-
 			this.GrammarComments = "PHP 5.4";
 			NonGrammarTerminals.Add(new CommentTerminal("SingleLineComment", "//", "\r", "\n", "\u2085", "\u2028", "\u2029"));
 			NonGrammarTerminals.Add(new CommentTerminal("DelimitedComment", "/*", "*/"));
@@ -109,14 +109,13 @@ namespace NPhp.LanguageGrammar
 
 
 			Number.AstConfig.NodeCreator = GetCreator<NumberNode>();
-			//var semi_opt = new NonTerminal("semi?");
 
 			IncludeKeyword.Rule = ToTerm("include") | "include_once" | "require" | "require_once";
 			IncludeSentence.Rule = IncludeKeyword + Expression + ";";
 
 			ReturnSentence.Rule = ToTerm("return") + Expression + ";";
 
-			FunctionDeclarationArguments.Rule = MakeStarRule(FunctionDeclarationArguments, Comma, GetVariable);
+			FunctionDeclarationArguments.Rule = MakeStarRule(FunctionDeclarationArguments, ToTerm(","), GetVariable);
 
 			NamedFunctionDeclarationSentence.Rule = ToTerm("function") + GetId + "(" + FunctionDeclarationArguments + ")" + "{" + SentenceList + "}";
 
@@ -130,49 +129,17 @@ namespace NPhp.LanguageGrammar
 			GetVariableBase.Rule = VariableTerminal;
 			GetVariable.Rule = GetVariableBase + GetVariableRank;
 
-			EchoSentence.Rule =
-				"echo" + Expression + ";"
-			;
+			EchoSentence.Rule = ToTerm("echo") + Expression + ToTerm(";");
+			EvalSentence.Rule = ToTerm("eval") + Expression + ToTerm(";");
+			ExpressionSentence.Rule = Expression + ToTerm(";");
+			CurlySentence.Rule = ToTerm("{") + SentenceList + ToTerm("}");
 
-			EvalSentence.Rule =
-				"eval" + Expression + ";"
-			;
-
-			ExpressionSentence.Rule =
-				Expression + ";"
-			;
-
-			CurlySentence.Rule = "{" + SentenceList + "}";
-
-			IfElseSentence.Rule =
-				ToTerm("if") + "(" + Expression + ")" + Sentence +
-				PreferShiftHere() +
-				ToTerm("else") + Sentence
-			;
-
-			IfSentence.Rule =
-				ToTerm("if") + "(" + Expression + ")" +
-				Sentence;
-
-			WhileSentence.Rule =
-				ToTerm("while") + "(" + Expression + ")" +
-				Sentence
-			;
-
-			ForeachSentence.Rule =
-				ToTerm("foreach") + "(" + Expression + "as" + GetVariable + ")" +
-				Sentence
-			;
-
-			ForeachPairSentence.Rule =
-				ToTerm("foreach") + "(" + Expression + "as" + GetVariable + "=>" + GetVariable + ")" +
-				Sentence
-			;
-
-			ForSentence.Rule =
-				ToTerm("for") + "(" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ")" +
-				Sentence
-			;
+			IfElseSentence.Rule = ToTerm("if") + "(" + Expression + ")" + Sentence + PreferShiftHere() + ToTerm("else") + Sentence;
+			IfSentence.Rule = ToTerm("if") + ToTerm("(") + Expression + ToTerm(")") + Sentence;
+			WhileSentence.Rule = ToTerm("while") + "(" + Expression + ")" + Sentence;
+			ForeachSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + ")" + Sentence;
+			ForeachPairSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + "=>" + GetVariable + ")" + Sentence;
+			ForSentence.Rule = ToTerm("for") + "(" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ")" + Sentence;
 
 			BaseSentence.Rule =
 				CurlySentence
@@ -258,7 +225,7 @@ namespace NPhp.LanguageGrammar
 			RegisterBracePair("[", "]");
 			//MarkTransient(Term, Expr, Statement, BinOp, UnOp, IncDecOp, AssignmentOp, ParExpr, ObjectRef);
 
-			Expression2.Rule = ToTerm("(") + Expression + ")";
+			SubExpression.Rule = ToTerm("(") + Expression + ")";
 
 			UnaryOperator.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~") | ToTerm("&");
 
@@ -267,7 +234,7 @@ namespace NPhp.LanguageGrammar
 			//assignment.Rule = VariableTerminal + "=" + expr;
 			Assignment.Rule = GetVariable + AssignmentOperator + Expression;
 
-			FunctionArguments.Rule = MakeStarRule(FunctionArguments, Comma, Expression);
+			FunctionArguments.Rule = MakeStarRule(FunctionArguments, ToTerm(","), Expression);
 
 			FunctionCall.Rule = GetId + "(" + FunctionArguments + ")";
 			Constant.Rule = GetId;
@@ -278,7 +245,7 @@ namespace NPhp.LanguageGrammar
 				ArrayKeyValueElement |
 				Expression
 			;
-			ArrayElements.Rule = MakeStarRule(ArrayElements, Comma, ArrayElement);
+			ArrayElements.Rule = MakeStarRule(ArrayElements, ToTerm(","), ArrayElement);
 			ArrayExpression1.Rule = ToTerm("array") + PreferShiftHere() + "(" + ArrayElements + ")";
 			ArrayExpression2.Rule = ToTerm("[") + PreferShiftHere() + ArrayElements + "]";
 
@@ -292,14 +259,16 @@ namespace NPhp.LanguageGrammar
 				| LeftValuePostOperation
 				| BinaryOperation
 				| UnaryExpression
-				| Expression2
+				| SubExpression
 				| Assignment
 				| Constant
 			;
 
 			ExpressionOrEmpty.Rule = Expression | Empty;
 
-			Root = SentenceList;
+			PhpFile.Rule = SentenceList;
+
+			Root = PhpFile;
 			Root.AstConfig.DefaultNodeCreator = () => { return null; };
 
 			LanguageFlags = LanguageFlags.CreateAst;
@@ -308,6 +277,20 @@ namespace NPhp.LanguageGrammar
 		public override void BuildAst(LanguageData language, ParseTree parseTree)
 		{
 			base.BuildAst(language, parseTree);
+		}
+	}
+
+	public class RawContentTerminal : Terminal
+	{
+		public RawContentTerminal(string Name)
+			: base(Name)
+		{
+		}
+
+		public override Token TryMatch(ParsingContext context, ISourceStream source)
+		{
+			var Text = source.Text;
+			return null;
 		}
 	}
 }

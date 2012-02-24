@@ -466,7 +466,7 @@ namespace NPhp.Tests
 		{
 			var Out = TestUtils.CaptureOutput(() =>
 			{
-				var Method = Runtime.CreateMethodFromCode(Code);
+				var Method = Runtime.CreateMethodFromPhpFile(Code);
 				var Scope = new Php54Scope(Runtime);
 				if (Variables != null)
 				{
