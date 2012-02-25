@@ -356,6 +356,16 @@ namespace NPhp.Runtime
 			return Left.NumericValue > Right.NumericValue;
 		}
 
+		public static bool CompareGreaterOrEqualThan(Php54Var Left, Php54Var Right)
+		{
+			return Left.NumericValue >= Right.NumericValue;
+		}
+
+		public static bool CompareLessOrEqualThan(Php54Var Left, Php54Var Right)
+		{
+			return Left.NumericValue <= Right.NumericValue;
+		}
+
 		public static bool CompareLessThan(Php54Var Left, Php54Var Right)
 		{
 			return Left.NumericValue < Right.NumericValue;
@@ -374,6 +384,21 @@ namespace NPhp.Runtime
 		public static bool LogicalAnd(Php54Var Left, Php54Var Right)
 		{
 			return Left.BoolValue && Right.BoolValue;
+		}
+
+		public static bool LogicalOr(Php54Var Left, Php54Var Right)
+		{
+			return Left.BoolValue || Right.BoolValue;
+		}
+
+		public static bool LogicalAnd(bool Left, bool Right)
+		{
+			return Left && Right;
+		}
+
+		public static bool LogicalOr(bool Left, bool Right)
+		{
+			return Left || Right;
 		}
 
 		static public void Assign(Php54Var Left, Php54Var Right)

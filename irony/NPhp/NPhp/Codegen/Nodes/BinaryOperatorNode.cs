@@ -25,6 +25,12 @@ namespace NPhp.Codegen.Nodes
 			throw(new NotImplementedException("Must call Generate(Left, Right, Context)"));
 		}
 
+		static private void GenerateAndCast<TLeft, TRight>(Node Left, Node Right, NodeGenerateContext Context)
+		{
+			Left.GenerateAs<TLeft>(Context);
+			Right.GenerateAs<TRight>(Context);
+		}
+
 		public void Generate(Node Left, Node Right, NodeGenerateContext Context)
 		{
 #if OPTIMIZE_SPECIAL_TYPES
@@ -71,36 +77,37 @@ namespace NPhp.Codegen.Nodes
 			Debug.WriteLine("BINARY_OPERATION: {0}, {1}", LeftType, RightType);
 #endif
 
-			Left.Generate(Context); Context.MethodGenerator.ConvTo<Php54Var>();
-			Right.Generate(Context);
-
 			switch (Operator)
 			{
-				case "+": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Add); break;
-				case "-": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Sub); break;
-				case ".": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Concat); break;
-				case "*": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mul); break;
-				case "/": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Div); break;
-				case "%": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mod); break;
+				case "+": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Add); break;
+				case "-": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Sub); break;
+				case ".": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Concat); break;
+				case "*": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mul); break;
+				case "/": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Div); break;
+				case "%": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.Mod); break;
 
-				case "&": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitAnd); break;
-				case "|": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitOr); break;
+				case "&": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitAnd); break;
+				case "|": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitOr); break;
 
-				case "==": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareEquals); break;
-				case ">": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareGreaterThan); break;
+				case "==": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareEquals); break;
+				case ">": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareGreaterThan); break;
+				case ">=": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareGreaterOrEqualThan); break;
+				case "<=": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareLessOrEqualThan); break;
 				case "<":
 					if (Context.MethodGenerator.StackTop == typeof(int))
 					{
+						GenerateAndCast<Php54Var, int>(Left, Right, Context);
 						Context.MethodGenerator.Call((Func<Php54Var, int, bool>)Php54Var.CompareLessThan);
 					}
 					else
 					{
-						Context.MethodGenerator.ConvTo<Php54Var>();
+						GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context);
 						Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareLessThan);
 					}
 					break;
-				case "!=": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareNotEquals); break;
-				case "&&": Context.MethodGenerator.ConvTo<Php54Var>(); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.LogicalAnd); break;
+				case "!=": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareNotEquals); break;
+				case "&&": GenerateAndCast<bool, bool>(Left, Right, Context); Context.MethodGenerator.Call((Func<bool, bool, bool>)Php54Var.LogicalAnd); break;
+				case "||": GenerateAndCast<bool, bool>(Left, Right, Context); Context.MethodGenerator.Call((Func<bool, bool, bool>)Php54Var.LogicalOr); break;
 				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
 			}
 			//Context.Operator(Operator);

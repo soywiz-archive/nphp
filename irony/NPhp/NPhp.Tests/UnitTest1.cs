@@ -41,6 +41,28 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void ForContinue()
+		{
+			Assert.AreEqual("13579", RunCodeAndCaptureOutput(@"
+				for ($n = 1; $n <= 10; $n++) {
+					if (!($n % 2)) continue;
+					echo $n;
+				}
+			"));
+		}
+
+		[TestMethod]
+		public void ForBreak()
+		{
+			Assert.AreEqual("98765", RunCodeAndCaptureOutput(@"
+				for ($n = 9; $n > 0; $n--) {
+					if ($n < 5) break;
+					echo $n;
+				}
+			"));
+		}
+
+		[TestMethod]
 		public void SimpleEchoExpressionTest()
 		{
 			Assert.AreEqual("152", RunCodeAndCaptureOutput(@"
@@ -286,6 +308,23 @@ namespace NPhp.Tests
 				$b = &$a;
 				$b = 2;
 				echo $a;
+			"));
+		}
+
+		[TestMethod]
+		public void FunctionReturnType()
+		{
+			Assert.AreEqual("1a1Array", RunCodeAndCaptureOutput(@"
+				function ret_int() { return 1; }
+				function ret_str() { return 'a'; }
+				function ret_bit() { return true; }
+				function ret_nil() { return null; }
+				function ret_arr() { return [1,2,3]; }
+				echo ret_int();
+				echo ret_str();
+				echo ret_bit();
+				echo ret_nil();
+				echo ret_arr();
 			"));
 		}
 

@@ -11,6 +11,9 @@ namespace NPhp.PhpTess
 {
 	class Program
 	{
+		static Php54FunctionScope FunctionScope = new Php54FunctionScope();
+		static Php54Runtime Runtime = new Php54Runtime(FunctionScope);
+
 		static public void RunTest(string[] ContentLines)
 		{
 			var SectionName = "";
@@ -44,9 +47,6 @@ namespace NPhp.PhpTess
 
 			try
 			{
-				var FunctionScope = new Php54FunctionScope();
-				FunctionScope.LoadAllNativeFunctions();
-				var Runtime = new Php54Runtime(FunctionScope);
 				var Method = Runtime.CreateMethodFromPhpFile(TestFile);
 				var Scope = new Php54Scope(Runtime);
 				var TestOutput = CaptureOutput(() =>
@@ -55,6 +55,14 @@ namespace NPhp.PhpTess
 				});
 
 				Console.WriteLine("{0}", (TestOutput == TestExpect) ? "Ok" : "Error");
+				if (TestOutput != TestExpect)
+				{
+					var Result = Diff.DiffTextProcessed(TestOutput, TestExpect);
+					foreach (var Item in Result.Items)
+					{
+						Item.Print();
+					}
+				}
 			}
 			catch (Exception Exception)
 			{
@@ -82,9 +90,10 @@ namespace NPhp.PhpTess
 
 		static void Main(string[] args)
 		{
-			//FunctionScope.Functions["substr"] = Php54FunctionScope.CreateNativeWrapper(((Func<string, int, int, string>)StringFunctions.substr).Method);
+			FunctionScope.LoadAllNativeFunctions();
 
 			foreach (var PhptFile in Directory.EnumerateFiles("../../tests", "*.phpt", SearchOption.AllDirectories))
+			//foreach (var PhptFile in Directory.EnumerateFiles("../../tests/func", "*.phpt", SearchOption.AllDirectories))
 			{
 				RunTest(File.ReadAllLines(PhptFile));
 			}

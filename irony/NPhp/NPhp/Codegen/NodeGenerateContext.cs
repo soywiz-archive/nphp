@@ -6,6 +6,12 @@ using NPhp.Runtime;
 
 namespace NPhp.Codegen
 {
+	public class ContinueBreakNode
+	{
+		public SafeLabel ContinueLabel;
+		public SafeLabel BreakLabel;
+	}
+
 	public class NodeGenerateContext
 	{
 		public string FunctionName = "";
@@ -13,6 +19,21 @@ namespace NPhp.Codegen
 		public MethodGenerator MethodGenerator { get; protected set; }
 
 		public bool DoDebug { get; private set; }
+
+		public List<ContinueBreakNode> ContinueBreakNodeList = new List<ContinueBreakNode>();
+
+		public void PushContinueBreakNode(ContinueBreakNode ContinueBreakNode, Action Action)
+		{
+			ContinueBreakNodeList.Add(ContinueBreakNode);
+			try
+			{
+				Action();
+			}
+			finally
+			{
+				ContinueBreakNodeList.RemoveAt(ContinueBreakNodeList.Count - 1);
+			}
+		}
 
 		public NodeGenerateContext(Php54FunctionScope FunctionScope, bool DoDebug)
 		{

@@ -28,29 +28,37 @@ namespace NPhp.Codegen.Nodes
 		public override void Generate(NodeGenerateContext Context)
 		{
 			var LoopLabel = Context.MethodGenerator.DefineLabel("Loop");
-			var EndLabel = Context.MethodGenerator.DefineLabel("End");
-
-			Context.MethodGenerator.Comment("InitialSentence");
-			(InitialSentence.AstNode as Node).Generate(Context);
-			Context.MethodGenerator.ClearStack();
-
-			LoopLabel.Mark();
+			var ContinueLabel = Context.MethodGenerator.DefineLabel("Continue");
+			var BreakLabel = Context.MethodGenerator.DefineLabel("Break");
+			Context.PushContinueBreakNode(new ContinueBreakNode()
 			{
-				Context.MethodGenerator.Comment("ConditionExpresion");
-				(ConditionExpresion.AstNode as Node).Generate(Context);
-				//Context.MethodGenerator.ConvTo<bool>();
-				Context.MethodGenerator.BranchIfFalse(EndLabel);
-			}
+				ContinueLabel = ContinueLabel,
+				BreakLabel = BreakLabel,
+			}, () =>
 			{
-				Context.MethodGenerator.Comment("LoopSentence");
-				(LoopSentence.AstNode as Node).Generate(Context);
-
-				Context.MethodGenerator.Comment("PostSentence");
-				(PostSentence.AstNode as Node).Generate(Context);
+				Context.MethodGenerator.Comment("InitialSentence");
+				(InitialSentence.AstNode as Node).Generate(Context);
 				Context.MethodGenerator.ClearStack();
-				Context.MethodGenerator.BranchAlways(LoopLabel);
-			}
-			EndLabel.Mark();
+
+				LoopLabel.Mark();
+				{
+					Context.MethodGenerator.Comment("ConditionExpresion");
+					(ConditionExpresion.AstNode as Node).Generate(Context);
+					//Context.MethodGenerator.ConvTo<bool>();
+					Context.MethodGenerator.BranchIfFalse(BreakLabel);
+				}
+				{
+					Context.MethodGenerator.Comment("LoopSentence");
+					(LoopSentence.AstNode as Node).Generate(Context);
+
+					ContinueLabel.Mark();
+					Context.MethodGenerator.Comment("PostSentence");
+					(PostSentence.AstNode as Node).Generate(Context);
+					Context.MethodGenerator.ClearStack();
+					Context.MethodGenerator.BranchAlways(LoopLabel);
+				}
+				BreakLabel.Mark();
+			});
 		}
 	}
 

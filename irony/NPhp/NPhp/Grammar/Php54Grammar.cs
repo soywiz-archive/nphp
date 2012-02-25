@@ -42,8 +42,10 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal IfElseSentence = new NonTerminal("IfElseSentence", GetCreator<IfNode>());
 		public readonly NonTerminal WhileSentence = new NonTerminal("WhileSentence", GetCreator<WhileNode>());
 		public readonly NonTerminal ForSentence = new NonTerminal("ForSentence", GetCreator<ForNode>());
+		public readonly NonTerminal ContinueSentence = new NonTerminal("ContinueSentence", GetCreator<ContinueBreakSentenceNode>());
+		public readonly NonTerminal BreakSentence = new NonTerminal("BreakSentence", GetCreator<ContinueBreakSentenceNode>());
 
-		public readonly NonTerminal ExpressionSentence = new NonTerminal("ExpressionSentence", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ExpressionSentence = new NonTerminal("ExpressionSentence", GetCreator<ExpressionSentenceNode>());
 
 		//var unary_op = new NonTerminal("unary_op", GetCreator<OperatorNode>());
 
@@ -145,6 +147,8 @@ namespace NPhp.LanguageGrammar
 			ForeachSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + ")" + Sentence;
 			ForeachPairSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + "=>" + GetVariable + ")" + Sentence;
 			ForSentence.Rule = ToTerm("for") + "(" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ")" + Sentence;
+			ContinueSentence.Rule = ToTerm("continue") + ToTerm(";");
+			BreakSentence.Rule = ToTerm("break") + ToTerm(";");
 
 			BinaryOperation.Rule = Expression + BinaryOperator + Expression;
 
@@ -262,6 +266,8 @@ namespace NPhp.LanguageGrammar
 				| IncludeSentence
 				| CurlySentence
 				| ReturnSentence
+				| ContinueSentence
+				| BreakSentence
 				| NamedFunctionDeclarationSentence
 			;
 

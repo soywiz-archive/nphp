@@ -43,10 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Diff.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="tests\func\003.phpt" />
     <None Include="tests\lang\001.phpt" />
     <None Include="tests\lang\002.phpt" />
     <None Include="tests\basic\001.phpt" />
@@ -54,6 +56,9 @@
     <None Include="tests\lang\005.phpt" />
     <None Include="tests\lang\006.phpt" />
     <None Include="tests\lang\007.phpt" />
+    <None Include="tests\lang\009.phpt" />
+    <None Include="tests\lang\010.phpt" />
+    <None Include="tests\lang\011.phpt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NPhp\NPhp.csproj">

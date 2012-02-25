@@ -53,8 +53,10 @@
     <Compile Include="Codegen\Nodes\AssignmentNode.cs" />
     <Compile Include="Codegen\Nodes\BinaryExpressionNode.cs" />
     <Compile Include="Codegen\Nodes\BinaryOperatorNode.cs" />
+    <Compile Include="Codegen\Nodes\ContinueBreakSentenceNode.cs" />
     <Compile Include="Codegen\Nodes\EchoNode.cs" />
     <Compile Include="Codegen\Nodes\EvalNode.cs" />
+    <Compile Include="Codegen\Nodes\ExpressionSentenceNode.cs" />
     <Compile Include="Codegen\Nodes\ForeachNode.cs" />
     <Compile Include="Codegen\Nodes\ForNode.cs" />
     <Compile Include="Codegen\Nodes\FunctionCallNode.cs" />

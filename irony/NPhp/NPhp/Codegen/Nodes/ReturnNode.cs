@@ -22,7 +22,7 @@ namespace NPhp.Codegen.Nodes
 		public override void Generate(NodeGenerateContext Context)
 		{
 			Context.MethodGenerator.LoadScope();
-			(ReturnExpression.AstNode as Node).Generate(Context);
+			(ReturnExpression.AstNode as Node).GenerateAs<Php54Var>(Context);
 			Context.MethodGenerator.Call((Action<Php54Var>)Php54Scope.Methods.SetReturnValue);
 			Context.MethodGenerator.Return();
 		}
