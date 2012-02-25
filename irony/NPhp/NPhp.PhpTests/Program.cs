@@ -18,9 +18,10 @@ namespace NPhp.PhpTess
 		{
 			var SectionName = "";
 			var Sections = new Dictionary<string, string>();
+			var HeaderRegex = new Regex(@"^--(\w+)--$", RegexOptions.Compiled);
 			foreach (var Line in ContentLines)
 			{
-				if (Line.Substr(0, 2) == "--")
+				if (HeaderRegex.IsMatch(Line))
 				{
 					Debug.Assert(Line.Substr(-2) == "--");
 					SectionName = Line.Substr(2, -2);
@@ -43,7 +44,9 @@ namespace NPhp.PhpTess
 			TestExpect = TestExpect.Trim();
 			//TestExpect = "aaa";
 
+			Console.ForegroundColor = ConsoleColor.Cyan;
 			Console.Write("{0}...", TestName);
+			Console.ForegroundColor = ConsoleColor.Red;
 
 			try
 			{
@@ -52,21 +55,29 @@ namespace NPhp.PhpTess
 				var TestOutput = CaptureOutput(() =>
 				{
 					Method(Scope);
-				});
+				}).Trim();
 
-				Console.WriteLine("{0}", (TestOutput == TestExpect) ? "Ok" : "Error");
+				
 				if (TestOutput != TestExpect)
 				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine("Error");
 					var Result = Diff.DiffTextProcessed(TestOutput, TestExpect);
 					foreach (var Item in Result.Items)
 					{
 						Item.Print();
 					}
 				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine("Ok");
+				}
 			}
 			catch (Exception Exception)
 			{
-				Console.WriteLine(Exception);
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine(Exception.Message);
 			}
 
 			//Console.WriteLine(TestFile);

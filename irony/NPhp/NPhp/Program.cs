@@ -23,7 +23,13 @@ namespace NPhp
 			Debug.WriteLine("=========================");
 
 			var Runtime = new Php54Runtime(FunctionScope);
-			var Method = Runtime.CreateMethodFromPhpFile(@"123", DumpTree: true, DoDebug: false);
+			var Method = Runtime.CreateMethodFromPhpFile(@"
+				<?php
+					$a = 1;
+					$b = 3;
+					echo ""0{$a}2{$b}4$a-$b-$a"";
+				?>
+			".Trim(), DumpTree: true, DoDebug: false);
 
 			var Scope = new Php54Scope(Runtime);
 

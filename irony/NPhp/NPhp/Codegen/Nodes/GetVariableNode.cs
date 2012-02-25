@@ -21,7 +21,7 @@ namespace NPhp.Codegen.Nodes
 			RanksParseNode = parseNode.ChildNodes[1];
 		}
 
-		public override void Generate(NodeGenerateContext Context)
+		static public void GetVariable(NodeGenerateContext Context, string VariableName)
 		{
 #if CACHE_VARIABLES
 			bool Cached;
@@ -38,6 +38,16 @@ namespace NPhp.Codegen.Nodes
 			}
 
 			Context.MethodGenerator.LoadLocal(Local);
+#else
+			Context.MethodGenerator.LoadScope();
+			Context.MethodGenerator.Push(VariableName);
+			Context.MethodGenerator.Call((Func<string, Php54Var>)Php54Scope.Methods.GetVariable);
+#endif
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			GetVariableNode.GetVariable(Context, VariableName);
 
 			foreach (var RankTree in RanksParseNode.ChildNodes)
 			{
@@ -45,11 +55,6 @@ namespace NPhp.Codegen.Nodes
 				Context.MethodGenerator.ConvTo<Php54Var>();
 				Context.MethodGenerator.Call((Func<Php54Var, Php54Var>)Php54Var.Methods.Access);
 			}
-#else
-				Context.MethodGenerator.LoadScope();
-				Context.MethodGenerator.Push(VariableName);
-				Context.MethodGenerator.Call((Func<string, Php54Var>)Php54Scope.Methods.GetVariable);
-#endif
 		}
 	}
 }

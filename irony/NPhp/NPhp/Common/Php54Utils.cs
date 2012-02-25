@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace NPhp.Common
 {
@@ -35,7 +36,58 @@ namespace NPhp.Common
 
 		static public string StringQuote(string String)
 		{
-			return "\"" + String + "\"";
+			string OutString = "";
+			for (int n = 0; n < String.Length; n++)
+			{
+				var Char = String[n];
+				switch (Char)
+				{
+					case '\n': OutString += "\\n"; break;
+					case '\r': OutString += "\\r"; break;
+					case '\v': OutString += "\\v"; break;
+					case '\t': OutString += "\\t"; break;
+					case '\\': OutString += "\\\\"; break;
+					case '\'': OutString += "\\'"; break;
+					case '"': OutString += "\\\""; break;
+					default: OutString += Char; break;
+				}
+			}
+			return "\"" + OutString + "\"";
+		}
+
+		static public string StringUnquote(string String)
+		{
+			string OutString = "";
+			for (int n = 0; n < String.Length; n++)
+			{
+				var Char = String[n];
+				if (Char == '\\')
+				{
+					Char = String[++n];
+					switch (Char)
+					{
+						case 'n': OutString += "\n"; break;
+						case 'r': OutString += "\r"; break;
+						case 'v': OutString += "\v"; break;
+						case 't': OutString += "\t"; break;
+						case '\\': OutString += "\\"; break;
+						case '\'': OutString += "\'"; break;
+						case '\"': OutString += "\""; break;
+						default: OutString += Char; break;
+					}
+				}
+				else
+				{
+					OutString += Char;
+				}
+			}
+			return OutString;
+		}
+
+		static public string FullStringUnquote(string String)
+		{
+			Debug.Assert(String[0] == String[String.Length - 1]);
+			return StringUnquote(String.Substr(1, -1));
 		}
 
 		static public bool IsCompletelyNumeric(string String)

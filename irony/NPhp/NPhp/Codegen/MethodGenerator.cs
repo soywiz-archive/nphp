@@ -41,7 +41,7 @@ namespace NPhp.Codegen
 				typeof(void),
 				new Type[] { typeof(Php54Scope) }
 			);
-			SafeILGenerator = new SafeILGenerator(DynamicMethod.GetILGenerator(), CheckTypes: true, DoDebug : true);
+			SafeILGenerator = new SafeILGenerator(DynamicMethod.GetILGenerator(), CheckTypes: true, DoDebug : DoDebug);
 		}
 
 		Dictionary<string, LocalBuilder> Locals = new Dictionary<string,LocalBuilder>();

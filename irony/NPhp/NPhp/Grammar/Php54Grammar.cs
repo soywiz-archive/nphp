@@ -339,6 +339,7 @@ namespace NPhp.LanguageGrammar
 					break;
 				}
 			}
+			source.Position++;
 			var Token = source.CreateToken(this);
 			//Console.WriteLine("'{0}'", Token.Text);
 			return Token;

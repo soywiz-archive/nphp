@@ -52,6 +52,52 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void StringUnquote()
+		{
+			Assert.AreEqual("\n\r\t\\", RunCodeAndCaptureOutput("echo \"\\n\\r\\t\\\\\";"));
+		}
+
+		[TestMethod]
+		public void StringInterpolation1()
+		{
+			Assert.AreEqual("01234", RunCodeAndCaptureOutput(@"
+				$a = 1;
+				$b = 3;
+				echo ""0{$a}2{$b}4"";
+			"));
+		}
+
+		[TestMethod]
+		public void StringInterpolation2()
+		{
+			Assert.AreEqual("0(12)3", RunCodeAndCaptureOutput(@"
+				$a = 1;
+				$b = 2;
+				echo ""0($a$b)3"";
+			"));
+		}
+
+		[TestMethod]
+		public void StringInterpolation3()
+		{
+			Assert.AreEqual("12", RunCodeAndCaptureOutput(@"
+				$a = 1;
+				$b = 2;
+				echo ""$a$b"";
+			"));
+		}
+
+		[TestMethod]
+		public void StringInterpolation4()
+		{
+			Assert.AreEqual("1", RunCodeAndCaptureOutput(@"
+				$a = 1;
+				$b = 2;
+				echo ""$a"";
+			"));
+		}
+
+		[TestMethod]
 		public void ForBreak()
 		{
 			Assert.AreEqual("98765", RunCodeAndCaptureOutput(@"
