@@ -1,12 +1,13 @@
 
-/irony_2011_01_22
-/Parse Tree C-Sharp
+/sandbox/irony_2011_01_22
+/sandbox/Parse Tree C-Sharp
 /irony/NPhp/NPhp/obj
 /irony/NPhp/NPhp/bin
 /irony/NPhp/NPhp.Tests/bin
 /irony/NPhp/NPhp.Tests/obj
 *.suo
 *.trx
+*.vsp
 
 /irony/NPhp/SafeILGenerator/bin
 /irony/NPhp/SafeILGenerator/obj
