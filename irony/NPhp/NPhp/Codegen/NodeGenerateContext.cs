@@ -47,7 +47,7 @@ namespace NPhp.Codegen
 			this.FunctionScope = FunctionScope;
 		}
 
-		public Php54Function GenerateFunction(Action Action, bool DoDebug)
+		public IPhp54Function GenerateFunction(Action Action, bool DoDebug)
 		{
 			var OldMethodGenerator = MethodGenerator;
 			var NewMethodGenerator = new MethodGenerator(DoDebug);

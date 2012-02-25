@@ -21,6 +21,11 @@ namespace NPhp.Codegen.Nodes
 			RanksParseNode = parseNode.ChildNodes[1];
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+			(RanksParseNode.AstNode as Node).PreGenerate(Context);
+		}
+
 		static public void GetVariable(NodeGenerateContext Context, string VariableName)
 		{
 #if CACHE_VARIABLES

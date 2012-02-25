@@ -7,16 +7,36 @@ using System.Reflection;
 
 namespace NPhp.Runtime
 {
+	class Php54FunctionLazyNative : IPhp54Function
+	{
+		Func<IPhp54Function> CodeGenerator;
+		IPhp54Function CachedFunction;
+
+		public Php54FunctionLazyNative(Func<IPhp54Function> CodeGenerator)
+		{
+			this.CodeGenerator = CodeGenerator;
+		}
+
+		public void Execute(Php54Scope Scope)
+		{
+			if (CachedFunction == null)
+			{
+				CachedFunction = CodeGenerator();
+			}
+			CachedFunction.Execute(Scope);
+		}
+	}
+
 	public class Php54FunctionScope
 	{
-		public Dictionary<string, Php54Function> Functions { get; protected set; }
+		public Dictionary<string, IPhp54Function> Functions { get; protected set; }
 
 		public Php54FunctionScope()
 		{
-			Functions = new Dictionary<string, Php54Function>();
+			Functions = new Dictionary<string, IPhp54Function>();
 		}
 
-		static public Php54Function CreateNativeWrapper(MethodInfo MethodInfo)
+		static public IPhp54Function CreateNativeWrapper(MethodInfo MethodInfo)
 		{
 			//var MethodInfo = Delegate.Method;
 			var Context = new NodeGenerateContext(null, false);
@@ -86,6 +106,11 @@ namespace NPhp.Runtime
 			return Context.MethodGenerator.GenerateMethod();
 		}
 
+		private void AddFunction(MethodInfo Method)
+		{
+			Functions[Method.Name] = new Php54FunctionLazyNative(() => CreateNativeWrapper(Method));
+		}
+
 		public void LoadAllNativeFunctions()
 		{
 			var CurrentAssembly = Assembly.GetAssembly(this.GetType());
@@ -97,7 +122,7 @@ namespace NPhp.Runtime
 					foreach (var Method in Type.GetMethods())
 					{
 						if (!Method.IsStatic) continue;
-						Functions[Method.Name] = CreateNativeWrapper(Method);
+						AddFunction(Method);
 						//Console.WriteLine(Method.Name);
 					}
 				}

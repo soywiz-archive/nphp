@@ -8,16 +8,17 @@ using NPhp.Runtime;
 
 namespace NPhp.Codegen
 {
-	public class Node : IAstNodeInit
+	abstract public class Node : IAstNodeInit
 	{
-		public virtual void Init(AstContext context, ParseTreeNode parseNode)
+		public virtual void Init(AstContext Context, ParseTreeNode ParseNode)
 		{
 			//throw new NotImplementedException();
 		}
 
-		public Php54Function CreateMethod(Php54FunctionScope FunctionScope, bool DoDebug)
+		public IPhp54Function CreateMethod(Php54FunctionScope FunctionScope, bool DoDebug)
 		{
 			var Context = new NodeGenerateContext(FunctionScope, DoDebug);
+			PreGenerate(Context);
 			Generate(Context);
 			return Context.MethodGenerator.GenerateMethod();
 		}
@@ -28,10 +29,12 @@ namespace NPhp.Codegen
 			Context.MethodGenerator.ConvTo<TType>();
 		}
 
-		public virtual void Generate(NodeGenerateContext Context)
+		virtual public Node GetNonIgnoredNode()
 		{
-			Console.WriteLine("Generate! : {0}", this.GetType());
-			throw (new NotImplementedException());
+			return this;
 		}
+
+		abstract public void PreGenerate(NodeGenerateContext Context);
+		abstract public void Generate(NodeGenerateContext Context);
 	}
 }

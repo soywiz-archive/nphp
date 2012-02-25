@@ -19,6 +19,11 @@ namespace NPhp.Codegen.Nodes
 			ReturnExpression = parseNode.ChildNodes[1];
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+			(ReturnExpression.AstNode as Node).PreGenerate(Context);
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			Context.MethodGenerator.LoadScope();

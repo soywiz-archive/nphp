@@ -27,6 +27,13 @@ namespace NPhp.Codegen.Nodes
 			}
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+			(ConditionExpresion.AstNode as Node).PreGenerate(Context);
+			(TrueSentence.AstNode as Node).PreGenerate(Context);
+			if (FalseSentence != null) (FalseSentence.AstNode as Node).PreGenerate(Context);
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			var EndLabel = Context.MethodGenerator.DefineLabel("End");

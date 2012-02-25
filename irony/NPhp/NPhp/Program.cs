@@ -22,12 +22,17 @@ namespace NPhp
 
 			Debug.WriteLine("=========================");
 
-			var Runtime = new Php54Runtime(FunctionScope);
+			var Runtime = new Php54Runtime(FunctionScope, InteractiveErrors: true);
 			var Function = Runtime.CreateMethodFromPhpFile(@"
 				<?php
-					$a = 1;
-					$b = 3;
-					echo ""0{$a}2{$b}4$a-$b-$a"";
+					for ($n = 0; $n <= 3; $n++) {
+						switch ($n) {
+							case 1: echo 1;
+							case 2: echo 2; break;
+							case 3: echo 3; break;
+							default: echo 0;
+						}
+					}
 				?>
 			".Trim(), DumpTree: true, DoDebug: false);
 

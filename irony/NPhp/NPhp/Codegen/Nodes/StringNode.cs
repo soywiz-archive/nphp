@@ -23,6 +23,10 @@ namespace NPhp.Codegen.Nodes
 			Interpolate = (StringWithQuotes[0] == '"');
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			// @TODO: Temporal solution. It should have its own grammar!

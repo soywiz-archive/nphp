@@ -50,6 +50,44 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void SimpleSwitch()
+		{
+			Assert.AreEqual("", CodeExecute(@"
+				switch (0) {
+				}
+			"));
+		}
+
+		[TestMethod]
+		public void SimpleSwitchWithoutDefault()
+		{
+			Assert.AreEqual("1223", CodeExecute(@"
+				for ($n = 0; $n <= 3; $n++) {
+					switch ($n) {
+						case 1: echo 1;
+						case 2: echo 2; break;
+						case 3: echo 3; break;
+					}
+				}
+			"));
+		}
+
+		[TestMethod]
+		public void SimpleSwitchWithDefault()
+		{
+			Assert.AreEqual("01223", CodeExecute(@"
+				for ($n = 0; $n <= 3; $n++) {
+					switch ($n) {
+						case 1: echo 1;
+						case 2: echo 2; break;
+						case 3: echo 3; break;
+						default: echo 0;
+					}
+				}
+			"));
+		}
+
+		[TestMethod]
 		public void ForContinue()
 		{
 			Assert.AreEqual("13579", CodeExecute(@"

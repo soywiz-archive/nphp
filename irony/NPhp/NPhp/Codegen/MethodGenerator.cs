@@ -72,7 +72,7 @@ namespace NPhp.Codegen
 			return SafeILGenerator.DeclareLocal<TType>(null);
 		}
 
-		public Php54Function GenerateMethod()
+		public IPhp54Function GenerateMethod()
 		{
 			ClearStack();
 			SafeILGenerator.Return();

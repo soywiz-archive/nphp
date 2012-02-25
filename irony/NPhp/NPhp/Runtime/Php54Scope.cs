@@ -61,7 +61,7 @@ namespace NPhp.Runtime
 
 		public void CallFunctionByName(string Name)
 		{
-			Php54Function Method;
+			IPhp54Function Method;
 
 			if (!Php54Runtime.FunctionScope.Functions.TryGetValue(Name, out Method))
 			{

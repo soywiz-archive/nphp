@@ -20,6 +20,11 @@ namespace NPhp.Codegen.Nodes
 			Parameters = parseNode.ChildNodes[1];
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+			(Parameters.AstNode as Node).PreGenerate(Context);
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			int ArgumentsCount = Parameters.ChildNodes.Count;

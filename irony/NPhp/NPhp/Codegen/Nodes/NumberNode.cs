@@ -18,6 +18,10 @@ namespace NPhp.Codegen.Nodes
 			Value = Php54Utils.StringToInteger(parseNode.FindTokenAndGetText());
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			Context.MethodGenerator.Push(Value);

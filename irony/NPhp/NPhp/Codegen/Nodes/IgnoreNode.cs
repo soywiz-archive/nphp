@@ -18,6 +18,21 @@ namespace NPhp.Codegen.Nodes
 			//Child = parseNode.ChildNodes[0];
 		}
 
+		public override Node GetNonIgnoredNode()
+		{
+			if (parseNode.ChildNodes.Count == 1) return (parseNode.ChildNodes[0].AstNode as Node).GetNonIgnoredNode();
+			return this;
+		}
+
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+			foreach (var Node in parseNode.ChildNodes)
+			{
+				var AstNode = (Node)Node.AstNode;
+				if (AstNode != null) AstNode.PreGenerate(Context);
+			}
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			foreach (var Node in parseNode.ChildNodes)

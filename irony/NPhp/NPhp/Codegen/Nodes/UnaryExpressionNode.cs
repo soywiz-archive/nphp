@@ -19,6 +19,12 @@ namespace NPhp.Codegen.Nodes
 			Right = parseNode.ChildNodes[1];
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+			(UnaryOperator.AstNode as Node).PreGenerate(Context);
+			(Right.AstNode as Node).PreGenerate(Context);
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			//base.Generate();

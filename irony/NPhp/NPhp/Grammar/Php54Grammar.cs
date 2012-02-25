@@ -15,10 +15,11 @@ namespace NPhp.LanguageGrammar
 	{
 		static public AstNodeCreator GetCreator<TType>() where TType : Node, new()
 		{
-			return (context, parseNode) => {
+			return (Context, ParseNode) =>
+			{
 				var Item = new TType();
-				Item.Init(context, parseNode);
-				parseNode.AstNode = Item;
+				Item.Init(Context, ParseNode);
+				ParseNode.AstNode = Item;
 			};
 		}
 
@@ -46,6 +47,9 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal ForSentence = new NonTerminal("ForSentence", GetCreator<ForNode>());
 		public readonly NonTerminal ContinueSentence = new NonTerminal("ContinueSentence", GetCreator<ContinueBreakSentenceNode>());
 		public readonly NonTerminal BreakSentence = new NonTerminal("BreakSentence", GetCreator<ContinueBreakSentenceNode>());
+		public readonly NonTerminal SwitchSentence = new NonTerminal("SwitchSentence", GetCreator<SwitchSentenceNode>());
+		public readonly NonTerminal CaseSentence = new NonTerminal("CaseSentence", GetCreator<SwitchCaseSentenceNode>());
+		public readonly NonTerminal DefaultSentence = new NonTerminal("DefaultSentence", GetCreator<SwitchCaseSentenceNode>());
 
 		public readonly NonTerminal ExpressionSentence = new NonTerminal("ExpressionSentence", GetCreator<ExpressionSentenceNode>());
 
@@ -127,7 +131,7 @@ namespace NPhp.LanguageGrammar
 
 			FunctionDeclarationArguments.Rule = MakeStarRule(FunctionDeclarationArguments, ToTerm(","), GetVariable);
 
-			NamedFunctionDeclarationSentence.Rule = ToTerm("function") + GetId + "(" + FunctionDeclarationArguments + ")" + "{" + SentenceList + "}";
+			NamedFunctionDeclarationSentence.Rule = ToTerm("function") + GetId + "(" + FunctionDeclarationArguments + ")" + CurlySentence;
 
 			GetId.Rule = IdTerminal;
 
@@ -153,6 +157,9 @@ namespace NPhp.LanguageGrammar
 			ForSentence.Rule = ToTerm("for") + "(" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ")" + Sentence;
 			ContinueSentence.Rule = ToTerm("continue") + ToTerm(";");
 			BreakSentence.Rule = ToTerm("break") + ToTerm(";");
+			SwitchSentence.Rule = ToTerm("switch") + "(" + Expression + ")" + CurlySentence;
+			CaseSentence.Rule = ToTerm("case") + NumberOrString + ":";
+			DefaultSentence.Rule = ToTerm("default") + ":";
 
 			BinaryOperation.Rule = Expression + BinaryOperator + Expression;
 
@@ -221,7 +228,7 @@ namespace NPhp.LanguageGrammar
 
 			SubExpression.Rule = ToTerm("(") + Expression + ")";
 
-			UnaryOperator.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~") | ToTerm("&");
+			UnaryOperator.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~") | ToTerm("&") | ToTerm("@");
 
 			UnaryExpression.Rule = UnaryOperator + Expression;
 
@@ -266,6 +273,9 @@ namespace NPhp.LanguageGrammar
 				| PrintSentence
 				| DoWhileSentence
 				| WhileSentence
+				| CaseSentence
+				| DefaultSentence
+				| SwitchSentence
 				| ForeachSentence
 				| ForeachPairSentence
 				| ForSentence

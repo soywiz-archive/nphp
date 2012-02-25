@@ -13,5 +13,14 @@ namespace NPhp.Codegen.Nodes
 		{
 			throw(new NotImplementedException("Not implemented do..while syntax"));
 		}
+
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+		}
+
+		public override void Generate(NodeGenerateContext Context)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

@@ -18,6 +18,12 @@ namespace NPhp.Codegen.Nodes
 			UnaryPostOperationNode = (parseNode.ChildNodes[1].AstNode as UnaryPostOperationNode);
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+			VariableNode.PreGenerate(Context);
+			UnaryPostOperationNode.PreGenerate(Context);
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			VariableNode.Generate(Context);

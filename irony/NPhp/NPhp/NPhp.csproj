@@ -53,6 +53,7 @@
     <Compile Include="Codegen\Nodes\AssignmentNode.cs" />
     <Compile Include="Codegen\Nodes\BinaryExpressionNode.cs" />
     <Compile Include="Codegen\Nodes\BinaryOperatorNode.cs" />
+    <Compile Include="Codegen\Nodes\SwitchCaseSentenceNode.cs" />
     <Compile Include="Codegen\Nodes\ContinueBreakSentenceNode.cs" />
     <Compile Include="Codegen\Nodes\DoWhileNode.cs" />
     <Compile Include="Codegen\Nodes\EchoNode.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Codegen\Nodes\ReturnNode.cs" />
     <Compile Include="Codegen\Nodes\SpecialLiteralNode.cs" />
     <Compile Include="Codegen\Nodes\StringNode.cs" />
+    <Compile Include="Codegen\Nodes\SwitchSentenceNode.cs" />
     <Compile Include="Codegen\Nodes\UnaryExpressionNode.cs" />
     <Compile Include="Codegen\Nodes\UnaryOperatorNode.cs" />
     <Compile Include="Codegen\Nodes\UnaryPostOperationNode.cs" />

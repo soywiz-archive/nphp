@@ -31,6 +31,10 @@ namespace NPhp.Codegen.Nodes
 			Right.GenerateAs<TRight>(Context);
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+		}
+
 		public void Generate(Node Left, Node Right, NodeGenerateContext Context)
 		{
 #if OPTIMIZE_SPECIAL_TYPES

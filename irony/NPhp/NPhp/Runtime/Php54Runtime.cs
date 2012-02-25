@@ -20,8 +20,9 @@ namespace NPhp.Runtime
 		public Php54Scope ConstantScope;
 		Parser Parser;
 		TextWriter TextWriter;
+		bool InteractiveErrors;
 
-		public Php54Runtime(Php54FunctionScope FunctionScope)
+		public Php54Runtime(Php54FunctionScope FunctionScope, bool InteractiveErrors = false)
 		{
 			if (Thread.CurrentThread.CurrentCulture.Name != "en-US")
 			{
@@ -29,6 +30,7 @@ namespace NPhp.Runtime
 				Debug.WriteLine("Changed CultureInfo to en-US");
 			}
 
+			this.InteractiveErrors = InteractiveErrors;
 			this.Grammar = new Php54Grammar();
 			this.LanguageData = new LanguageData(Grammar);
 			this.Parser = new Parser(LanguageData);
@@ -39,7 +41,7 @@ namespace NPhp.Runtime
 			this.ConstantScope = new Php54Scope(this);
 		}
 
-		public Php54Function CreateMethodFromPhpCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
+		public IPhp54Function CreateMethodFromPhpCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
 #if true
 			return InternalCreateMethodFromCode("<?php " + Code + " ?>", File, DumpTree, DoDebug);
@@ -48,12 +50,12 @@ namespace NPhp.Runtime
 #endif
 		}
 
-		public Php54Function CreateMethodFromPhpFile(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
+		public IPhp54Function CreateMethodFromPhpFile(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
 			return InternalCreateMethodFromCode(Code, File, DumpTree, DoDebug);
 		}
 
-		private Php54Function InternalCreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
+		private IPhp54Function InternalCreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
 			var Tree = Parser.Parse(Code, File);
 
@@ -70,14 +72,12 @@ namespace NPhp.Runtime
 				}
 				var ErrorsString = String.Join("\r\n", Errors);
 				Console.Error.WriteLine(ErrorsString);
-#if false
-				if (Environment.UserInteractive)
+				if (InteractiveErrors)
 				{
 					Console.ReadKey();
 					Environment.Exit(-1);
 				}
 				else
-#endif
 				{
 					throw (new Exception(ErrorsString));
 				}
@@ -119,7 +119,7 @@ namespace NPhp.Runtime
 
 		static public void Eval(Php54Scope Scope, Php54Var Variable)
 		{
-			Php54Function EvalFunction;
+			IPhp54Function EvalFunction;
 			try
 			{
 				 EvalFunction = Scope.Php54Runtime.CreateMethodFromPhpCode(Variable.StringValue, "eval()");

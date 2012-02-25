@@ -5,7 +5,12 @@ using System.Text;
 
 namespace NPhp.Runtime
 {
-	public class Php54Function
+	public interface IPhp54Function
+	{
+		void Execute(Php54Scope Scope);
+	}
+
+	public class Php54Function : IPhp54Function
 	{
 		protected Action<Php54Scope> Code;
 
@@ -19,4 +24,5 @@ namespace NPhp.Runtime
 			Code(Scope);
 		}
 	}
+
 }

@@ -22,10 +22,15 @@ namespace NPhp.Codegen.Nodes
 			ValueNode = parseNode.ChildNodes[2];
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+			(LeftValueNode.AstNode as Node).PreGenerate(Context);
+			(ValueNode.AstNode as Node).PreGenerate(Context);
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			(LeftValueNode.AstNode as Node).Generate(Context);
-			
 			(ValueNode.AstNode as Node).Generate(Context);
 			Context.MethodGenerator.ConvTo<Php54Var>();
 

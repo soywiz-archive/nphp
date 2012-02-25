@@ -19,6 +19,10 @@ namespace NPhp.Codegen.Nodes
 			this.Content = parseNode.FindToken().ValueString;
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			Context.MethodGenerator.LoadScope();

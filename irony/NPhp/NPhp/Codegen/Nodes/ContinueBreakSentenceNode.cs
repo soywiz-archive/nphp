@@ -16,6 +16,10 @@ namespace NPhp.Codegen.Nodes
 			Type = parseNode.ChildNodes[0].FindTokenAndGetText();
 		}
 
+		public override void PreGenerate(NodeGenerateContext Context)
+		{
+		}
+
 		public override void Generate(NodeGenerateContext Context)
 		{
 			var ContinueBreak = Context.GetContinueBreakNodeAt(1);
