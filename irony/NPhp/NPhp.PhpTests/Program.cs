@@ -14,7 +14,13 @@ namespace NPhp.PhpTess
 		static Php54FunctionScope FunctionScope = new Php54FunctionScope();
 		static Php54Runtime Runtime = new Php54Runtime(FunctionScope);
 
-		static public void RunTest(string[] ContentLines)
+		static public TValue GetOrDefault<TKey, TValue>(Dictionary<TKey, TValue> Dictionary, TKey Key, TValue DefaultValue)
+		{
+			if (Dictionary.ContainsKey(Key)) return Dictionary[Key];
+			return DefaultValue;
+		}
+
+		static public void RunTest(string[] ContentLines, string FileName)
 		{
 			var SectionName = "";
 			var Sections = new Dictionary<string, string>();
@@ -33,19 +39,17 @@ namespace NPhp.PhpTess
 				}
 			}
 
-			var TestName = "";
-			var TestFile = "";
-			var TestExpect = "";
-			Sections.TryGetValue("TEST", out TestName);
-			Sections.TryGetValue("FILE", out TestFile);
-			Sections.TryGetValue("EXPECT", out TestExpect);
-			TestName = TestName.Trim();
-			TestFile = TestFile.Trim();
-			TestExpect = TestExpect.Trim();
+			var TestName = GetOrDefault(Sections, "TEST", "").Trim();
+			var TestFile = GetOrDefault(Sections, "FILE", "").Trim();
+			var TestIni = GetOrDefault(Sections, "INI", "").Trim();
+			var TestSkipIf = GetOrDefault(Sections, "SKIPIF", "").Trim();
+			var TestExpect = GetOrDefault(Sections, "EXPECT", "").Trim();
+			var TestExpectf = GetOrDefault(Sections, "EXPECTF", "").Trim();
+			if (TestExpectf != "") TestExpect = TestExpectf;
 			//TestExpect = "aaa";
 
 			Console.ForegroundColor = ConsoleColor.Cyan;
-			Console.Write("{0}...", TestName);
+			Console.Write("{0}:{1}...", FileName, TestName);
 			Console.ForegroundColor = ConsoleColor.Red;
 
 			try
@@ -54,18 +58,26 @@ namespace NPhp.PhpTess
 				var Scope = new Php54Scope(Runtime);
 				var TestOutput = CaptureOutput(() =>
 				{
-					Method(Scope);
+					Method.Execute(Scope);
 				}).Trim();
 
 				
 				if (TestOutput != TestExpect)
 				{
-					Console.ForegroundColor = ConsoleColor.Red;
-					Console.WriteLine("Error");
 					var Result = Diff.DiffTextProcessed(TestOutput, TestExpect);
-					foreach (var Item in Result.Items)
+					if (!Result.AreEquals)
 					{
-						Item.Print();
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.WriteLine("Error");
+						foreach (var Item in Result.Items)
+						{
+							Item.Print();
+						}
+					}
+					else
+					{
+						Console.ForegroundColor = ConsoleColor.Green;
+						Console.WriteLine("Ok");
 					}
 				}
 				else
@@ -103,10 +115,11 @@ namespace NPhp.PhpTess
 		{
 			FunctionScope.LoadAllNativeFunctions();
 
-			foreach (var PhptFile in Directory.EnumerateFiles("../../tests", "*.phpt", SearchOption.AllDirectories))
+			foreach (var PhptFile in new DirectoryInfo("../../tests").EnumerateFiles("*.phpt", SearchOption.AllDirectories))
 			//foreach (var PhptFile in Directory.EnumerateFiles("../../tests/func", "*.phpt", SearchOption.AllDirectories))
 			{
-				RunTest(File.ReadAllLines(PhptFile));
+				Directory.SetCurrentDirectory(PhptFile.DirectoryName);
+				RunTest(File.ReadAllLines(PhptFile.FullName), PhptFile.Directory.Name + "/" + PhptFile.Name);
 			}
 			
 			Console.ReadKey();

@@ -54,6 +54,7 @@
     <Compile Include="Codegen\Nodes\BinaryExpressionNode.cs" />
     <Compile Include="Codegen\Nodes\BinaryOperatorNode.cs" />
     <Compile Include="Codegen\Nodes\ContinueBreakSentenceNode.cs" />
+    <Compile Include="Codegen\Nodes\DoWhileNode.cs" />
     <Compile Include="Codegen\Nodes\EchoNode.cs" />
     <Compile Include="Codegen\Nodes\EvalNode.cs" />
     <Compile Include="Codegen\Nodes\ExpressionSentenceNode.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Runtime\Functions\JsonFunctions.cs" />
     <Compile Include="Runtime\Functions\StringFunctions.cs" />
     <Compile Include="Runtime\Php54Array.cs" />
+    <Compile Include="Runtime\Php54Function.cs" />
     <Compile Include="Runtime\Php54FunctionScope.cs" />
     <Compile Include="Runtime\Php54NativeLibraryAttribute.cs" />
     <Compile Include="Runtime\Php54Runtime.cs" />

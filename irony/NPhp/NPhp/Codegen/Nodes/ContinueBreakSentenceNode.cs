@@ -18,7 +18,7 @@ namespace NPhp.Codegen.Nodes
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			var ContinueBreak = Context.ContinueBreakNodeList[Context.ContinueBreakNodeList.Count - 1];
+			var ContinueBreak = Context.GetContinueBreakNodeAt(1);
 			switch (Type)
 			{
 				case "continue": Context.MethodGenerator.BranchAlways(ContinueBreak.ContinueLabel); break;

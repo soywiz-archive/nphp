@@ -61,13 +61,13 @@ namespace NPhp.Runtime
 
 		public void CallFunctionByName(string Name)
 		{
-			Action<Php54Scope> Method;
+			Php54Function Method;
 
 			if (!Php54Runtime.FunctionScope.Functions.TryGetValue(Name, out Method))
 			{
 				throw(new KeyNotFoundException("Can't find function '" + Name + "'"));
 			}
-			Method(this);
+			Method.Execute(this);
 		}
 
 		public Php54Var GetVariable(string Name)

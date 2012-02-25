@@ -9,9 +9,14 @@ namespace NPhp.Runtime
 {
 	public class Php54FunctionScope
 	{
-		public Dictionary<string, Action<Php54Scope>> Functions { get; protected set; }
+		public Dictionary<string, Php54Function> Functions { get; protected set; }
 
-		static public Action<Php54Scope> CreateNativeWrapper(MethodInfo MethodInfo)
+		public Php54FunctionScope()
+		{
+			Functions = new Dictionary<string, Php54Function>();
+		}
+
+		static public Php54Function CreateNativeWrapper(MethodInfo MethodInfo)
 		{
 			//var MethodInfo = Delegate.Method;
 			var Context = new NodeGenerateContext(null, false);
@@ -79,11 +84,6 @@ namespace NPhp.Runtime
 				}
 			}
 			return Context.MethodGenerator.GenerateMethod();
-		}
-
-		public Php54FunctionScope()
-		{
-			Functions = new Dictionary<string, Action<Php54Scope>>();
 		}
 
 		public void LoadAllNativeFunctions()

@@ -30,14 +30,11 @@ namespace NPhp.Codegen.Nodes
 			Context.MethodGenerator.ConvTo<Php54Var>();
 
 			switch (Operator) {
-				case "=":
-					Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
-					break;
-				case "+=":
-					Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.AssignAdd);
-					break;
+				case "=": Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.Assign); break;
+				case "+=": Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.AssignAdd); break;
+				case "-=": Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.AssignSub); break;
 				default:
-					throw(new NotImplementedException("Operator: " + Operator));
+					throw(new NotImplementedException("Not Implemented Assignment Operator: " + Operator));
 			}
 		}
 	}

@@ -23,20 +23,27 @@ namespace NPhp.Codegen.Nodes
 
 		public override void Generate(NodeGenerateContext Context)
 		{
-			var LoopLabel = Context.MethodGenerator.DefineLabel("Loop");
-			var EndLabel = Context.MethodGenerator.DefineLabel("End");
+			var ContinueLabel = Context.MethodGenerator.DefineLabel("Loop");
+			var BreakLabel = Context.MethodGenerator.DefineLabel("End");
 
-			LoopLabel.Mark();
+			Context.PushContinueBreakNode(new ContinueBreakNode()
 			{
-				(ConditionExpresion.AstNode as Node).Generate(Context);
-				Context.MethodGenerator.ConvTo<bool>();
-				Context.MethodGenerator.BranchIfFalse(EndLabel);
-			}
+				ContinueLabel = ContinueLabel,
+				BreakLabel = BreakLabel,
+			}, () =>
 			{
-				(LoopSentence.AstNode as Node).Generate(Context);
-				Context.MethodGenerator.BranchAlways(LoopLabel);
-			}
-			EndLabel.Mark();
+				ContinueLabel.Mark();
+				{
+					(ConditionExpresion.AstNode as Node).Generate(Context);
+					Context.MethodGenerator.ConvTo<bool>();
+					Context.MethodGenerator.BranchIfFalse(BreakLabel);
+				}
+				{
+					(LoopSentence.AstNode as Node).Generate(Context);
+					Context.MethodGenerator.BranchAlways(ContinueLabel);
+				}
+				BreakLabel.Mark();
+			});
 		}
 	}
 }

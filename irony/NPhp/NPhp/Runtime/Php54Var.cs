@@ -426,6 +426,12 @@ namespace NPhp.Runtime
 			Assign(Left, Add(Left, Right));
 		}
 
+		static public void AssignSub(Php54Var Left, Php54Var Right)
+		{
+			//Left.DynamicValue += Right.DynamicValue;
+			Assign(Left, Sub(Left, Right));
+		}
+
 		public bool ToBool()
 		{
 			return BoolValue;

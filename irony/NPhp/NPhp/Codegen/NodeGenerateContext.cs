@@ -20,7 +20,12 @@ namespace NPhp.Codegen
 
 		public bool DoDebug { get; private set; }
 
-		public List<ContinueBreakNode> ContinueBreakNodeList = new List<ContinueBreakNode>();
+		private List<ContinueBreakNode> ContinueBreakNodeList = new List<ContinueBreakNode>();
+
+		public ContinueBreakNode GetContinueBreakNodeAt(int Index)
+		{
+			return ContinueBreakNodeList[ContinueBreakNodeList.Count - Index];
+		}
 
 		public void PushContinueBreakNode(ContinueBreakNode ContinueBreakNode, Action Action)
 		{
@@ -42,7 +47,7 @@ namespace NPhp.Codegen
 			this.FunctionScope = FunctionScope;
 		}
 
-		public Action<Php54Scope> GenerateFunction(Action Action, bool DoDebug)
+		public Php54Function GenerateFunction(Action Action, bool DoDebug)
 		{
 			var OldMethodGenerator = MethodGenerator;
 			var NewMethodGenerator = new MethodGenerator(DoDebug);

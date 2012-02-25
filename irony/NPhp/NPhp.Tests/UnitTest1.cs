@@ -13,37 +13,46 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void PhpRaw0()
 		{
-			Assert.AreEqual("text", RunFileAndCaptureOutput(@"text"));
+			Assert.AreEqual("text", FileExecute(@"text"));
 		}
 
 		[TestMethod]
 		public void PhpRaw1()
 		{
-			Assert.AreEqual("HelloWorld", RunFileAndCaptureOutput(@"Hello<?php ?>World"));
+			Assert.AreEqual("HelloWorld", FileExecute(@"Hello<?php ?>World"));
 		}
 
 		[TestMethod]
 		public void PhpRaw2()
 		{
-			Assert.AreEqual("Hello", RunFileAndCaptureOutput(@"Hello<?php "));
+			Assert.AreEqual("Hello", FileExecute(@"Hello<?php "));
 		}
 
 		[TestMethod]
 		public void PhpRaw3a()
 		{
-			Assert.AreEqual("abcd", RunFileAndCaptureOutput(@"a<?php echo 'b'; ?>c<?php echo 'd';"));
+			Assert.AreEqual("abcd", FileExecute(@"a<?php echo 'b'; ?>c<?php echo 'd';"));
 		}
 
 		[TestMethod]
 		public void PhpRaw3b()
 		{
-			Assert.AreEqual("0123", RunFileAndCaptureOutput(@"0<?php echo 1; ?>2<?php echo 3;"));
+			Assert.AreEqual("0123", FileExecute(@"0<?php echo 1; ?>2<?php echo 3;"));
+		}
+
+		[TestMethod]
+		public void VariableNames()
+		{
+			Assert.AreEqual("1", CodeExecute(@"
+				$long_var_name = 1;
+				echo $long_var_name;
+			"));
 		}
 
 		[TestMethod]
 		public void ForContinue()
 		{
-			Assert.AreEqual("13579", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("13579", CodeExecute(@"
 				for ($n = 1; $n <= 10; $n++) {
 					if (!($n % 2)) continue;
 					echo $n;
@@ -54,13 +63,13 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void StringUnquote()
 		{
-			Assert.AreEqual("\n\r\t\\", RunCodeAndCaptureOutput("echo \"\\n\\r\\t\\\\\";"));
+			Assert.AreEqual("\n\r\t\\", CodeExecute("echo \"\\n\\r\\t\\\\\";"));
 		}
 
 		[TestMethod]
 		public void StringInterpolation1()
 		{
-			Assert.AreEqual("01234", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("01234", CodeExecute(@"
 				$a = 1;
 				$b = 3;
 				echo ""0{$a}2{$b}4"";
@@ -70,7 +79,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void StringInterpolation2()
 		{
-			Assert.AreEqual("0(12)3", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("0(12)3", CodeExecute(@"
 				$a = 1;
 				$b = 2;
 				echo ""0($a$b)3"";
@@ -80,7 +89,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void StringInterpolation3()
 		{
-			Assert.AreEqual("12", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("12", CodeExecute(@"
 				$a = 1;
 				$b = 2;
 				echo ""$a$b"";
@@ -90,7 +99,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void StringInterpolation4()
 		{
-			Assert.AreEqual("1", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("1", CodeExecute(@"
 				$a = 1;
 				$b = 2;
 				echo ""$a"";
@@ -100,7 +109,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void ForBreak()
 		{
-			Assert.AreEqual("98765", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("98765", CodeExecute(@"
 				for ($n = 9; $n > 0; $n--) {
 					if ($n < 5) break;
 					echo $n;
@@ -109,9 +118,35 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void WhileContinueBreak()
+		{
+			Assert.AreEqual("2468", CodeExecute(@"
+				$n = 0;
+				while (true) {
+					$n++;
+					if ($n >= 10) break;
+					if ($n % 2) continue;
+					echo $n;
+				}
+			"));
+		}
+
+		[TestMethod]
+		public void SimpleDoWhile()
+		{
+			Assert.AreEqual("[0]", CodeExecute(@"
+				$n = 0;
+				echo '[';
+				do { echo $n; } while ($n);
+				echo ']';
+			"));
+		}
+
+
+		[TestMethod]
 		public void SimpleEchoExpressionTest()
 		{
-			Assert.AreEqual("152", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("152", CodeExecute(@"
 				echo(1+(2+3)*2)/11;
 				echo 5;
 				echo 2;
@@ -121,13 +156,13 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleEchoWithoutSemicolon()
 		{
-			Assert.AreEqual("Hello", RunFileAndCaptureOutput(@"<?php echo 'Hello'?>"));
+			Assert.AreEqual("Hello", FileExecute(@"<?php echo 'Hello'?>"));
 		}
 
 		[TestMethod]
 		public void SimpleForeachTest()
 		{
-			Assert.AreEqual("123", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("123", CodeExecute(@"
 				foreach ([1,2,3] as $v) echo $v;
 			"));
 		}
@@ -135,7 +170,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleForeachKeyValueTest()
 		{
-			Assert.AreEqual("01:12:23:", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("01:12:23:", CodeExecute(@"
 				foreach ([1,2,3] as $k => $v) echo $k . $v . ':';
 			"));
 		}
@@ -143,7 +178,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void PairForeachKeyValueTest()
 		{
-			Assert.AreEqual("test1:22:13:34:", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("test1:22:13:34:", CodeExecute(@"
 				foreach (['test' => 1, 2 => 2, 1 => 3, 3 => 4] as $k => $v) echo $k . $v . ':';
 			"));
 		}
@@ -151,7 +186,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void AssocArrayRepeatKeyTest()
 		{
-			Assert.AreEqual("[2]{\"1\":2}", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("[2]{\"1\":2}", CodeExecute(@"
 				echo JsOn_EncodE(array(0 => 1, 0 => 2));
 				echo JSon_ENCODE(array(1 => 1, 1 => 2));
 			"));
@@ -160,7 +195,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleIfTest()
 		{
-			Assert.AreEqual("71", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("71", CodeExecute(@"
 				echo 7;
 				//echo 2;
 				if (0) {
@@ -175,7 +210,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleIfElseTest()
 		{
-			Assert.AreEqual("2973", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("2973", CodeExecute(@"
 				if (0) {
 					echo 1;
 				} else {
@@ -195,7 +230,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void UndefinedVarUse()
 		{
-			Assert.AreEqual("", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("", CodeExecute(@"
 				echo $a;
 			"));
 		}
@@ -203,7 +238,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleVarUse()
 		{
-			Assert.AreEqual("3", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("3", CodeExecute(@"
 				$a = 3;
 				echo $a;
 			"));
@@ -212,7 +247,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void UnaryOperation()
 		{
-			Assert.AreEqual("-3", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("-3", CodeExecute(@"
 				$a = -(1 + 2);
 				echo $a;
 			"));
@@ -221,7 +256,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void Concat()
 		{
-			Assert.AreEqual("test-3::1:", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("test-3::1:", CodeExecute(@"
 				$a = -(1 + 2);
 				$b = false;
 				$c = true;
@@ -233,7 +268,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void Var1Use()
 		{
-			Assert.AreEqual("4yes", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("4yes", CodeExecute(@"
 				$a = (1 + 2);
 				if ($a == 3) {
 					echo $a + 1;
@@ -251,7 +286,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleWhile()
 		{
-			Assert.AreEqual("987654321", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("987654321", CodeExecute(@"
 				$n = 9;
 				while ($n > 0) {
 					echo $n;
@@ -263,7 +298,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleFor()
 		{
-			Assert.AreEqual("0123456789", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("0123456789", CodeExecute(@"
 				for ($n = 0; $n < 10; $n = $n + 1) echo $n;
 			"));
 		}
@@ -271,7 +306,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void ForWithPostIncrement()
 		{
-			Assert.AreEqual("0123456789", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("0123456789", CodeExecute(@"
 				for ($n = 0; $n < 10; $n++) echo $n;
 			"));
 		}
@@ -279,7 +314,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void PartialFor()
 		{
-			Assert.AreEqual("0123456789", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("0123456789", CodeExecute(@"
 				$n = 0;
 				for (; $n < 10;) {
 					echo $n++;
@@ -290,7 +325,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void AddStrings()
 		{
-			Assert.AreEqual("10", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("10", CodeExecute(@"
 				echo '1test2' + 4 + '2demo' + 3;
 			"));
 		}
@@ -298,7 +333,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void PostIncrementAndDecrement()
 		{
-			Assert.AreEqual("0130-1-3", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("0130-1-3", CodeExecute(@"
 				$n = 0;
 				echo $n++;
 				echo $n++;
@@ -314,7 +349,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void EvalTest()
 		{
-			Assert.AreEqual("1", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("1", CodeExecute(@"
 				eval('echo 1;');
 			"));
 		}
@@ -322,7 +357,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleFunctionTest()
 		{
-			Assert.AreEqual("1234", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("1234", CodeExecute(@"
 				echo 1;
 				function test() {
 					echo 3;
@@ -336,7 +371,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void FunctionTest()
 		{
-			Assert.AreEqual("3", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("3", CodeExecute(@"
 				$a = -1;
 				$b = -2;
 				function add($a, $b) {
@@ -349,7 +384,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void RefTest()
 		{
-			Assert.AreEqual("2", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("2", CodeExecute(@"
 				$a = 1;
 				$b = &$a;
 				$b = 2;
@@ -360,7 +395,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void FunctionReturnType()
 		{
-			Assert.AreEqual("1a1Array", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("1a1Array", CodeExecute(@"
 				function ret_int() { return 1; }
 				function ret_str() { return 'a'; }
 				function ret_bit() { return true; }
@@ -377,7 +412,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void FunctionChaining()
 		{
-			Assert.AreEqual("abc", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("abc", CodeExecute(@"
 				function a() { return 'a'; }
 				function b($a) { return $a.'b'; }
 				function c($b) { return $b.'c'; }
@@ -388,7 +423,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void ParameterOrderIsLeftToRight()
 		{
-			Assert.AreEqual("ab", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("ab", CodeExecute(@"
 				function a() { echo 'a'; }
 				function b() { echo 'b'; }
 				function c($a, $b) { }
@@ -399,7 +434,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void ParameterOrderIsLeftToRightPlusReturn()
 		{
-			Assert.AreEqual("abAB", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("abAB", CodeExecute(@"
 				function a() { echo 'a'; return 'A'; }
 				function b() { echo 'b'; return 'B'; }
 				function c($a, $b) { return $a . $b; }
@@ -410,7 +445,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void StringApiTest()
 		{
-			Assert.AreEqual("el|ello|5", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("el|ello|5", CodeExecute(@"
 				echo substr('hello', 1, 2);
 				echo '|';
 				echo substr('hello', 1);
@@ -422,7 +457,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void HexDecTest()
 		{
-			Assert.AreEqual("f2f2f2f2", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("f2f2f2f2", CodeExecute(@"
 				function F($X, $Y, $Z){
 					$X = hexdec($X);
 					$Y = hexdec($Y);
@@ -437,7 +472,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void HexLiteralsTest()
 		{
-			Assert.AreEqual("f2f2f2f2", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("f2f2f2f2", CodeExecute(@"
 				function _F($X, $Y, $Z){
 					return  (($X & $Y) | ((~ $X) & $Z)); // X AND Y OR NOT X AND Z
 				}
@@ -448,7 +483,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void NonDecimalLiteralsTest()
 		{
-			Assert.AreEqual("63:63:511:", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("63:63:511:", CodeExecute(@"
 				echo 0x3F . ':';
 				echo 0x3f . ':';
 				echo 0777 . ':';
@@ -459,7 +494,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SpecialTokens()
 		{
-			Assert.AreEqual("f3", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("f3", CodeExecute(@"
 				function f() {
 					return __FUNCTION__ . __LINE__; 
 				}
@@ -470,7 +505,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void Constants()
 		{
-			Assert.AreEqual("TEST:20", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("TEST:20", CodeExecute(@"
 				define('TEST', 10);
 				function a() {
 					return TEST; 
@@ -482,7 +517,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void GettypeTest()
 		{
-			Assert.AreEqual(":integer:string:double", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual(":integer:string:double", CodeExecute(@"
 				echo ':'.gettype(1);
 				echo ':'.gettype('test');
 				echo ':'.gettype(99999999*39);
@@ -492,7 +527,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void EmptyArrayTest()
 		{
-			Assert.AreEqual("[][]", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("[][]", CodeExecute(@"
 				echo json_encode(array());
 				echo json_encode([]);
 			"));
@@ -501,7 +536,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleArrayTest()
 		{
-			Assert.AreEqual("[1,\"test\",2]", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("[1,\"test\",2]", CodeExecute(@"
 				echo json_encode(array(1,'test',2));
 			"));
 		}
@@ -509,7 +544,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleArray2Test()
 		{
-			Assert.AreEqual("[1,\"test\",2]", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("[1,\"test\",2]", CodeExecute(@"
 				echo json_encode([1,'test',2]);
 			"));
 		}
@@ -517,7 +552,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void ComplexArrayTest()
 		{
-			Assert.AreEqual("[1,[\"test\",[],2,[false]],3]", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("[1,[\"test\",[],2,[false]],3]", CodeExecute(@"
 				echo json_encode([1,['test',[],2,[false]],3]);
 			"));
 		}
@@ -525,7 +560,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void AssociativeArray()
 		{
-			Assert.AreEqual("{\"0\":1,\"2\":\"test\",\"3\":2}{\"0\":1,\"2\":\"test\",\"3\":2}{\"0\":1,\"2a\":\"test\",\"1\":2}", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("{\"0\":1,\"2\":\"test\",\"3\":2}{\"0\":1,\"2\":\"test\",\"3\":2}{\"0\":1,\"2a\":\"test\",\"1\":2}", CodeExecute(@"
 				echo json_encode(array(1,2=>'test',2));
 				echo json_encode(array(1,'2'=>'test',2));
 				echo json_encode(array(1,'2a'=>'test',2));
@@ -535,7 +570,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void OrdChr()
 		{
-			Assert.AreEqual("64", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("64", CodeExecute(@"
 				echo ord(chr(0x40));
 			"));
 		}
@@ -543,7 +578,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void SimpleArrayAccess()
 		{
-			Assert.AreEqual("e[3,2,0,4]", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("e[3,2,0,4]", CodeExecute(@"
 				$array = [1, 2, 3, 4];
 				$array[0] = 3;
 				$array[2] = 0;
@@ -556,7 +591,7 @@ namespace NPhp.Tests
 		[TestMethod]
 		public void ArrayAccessTest()
 		{
-			Assert.AreEqual("[1,[2,[3,[0,[5,6]]]]]", RunCodeAndCaptureOutput(@"
+			Assert.AreEqual("[1,[2,[3,[0,[5,6]]]]]", CodeExecute(@"
 				$array = [1, [2, [3, [4, [5, 6]]]]];
 				$array[1][1][1][0] = 0;
 				echo json_encode($array);
@@ -582,7 +617,7 @@ namespace NPhp.Tests
 		{
 		}
 
-		static private string RunFileAndCaptureOutput(string Code, Dictionary<string, Php54Var> Variables = null)
+		static private string FileExecute(string Code, Dictionary<string, Php54Var> Variables = null)
 		{
 			var Out = TestUtils.CaptureOutput(() =>
 			{
@@ -595,14 +630,14 @@ namespace NPhp.Tests
 						Php54Var.Assign(Scope.GetVariable(Pair.Key), Pair.Value);
 					}
 				}
-				Method(Scope);
+				Method.Execute(Scope);
 			});
 			return Out;
 		}
 
-		static private string RunCodeAndCaptureOutput(string Code, Dictionary<string, Php54Var> Variables = null)
+		static private string CodeExecute(string Code, Dictionary<string, Php54Var> Variables = null)
 		{
-			return RunFileAndCaptureOutput("<?php " + Code + " ?>", Variables);
+			return FileExecute("<?php " + Code + " ?>", Variables);
 		}
 
 	}

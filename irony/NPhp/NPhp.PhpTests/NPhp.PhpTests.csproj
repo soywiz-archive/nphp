@@ -48,7 +48,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="tests\func\001.phpt" />
+    <None Include="tests\func\002.phpt" />
     <None Include="tests\func\003.phpt" />
+    <None Include="tests\func\004.phpt" />
+    <None Include="tests\func\005.phpt" />
+    <None Include="tests\func\005a.phpt" />
+    <None Include="tests\func\006.phpt" />
+    <None Include="tests\func\007.phpt" />
+    <None Include="tests\func\008.phpt" />
+    <None Include="tests\func\009.phpt" />
+    <None Include="tests\func\010.phpt" />
+    <None Include="tests\func\ini_alter.phpt" />
     <None Include="tests\lang\001.phpt" />
     <None Include="tests\lang\002.phpt" />
     <None Include="tests\basic\001.phpt" />
@@ -59,6 +70,35 @@
     <None Include="tests\lang\009.phpt" />
     <None Include="tests\lang\010.phpt" />
     <None Include="tests\lang\011.phpt" />
+    <None Include="tests\lang\012.phpt" />
+    <None Include="tests\lang\013.phpt" />
+    <None Include="tests\lang\014.phpt" />
+    <None Include="tests\lang\015.phpt" />
+    <None Include="tests\lang\016.phpt" />
+    <None Include="tests\lang\017.phpt" />
+    <None Include="tests\lang\018.phpt" />
+    <None Include="tests\lang\019.phpt" />
+    <None Include="tests\lang\020.phpt" />
+    <None Include="tests\lang\021.phpt" />
+    <None Include="tests\lang\022.phpt" />
+    <None Include="tests\lang\023.phpt" />
+    <None Include="tests\lang\025.phpt" />
+    <None Include="tests\lang\026.phpt" />
+    <None Include="tests\lang\027.phpt" />
+    <None Include="tests\lang\028.phpt" />
+    <None Include="tests\lang\030.phpt" />
+    <None Include="tests\lang\031.phpt" />
+    <None Include="tests\lang\032.phpt" />
+    <None Include="tests\lang\033.phpt" />
+    <None Include="tests\lang\034.phpt" />
+    <None Include="tests\lang\035.phpt" />
+    <None Include="tests\lang\array_shortcut_001.phpt" />
+    <None Include="tests\lang\array_shortcut_002.phpt" />
+    <None Include="tests\lang\array_shortcut_003.phpt" />
+    <None Include="tests\lang\array_shortcut_005.phpt" />
+    <None Include="tests\lang\bison1.phpt" />
+    <None Include="tests\lang\bug19943.phpt" />
+    <None Include="tests\lang\bug7515.phpt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NPhp\NPhp.csproj">
@@ -69,6 +109,12 @@
       <Project>{9A93C7E4-09DA-46CF-B7DD-6BB09681D5AB}</Project>
       <Name>SafeILGenerator</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="tests\lang\015.inc" />
+    <Content Include="tests\lang\016.inc" />
+    <Content Include="tests\lang\023-1.inc" />
+    <Content Include="tests\lang\023-2.inc" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -37,10 +37,12 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal BaseSentence = new NonTerminal("BaseSentence", GetCreator<IgnoreNode>());
 		public readonly NonTerminal EchoSentence = new NonTerminal("EchoSentence", GetCreator<EchoNode>());
 		public readonly NonTerminal EvalSentence = new NonTerminal("EvalSentence", GetCreator<EvalNode>());
+		public readonly NonTerminal PrintSentence = new NonTerminal("PrintSentence", GetCreator<EvalNode>());
 		public readonly NonTerminal CurlySentence = new NonTerminal("CurlySentence", GetCreator<IgnoreNode>());
 		public readonly NonTerminal IfSentence = new NonTerminal("IfSentence", GetCreator<IfNode>());
 		public readonly NonTerminal IfElseSentence = new NonTerminal("IfElseSentence", GetCreator<IfNode>());
 		public readonly NonTerminal WhileSentence = new NonTerminal("WhileSentence", GetCreator<WhileNode>());
+		public readonly NonTerminal DoWhileSentence = new NonTerminal("DoWhileSentence", GetCreator<DoWhileNode>());
 		public readonly NonTerminal ForSentence = new NonTerminal("ForSentence", GetCreator<ForNode>());
 		public readonly NonTerminal ContinueSentence = new NonTerminal("ContinueSentence", GetCreator<ContinueBreakSentenceNode>());
 		public readonly NonTerminal BreakSentence = new NonTerminal("BreakSentence", GetCreator<ContinueBreakSentenceNode>());
@@ -103,7 +105,7 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal PhpEndCode = new NonTerminal("PhpEndCode", GetCreator<IgnoreNode>());
 		
 
-		public Php54Grammar()
+		public Php54Grammar(double Version = 5.4)
 			: base(caseSensitive: false)
 		{
 			this.GrammarComments = "PHP 5.4";
@@ -139,11 +141,13 @@ namespace NPhp.LanguageGrammar
 
 			EchoSentence.Rule = ToTerm("echo") + Expression + ToTerm(";");
 			EvalSentence.Rule = ToTerm("eval") + Expression + ToTerm(";");
+			PrintSentence.Rule = ToTerm("print") + Expression + ToTerm(";");
 			CurlySentence.Rule = ToTerm("{") + SentenceList + ToTerm("}");
 
 			IfElseSentence.Rule = ToTerm("if") + "(" + Expression + ")" + Sentence + PreferShiftHere() + ToTerm("else") + Sentence;
 			IfSentence.Rule = ToTerm("if") + ToTerm("(") + Expression + ToTerm(")") + Sentence;
 			WhileSentence.Rule = ToTerm("while") + "(" + Expression + ")" + Sentence;
+			DoWhileSentence.Rule = ToTerm("do") + Sentence + ToTerm("while") + "(" + Expression + ")" + ";";
 			ForeachSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + ")" + Sentence;
 			ForeachPairSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + "=>" + GetVariable + ")" + Sentence;
 			ForSentence.Rule = ToTerm("for") + "(" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ")" + Sentence;
@@ -154,6 +158,7 @@ namespace NPhp.LanguageGrammar
 
 			BinaryOperator.Rule =
 				ToTerm("<")
+				| "===" | "!=="
 				| "||" | "&&" | "|" | "^" | "&" | "==" | "!=" | ">" | "<=" | ">=" | "<<" | ">>" | "+" | "-" | "*" | "/" | "%" | "."
 				//| "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>="
 				| "is" | "as" | "??"
@@ -203,6 +208,7 @@ namespace NPhp.LanguageGrammar
 
 			RegisterOperators(10, "?");
 			RegisterOperators(15, "&", "&&", "|", "||");
+			RegisterOperators(19, "===", "!==");
 			RegisterOperators(20, "==", "<", "<=", ">", ">=", "!=");
 			RegisterOperators(30, "+", "-");
 			RegisterOperators(40, "*", "/");
@@ -257,6 +263,8 @@ namespace NPhp.LanguageGrammar
 				ExpressionSentence
 				| EchoSentence
 				| EvalSentence
+				| PrintSentence
+				| DoWhileSentence
 				| WhileSentence
 				| ForeachSentence
 				| ForeachPairSentence
@@ -316,6 +324,7 @@ namespace NPhp.LanguageGrammar
 			if (Char >= '0' && Char <= '9') return true;
 			if (Char >= 'a' && Char <= 'z') return true;
 			if (Char >= 'A' && Char <= 'Z') return true;
+			if (Char >= '_') return true;
 			return false;
 		}
 

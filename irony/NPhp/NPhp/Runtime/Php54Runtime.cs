@@ -33,12 +33,13 @@ namespace NPhp.Runtime
 			this.LanguageData = new LanguageData(Grammar);
 			this.Parser = new Parser(LanguageData);
 			this.Parser.Context.TracingEnabled = true;
+			this.Parser.Context.MaxErrors = 5;
 			this.TextWriter = Console.Out;
 			this.FunctionScope = FunctionScope;
 			this.ConstantScope = new Php54Scope(this);
 		}
 
-		public Action<Php54Scope> CreateMethodFromPhpCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
+		public Php54Function CreateMethodFromPhpCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
 #if true
 			return InternalCreateMethodFromCode("<?php " + Code + " ?>", File, DumpTree, DoDebug);
@@ -47,12 +48,12 @@ namespace NPhp.Runtime
 #endif
 		}
 
-		public Action<Php54Scope> CreateMethodFromPhpFile(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
+		public Php54Function CreateMethodFromPhpFile(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
 			return InternalCreateMethodFromCode(Code, File, DumpTree, DoDebug);
 		}
 
-		private Action<Php54Scope> InternalCreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
+		private Php54Function InternalCreateMethodFromCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
 		{
 			var Tree = Parser.Parse(Code, File);
 
@@ -88,15 +89,26 @@ namespace NPhp.Runtime
 			}
 			//Console.WriteLine("'{0}'", Tree.Root.Term.AstConfig.NodeType);
 			//Console.WriteLine("'{0}'", Tree.Root.AstNode);
-			var Action = (Tree.Root.AstNode as Node).CreateMethod(FunctionScope, DoDebug);
-			return Action;
+			return (Tree.Root.AstNode as Node).CreateMethod(FunctionScope, DoDebug);
 		}
+
+		public List<string> IncludedPaths = new List<string>();
 
 		static public void Include(Php54Scope Scope, string Path, bool IsRequire, bool IsOnce)
 		{
+			var Runtime = Scope.Php54Runtime;
+			var FullPath = new FileInfo(Path).FullName;
+			if (IsOnce)
+			{
+				if (Runtime.IncludedPaths.Contains(FullPath)) return;
+			}
+
+			var Method = Scope.Php54Runtime.CreateMethodFromPhpFile(File.ReadAllText(FullPath), FullPath);
+			Method.Execute(Scope);
+	
 			//Scope.Php54Runtime.TextWriter.Write(Variable);
 			//Console.Out.Write(Variable);
-			throw(new NotImplementedException("Can't find path '" + Path + "' Require:" + IsRequire + ", Once:" + IsOnce + ""));
+			//throw(new NotImplementedException("Can't find path '" + Path + "' Require:" + IsRequire + ", Once:" + IsOnce + ""));
 		}
 
 		static public void Echo(Php54Scope Scope, Php54Var Variable)
@@ -107,8 +119,18 @@ namespace NPhp.Runtime
 
 		static public void Eval(Php54Scope Scope, Php54Var Variable)
 		{
-			var Action = Scope.Php54Runtime.CreateMethodFromPhpCode(Variable.StringValue, "eval()");
-			Action(Scope);
+			Php54Function EvalFunction;
+			try
+			{
+				 EvalFunction = Scope.Php54Runtime.CreateMethodFromPhpCode(Variable.StringValue, "eval()");
+			}
+			catch (Exception Exception)
+			{
+				Console.WriteLine(Exception);
+				return;
+			}
+
+			EvalFunction.Execute(Scope);
 		}
 	}
 

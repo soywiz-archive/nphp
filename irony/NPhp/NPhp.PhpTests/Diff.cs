@@ -85,6 +85,15 @@ namespace NPhp.PhpTess
 			{
 				foreach (var Item in Items) Item.Print();
 			}
+
+			public bool AreEquals
+			{
+				get
+				{
+					foreach (var Item in Items) if (Item.Action != ProcessedItem.ActionEnum.Keep) return false;
+					return true;
+				}
+			}
 		}
 
 		public class ProcessedItem

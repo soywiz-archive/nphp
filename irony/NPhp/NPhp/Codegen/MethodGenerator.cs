@@ -72,16 +72,14 @@ namespace NPhp.Codegen
 			return SafeILGenerator.DeclareLocal<TType>(null);
 		}
 
-		public Action<Php54Scope> GenerateMethod()
+		public Php54Function GenerateMethod()
 		{
 			ClearStack();
 			SafeILGenerator.Return();
 
 			SafeILGenerator.CheckAndFinalize();
-			var Method = (Action<Php54Scope>)DynamicMethod.CreateDelegate(typeof(Action<Php54Scope>));
-			
-			//Delegate.
-			return Method;
+
+			return new Php54Function((Action<Php54Scope>)DynamicMethod.CreateDelegate(typeof(Action<Php54Scope>)));
 		}
 
 		public void Push(double Value)

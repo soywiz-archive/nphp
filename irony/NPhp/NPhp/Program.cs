@@ -23,7 +23,7 @@ namespace NPhp
 			Debug.WriteLine("=========================");
 
 			var Runtime = new Php54Runtime(FunctionScope);
-			var Method = Runtime.CreateMethodFromPhpFile(@"
+			var Function = Runtime.CreateMethodFromPhpFile(@"
 				<?php
 					$a = 1;
 					$b = 3;
@@ -34,7 +34,7 @@ namespace NPhp
 			var Scope = new Php54Scope(Runtime);
 
 			var Start = DateTime.UtcNow;
-			Method(Scope);
+			Function.Execute(Scope);
 			var End = DateTime.UtcNow;
 			//FunctionScope.Functions["add"](new Php54Scope(Runtime));
 			//Console.WriteLine(FunctionScope.Functions["add"]);

@@ -28,7 +28,11 @@ namespace NPhp.Runtime.Functions
 			throw(new NotImplementedException());
 		}
 
-		static public void print_r(Php54Var Value)
+		static public void error_reporting(int Value)
+		{
+		}
+
+		static public void print_r(Php54Var Value, int IndentLevel = 0)
 		{
 			switch (Value.Type)
 			{
@@ -43,19 +47,23 @@ namespace NPhp.Runtime.Functions
 					break;
 				case Php54Var.TypeEnum.Array:
 					Console.WriteLine("Array");
-					Console.WriteLine("(");
+
+//					IndentLevel++;
+
+					Console.WriteLine(new String(' ', 4 * (IndentLevel + 0)) + "(");
 					int Index = 0;
 
 					//if (!Value.ArrayValue.PureArray) throw(new NotImplementedException());
 
 					foreach (var Pair in Value.ArrayValue.GetEnumerator())
 					{
-						Console.Write("    [{0}] => ", Pair.Key);
-						print_r(Pair.Value);
+						Console.Write(new String(' ', 4 * (IndentLevel + 1)) + "[{0}] => ", Pair.Key);
+						print_r(Pair.Value, IndentLevel + 2);
 						//Console.WriteLine("");
 						Index++;
 					}
-					Console.WriteLine(")");
+					Console.WriteLine(new String(' ', 4 * (IndentLevel + 0)) + ")");
+					Console.WriteLine();
 					break;
 				default:
 					throw(new NotImplementedException());
