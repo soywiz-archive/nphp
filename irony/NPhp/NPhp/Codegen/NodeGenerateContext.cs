@@ -14,6 +14,8 @@ namespace NPhp.Codegen
 
 	public class NodeGenerateContext
 	{
+		public string CurrentFile = "";
+		public string CurrentDirectory = "";
 		public string FunctionName = "";
 		public Php54FunctionScope FunctionScope { get; protected set; }
 		public MethodGenerator MethodGenerator { get; protected set; }
@@ -21,6 +23,7 @@ namespace NPhp.Codegen
 		public bool DoDebug { get; private set; }
 
 		private List<ContinueBreakNode> ContinueBreakNodeList = new List<ContinueBreakNode>();
+		//private Php54Runtime Runtime;
 
 		public ContinueBreakNode GetContinueBreakNodeAt(int Index)
 		{
@@ -42,6 +45,7 @@ namespace NPhp.Codegen
 
 		public NodeGenerateContext(Php54FunctionScope FunctionScope, bool DoDebug)
 		{
+			//this.Runtime = Runtime;
 			this.DoDebug = DoDebug;
 			this.MethodGenerator = new MethodGenerator(DoDebug);
 			this.FunctionScope = FunctionScope;

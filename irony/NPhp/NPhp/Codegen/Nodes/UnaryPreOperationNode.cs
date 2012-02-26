@@ -21,8 +21,8 @@ namespace NPhp.Codegen.Nodes
 		{
 			switch (Operator)
 			{
-				case "++": Context.MethodGenerator.Push(+1); Context.MethodGenerator.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPreInc); break;
-				case "--": Context.MethodGenerator.Push(-1); Context.MethodGenerator.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPreInc); break;
+				case "++": Context.MethodGenerator.Push(+1); Context.MethodGenerator.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPreIncrement); break;
+				case "--": Context.MethodGenerator.Push(-1); Context.MethodGenerator.Call((Func<Php54Var, int, Php54Var>)Php54Var.UnaryPreIncrement); break;
 				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));
 			}
 		}

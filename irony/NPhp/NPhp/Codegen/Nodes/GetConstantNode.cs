@@ -14,7 +14,7 @@ namespace NPhp.Codegen.Nodes
 
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
-			ConstantName = parseNode.FindTokenAndGetText();
+			ConstantName = parseNode.FindTokenAndGetText().ToUpperInvariant();
 		}
 
 		public override void Generate(NodeGenerateContext Context)

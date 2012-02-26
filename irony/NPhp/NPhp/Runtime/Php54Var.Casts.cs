@@ -34,12 +34,25 @@ namespace NPhp.Runtime
 			}
 		}
 
-		public bool BoolValue
+		public object ResourceValue
 		{
 			get
 			{
 				switch (ReferencedType)
 				{
+					case TypeEnum.Resource: return (object)ReferencedDynamicValue;
+					default: throw(new NotImplementedException());
+				}
+			}
+		}
+
+		public bool BooleanValue
+		{
+			get
+			{
+				switch (ReferencedType)
+				{
+					case TypeEnum.Null: return false;
 					case TypeEnum.Bool: return ReferencedDynamicValue;
 					default: return (ReferencedDynamicValue != 0);
 				}
@@ -52,9 +65,9 @@ namespace NPhp.Runtime
 			{
 				switch (ReferencedType)
 				{
-					case TypeEnum.Double: return ReferencedDynamicValue;
-					case TypeEnum.Int: return (double)ReferencedDynamicValue;
 					case TypeEnum.Null: return 0;
+					case TypeEnum.Int: return (double)ReferencedDynamicValue;
+					case TypeEnum.Double: return ReferencedDynamicValue;
 					default:
 						{
 							var Str = StringValue;
@@ -84,9 +97,9 @@ namespace NPhp.Runtime
 			{
 				switch (ReferencedType)
 				{
+					case TypeEnum.Null: return 0;
 					case TypeEnum.Int: return ReferencedDynamicValue;
 					case TypeEnum.Double: return (int)(double)ReferencedDynamicValue;
-					case TypeEnum.Null: return 0;
 					default: return (int)DoubleValue;
 				}
 			}
@@ -115,6 +128,26 @@ namespace NPhp.Runtime
 					default: throw (new NotImplementedException());
 				}
 			}
+		}
+
+		public bool CastToBool()
+		{
+			return BooleanValue;
+		}
+
+		public int CastToInt()
+		{
+			return IntegerValue;
+		}
+
+		public double CastToFloat()
+		{
+			return DoubleValue;
+		}
+
+		public string CastToString()
+		{
+			return StringValue;
 		}
 	}
 }

@@ -41,49 +41,57 @@ namespace NPhp.Codegen.Nodes
 			var StartLoopLabel = Context.MethodGenerator.DefineLabel("StartLoopLabel");
 			var EndLoopLabel = Context.MethodGenerator.DefineLabel("EndtLoopLabel");
 
-			(IterableExpressionParseNode.AstNode as Node).Generate(Context);
-			Context.MethodGenerator.ConvTo<Php54Var>();
-			Context.MethodGenerator.Call((Func<IEnumerator<KeyValuePair<Php54Var, Php54Var>>>)Php54Var.Methods.GetArrayIterator);
-			Context.MethodGenerator.StoreToLocal(IteratorLocal);
-
-			StartLoopLabel.Mark();
+			Context.PushContinueBreakNode(new ContinueBreakNode()
 			{
-				// while (iterator.MoveNext())
-				Context.MethodGenerator.LoadLocal(IteratorLocal);
-				Context.MethodGenerator.Call((Func<IEnumerator<KeyValuePair<Php54Var, Php54Var>>, bool>)Php54Var.IteratorMoveNext);
-				Context.MethodGenerator.BranchIfFalse(EndLoopLabel);
+				ContinueLabel = StartLoopLabel,
+				BreakLabel = EndLoopLabel,
+			}, () =>
+			{
 
-				if (VariableKeyGetParseNode != null)
+				(IterableExpressionParseNode.AstNode as Node).Generate(Context);
+				Context.MethodGenerator.ConvTo<Php54Var>();
+				Context.MethodGenerator.Call((Func<IEnumerator<KeyValuePair<Php54Var, Php54Var>>>)Php54Var.Methods.GetArrayIterator);
+				Context.MethodGenerator.StoreToLocal(IteratorLocal);
+
+				StartLoopLabel.Mark();
 				{
-					// as $key
-					(VariableKeyGetParseNode.AstNode as Node).Generate(Context);
+					// while (iterator.MoveNext())
+					Context.MethodGenerator.LoadLocal(IteratorLocal);
+					Context.MethodGenerator.Call((Func<IEnumerator<KeyValuePair<Php54Var, Php54Var>>, bool>)Php54Var.IteratorMoveNext);
+					Context.MethodGenerator.BranchIfFalse(EndLoopLabel);
+
+					if (VariableKeyGetParseNode != null)
+					{
+						// as $key
+						(VariableKeyGetParseNode.AstNode as Node).Generate(Context);
+						Context.MethodGenerator.ConvTo<Php54Var>();
+						// iterator.Current
+						Context.MethodGenerator.LoadLocal(IteratorLocal);
+						Context.MethodGenerator.Call((Func<IEnumerator<KeyValuePair<Php54Var, Php54Var>>, Php54Var>)Php54Var.IteratorGetCurrentKey);
+						Context.MethodGenerator.ConvTo<Php54Var>();
+						// $var = iterator.Current
+						Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
+					}
+
+					// $value
+					(VariableValueGetParseNode.AstNode as Node).Generate(Context);
 					Context.MethodGenerator.ConvTo<Php54Var>();
 					// iterator.Current
 					Context.MethodGenerator.LoadLocal(IteratorLocal);
-					Context.MethodGenerator.Call((Func<IEnumerator<KeyValuePair<Php54Var, Php54Var>>, Php54Var>)Php54Var.IteratorGetCurrentKey);
+					Context.MethodGenerator.Call((Func<IEnumerator<KeyValuePair<Php54Var, Php54Var>>, Php54Var>)Php54Var.IteratorGetCurrentValue);
 					Context.MethodGenerator.ConvTo<Php54Var>();
 					// $var = iterator.Current
 					Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
+
+					// <iteration code>
+					(IterationCodeNode.AstNode as Node).Generate(Context);
+
+					Context.MethodGenerator.BranchAlways(StartLoopLabel);
 				}
+				EndLoopLabel.Mark();
 
-				// $value
-				(VariableValueGetParseNode.AstNode as Node).Generate(Context);
-				Context.MethodGenerator.ConvTo<Php54Var>();
-				// iterator.Current
-				Context.MethodGenerator.LoadLocal(IteratorLocal);
-				Context.MethodGenerator.Call((Func<IEnumerator<KeyValuePair<Php54Var, Php54Var>>, Php54Var>)Php54Var.IteratorGetCurrentValue);
-				Context.MethodGenerator.ConvTo<Php54Var>();
-				// $var = iterator.Current
-				Context.MethodGenerator.Call((Action<Php54Var, Php54Var>)Php54Var.Assign);
-
-				// <iteration code>
-				(IterationCodeNode.AstNode as Node).Generate(Context);
-
-				Context.MethodGenerator.BranchAlways(StartLoopLabel);
-			}
-			EndLoopLabel.Mark();
-
-			Context.MethodGenerator.ClearStack();
+				Context.MethodGenerator.ClearStack();
+			});
 		}
 	}
 }

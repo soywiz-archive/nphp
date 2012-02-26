@@ -53,6 +53,8 @@
     <Compile Include="Codegen\Nodes\AssignmentNode.cs" />
     <Compile Include="Codegen\Nodes\BinaryExpressionNode.cs" />
     <Compile Include="Codegen\Nodes\BinaryOperatorNode.cs" />
+    <Compile Include="Codegen\Nodes\ClassNode.cs" />
+    <Compile Include="Codegen\Nodes\GlobalStaticNode.cs" />
     <Compile Include="Codegen\Nodes\SwitchCaseSentenceNode.cs" />
     <Compile Include="Codegen\Nodes\ContinueBreakSentenceNode.cs" />
     <Compile Include="Codegen\Nodes\DoWhileNode.cs" />
@@ -92,7 +94,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\Functions\CoreFunctions.cs" />
     <Compile Include="Runtime\Functions\DateTimeFunctions.cs" />
+    <Compile Include="Runtime\Functions\DirectoryFunctions.cs" />
+    <Compile Include="Runtime\Functions\FilesystemFunctions.cs" />
     <Compile Include="Runtime\Functions\JsonFunctions.cs" />
+    <Compile Include="Runtime\Functions\OutputFunctions.cs" />
     <Compile Include="Runtime\Functions\StringFunctions.cs" />
     <Compile Include="Runtime\Php54Array.cs" />
     <Compile Include="Runtime\Php54Function.cs" />

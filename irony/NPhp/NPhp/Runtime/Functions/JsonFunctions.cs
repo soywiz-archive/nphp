@@ -22,7 +22,7 @@ namespace NPhp.Runtime.Functions
 		{
 			switch (Variable.ReferencedType)
 			{
-				case Php54Var.TypeEnum.Bool: return Variable.BoolValue ? "true" : "false";
+				case Php54Var.TypeEnum.Bool: return Variable.BooleanValue ? "true" : "false";
 				case Php54Var.TypeEnum.Int: return Variable.IntegerValue.ToString();
 				case Php54Var.TypeEnum.Null: return "null";
 				case Php54Var.TypeEnum.String: return Php54Utils.StringQuote(Variable.StringValue);

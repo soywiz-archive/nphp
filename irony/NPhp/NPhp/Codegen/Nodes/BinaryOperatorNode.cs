@@ -89,7 +89,11 @@ namespace NPhp.Codegen.Nodes
 				case "&": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitAnd); break;
 				case "|": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, Php54Var>)Php54Var.BitOr); break;
 
+				case "===": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareStrictEquals); break;
+				case "!==": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareStrictNotEquals); break;
+
 				case "==": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareEquals); break;
+				case "!=": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareNotEquals); break;
 				case ">": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareGreaterThan); break;
 				case ">=": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareGreaterOrEqualThan); break;
 				case "<=": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareLessOrEqualThan); break;
@@ -105,7 +109,6 @@ namespace NPhp.Codegen.Nodes
 						Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareLessThan);
 					}
 					break;
-				case "!=": GenerateAndCast<Php54Var, Php54Var>(Left, Right, Context); Context.MethodGenerator.Call((Func<Php54Var, Php54Var, bool>)Php54Var.CompareNotEquals); break;
 				case "&&": GenerateAndCast<bool, bool>(Left, Right, Context); Context.MethodGenerator.Call((Func<bool, bool, bool>)Php54Var.LogicalAnd); break;
 				case "||": GenerateAndCast<bool, bool>(Left, Right, Context); Context.MethodGenerator.Call((Func<bool, bool, bool>)Php54Var.LogicalOr); break;
 				default: throw (new NotImplementedException("Not implemented operator '" + Operator + "'"));

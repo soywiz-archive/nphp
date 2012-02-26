@@ -17,6 +17,98 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void SimpleOutputBuffering()
+		{
+			Assert.AreEqual("test[test]", CodeExecute(@"
+				ob_start();
+				{
+					echo 'test';
+				}
+				$var = ob_get_contents();
+				echo ""[{$var}]"";
+			"));
+		}
+
+		[TestMethod]
+		public void OperatorPrecedence()
+		{
+			Assert.AreEqual("", CodeExecute(@"
+				$a = 1;
+				$b = 2;
+				var_dump($a == -1 && $b == -2);
+			"));
+		}
+
+		[TestMethod]
+		public void Break2()
+		{
+			Assert.AreEqual("...:..\n\n", CodeExecute(@"
+				for ($y = 0; $y < 3; $y++) {
+					for ($x = 0; $x < 3; $x++) {
+						echo ""."";
+						if (($x == 1) && ($y == 1)) break 2;
+					}
+					echo "":"";
+				}
+
+				echo ""\n\n"";
+			"));
+		}
+
+		[TestMethod]
+		public void ChainedOutputBuffering()
+		{
+			Assert.AreEqual("[test+prepost]", CodeExecute(@"
+				ob_start();
+				{
+					echo 'pre';
+					ob_start();
+					{
+						echo 'test';
+					}
+					$a = ob_get_clean();
+					echo 'post';
+				}
+				$b = ob_get_clean();
+				echo ""[{$a}+{$b}]"";
+			"));
+		}
+
+		[TestMethod]
+		public void SimpleCast()
+		{
+			Assert.AreEqual("10\nstring\n", CodeExecute(@"
+				echo (int)'10.1te2st33'; echo ""\n"";
+				echo gettype((string)10); echo ""\n"";
+			"));
+		}
+
+
+		[TestMethod]
+		public void SilenceOperator()
+		{
+			Assert.AreEqual("1", CodeExecute(@"
+				@$a = 1;
+				echo 1;
+			"));
+		}
+
+		[TestMethod]
+		public void RegisterShutdownFunction()
+		{
+			Assert.AreEqual("01", CodeExecute(@"
+				function foo()
+				{
+					print ""1"";
+				}
+
+				register_shutdown_function(""foo"");
+
+				print ""0"";
+			"));
+		}
+
+		[TestMethod]
 		public void PhpRaw1()
 		{
 			Assert.AreEqual("HelloWorld", FileExecute(@"Hello<?php ?>World"));
@@ -38,6 +130,62 @@ namespace NPhp.Tests
 		public void PhpRaw3b()
 		{
 			Assert.AreEqual("0123", FileExecute(@"0<?php echo 1; ?>2<?php echo 3;"));
+		}
+
+		[TestMethod]
+		public void FunctionGlobal()
+		{
+			Assert.AreEqual("01", CodeExecute(@"
+				$a = 0;
+				function test() {
+					global $a;
+					$a = 1;
+				}
+				echo $a;
+				test();
+				echo $a;
+			"));
+		}
+
+		[TestMethod]
+		public void FunctionStaticSimple()
+		{
+			Assert.AreEqual("123", CodeExecute(@"
+				function test() {
+					static $a;
+					if ($a === NULL) $a = 0;
+					$a++;
+					echo $a;
+				}
+				for ($n = 0; $n < 3; $n++) test();
+			"));
+		}
+
+		[TestMethod]
+		public void ReferenceTest2()
+		{
+			Assert.AreEqual("334", CodeExecute(@"
+				$a = 1;
+				$b = &$a;
+				$c = $b;
+				$a = 2;
+				$b = 3;
+				$c = 4;
+				echo ""$a$b$c"";
+			"));
+		}
+
+		[TestMethod]
+		public void FunctionStatic()
+		{
+			Assert.AreEqual("123", CodeExecute(@"
+				function test() {
+					static $a = 0;
+					$a++;
+					echo $a;
+				}
+				for ($n = 0; $n < 3; $n++) test();
+			"));
 		}
 
 		[TestMethod]
@@ -182,6 +330,14 @@ namespace NPhp.Tests
 				$a = 1;
 				$b = 2;
 				echo ""$a"";
+			"));
+		}
+
+		[TestMethod]
+		public void PrintTest()
+		{
+			Assert.AreEqual("test", CodeExecute(@"
+				print 'test';
 			"));
 		}
 
@@ -705,14 +861,12 @@ namespace NPhp.Tests
 	public partial class UnitTest1
 	{
 		static Php54Runtime Runtime;
-		static Php54FunctionScope FunctionScope;
 
 		[ClassInitialize]
 		static public void PrepareRuntime(TestContext Context)
 		{
-			FunctionScope = new Php54FunctionScope();
-			FunctionScope.LoadAllNativeFunctions();
-			Runtime = new Php54Runtime(FunctionScope);
+			Runtime = new Php54Runtime();
+			Runtime.FunctionScope.LoadAllNativeFunctions();
 		}
 
 		[TestInitialize]
@@ -724,8 +878,9 @@ namespace NPhp.Tests
 		{
 			var Out = TestUtils.CaptureOutput(() =>
 			{
+				Runtime.Reset();
+				var Scope = Runtime.GlobalScope;
 				var Method = Runtime.CreateMethodFromPhpFile(Code);
-				var Scope = new Php54Scope(Runtime);
 				if (Variables != null)
 				{
 					foreach (var Pair in Variables)
@@ -734,6 +889,7 @@ namespace NPhp.Tests
 					}
 				}
 				Method.Execute(Scope);
+				Runtime.Shutdown();
 			});
 			return Out;
 		}
@@ -742,7 +898,6 @@ namespace NPhp.Tests
 		{
 			return FileExecute("<?php " + Code + " ?>", Variables);
 		}
-
 	}
 
 }

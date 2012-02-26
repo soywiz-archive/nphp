@@ -5,19 +5,31 @@ using System.Text;
 using Irony.Ast;
 using Irony.Parsing;
 using NPhp.Runtime;
+using System.IO;
 
 namespace NPhp.Codegen
 {
 	abstract public class Node : IAstNodeInit
 	{
-		public virtual void Init(AstContext Context, ParseTreeNode ParseNode)
-		{
-			//throw new NotImplementedException();
-		}
+		abstract public void Init(AstContext Context, ParseTreeNode ParseNode);
 
-		public IPhp54Function CreateMethod(ParseTreeNode ParseNode, Php54FunctionScope FunctionScope, bool DoDebug)
+		public IPhp54Function CreateMethod(string FileName, ParseTreeNode ParseNode, Php54FunctionScope FunctionScope, bool DoDebug)
 		{
 			var Context = new NodeGenerateContext(FunctionScope, DoDebug);
+			Context.CurrentFile = FileName;
+			Context.CurrentDirectory = Directory.GetCurrentDirectory();
+			try
+			{
+				var FileInfo = new FileInfo(FileName);
+				if (FileInfo.Exists)
+				{
+					Context.CurrentFile = FileInfo.FullName;
+					Context.CurrentDirectory = FileInfo.Directory.FullName;
+				}
+			}
+			catch
+			{
+			}
 			PreGenerate(ParseNode, Context);
 			Generate(Context);
 			return Context.MethodGenerator.GenerateMethod();

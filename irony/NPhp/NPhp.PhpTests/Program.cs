@@ -11,8 +11,7 @@ namespace NPhp.PhpTess
 {
 	class Program
 	{
-		static Php54FunctionScope FunctionScope = new Php54FunctionScope();
-		static Php54Runtime Runtime = new Php54Runtime(FunctionScope);
+		static Php54Runtime Runtime = new Php54Runtime();
 
 		static public TValue GetOrDefault<TKey, TValue>(Dictionary<TKey, TValue> Dictionary, TKey Key, TValue DefaultValue)
 		{
@@ -54,11 +53,13 @@ namespace NPhp.PhpTess
 
 			try
 			{
+				Runtime.Reset();
 				var Method = Runtime.CreateMethodFromPhpFile(TestFile);
-				var Scope = new Php54Scope(Runtime);
+				var Scope = Runtime.GlobalScope;
 				var TestOutput = CaptureOutput(() =>
 				{
 					Method.Execute(Scope);
+					Runtime.Shutdown();
 				}).Trim();
 
 				
@@ -90,6 +91,8 @@ namespace NPhp.PhpTess
 			{
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine(Exception.Message);
+				Console.WriteLine(Exception.StackTrace.Substr(0, 300));
+				//Console.WriteLine(Exception);
 			}
 
 			//Console.WriteLine(TestFile);
@@ -113,7 +116,7 @@ namespace NPhp.PhpTess
 
 		static void Main(string[] args)
 		{
-			FunctionScope.LoadAllNativeFunctions();
+			Runtime.FunctionScope.LoadAllNativeFunctions();
 
 			foreach (var PhptFile in new DirectoryInfo("../../tests").EnumerateFiles("*.phpt", SearchOption.AllDirectories))
 			//foreach (var PhptFile in Directory.EnumerateFiles("../../tests/func", "*.phpt", SearchOption.AllDirectories))

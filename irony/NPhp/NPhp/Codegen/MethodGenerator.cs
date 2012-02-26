@@ -102,6 +102,11 @@ namespace NPhp.Codegen
 			SafeILGenerator.Push(Value);
 		}
 
+		public void PushNull()
+		{
+			SafeILGenerator.LoadNull();
+		}
+
 		public void BinaryOperation(SafeBinaryOperator Operator)
 		{
 			SafeILGenerator.BinaryOperation(Operator);
@@ -209,7 +214,11 @@ namespace NPhp.Codegen
 
 		public void ConvTo<TType>()
 		{
-			Type ExpectedType = typeof(TType);
+			ConvTo(typeof(TType));
+		}
+
+		public void ConvTo(Type ExpectedType)
+		{
 			Type StackType = StackTop;
 
 			//Context.MethodGenerator.Call((Func<bool>)Php54Var.Methods.ToBool);
@@ -218,7 +227,10 @@ namespace NPhp.Codegen
 				return;
 			}
 
-			if (StackType == null) throw(new NullReferenceException("Argument on the stack is null!"));
+			if (StackType == null)
+			{
+				throw (new Exception("Argument on the stack is null!"));
+			}
 
 			if (StackType == typeof(Php54Var))
 			{
@@ -234,6 +246,7 @@ namespace NPhp.Codegen
 				if (StackType == typeof(bool)) { Call((Func<bool, Php54Var>)Php54Var.FromBool); return; }
 				if (StackType == typeof(int)) { Call((Func<int, Php54Var>)Php54Var.FromInt); return; }
 				if (StackType == typeof(string)) { Call((Func<string, Php54Var>)Php54Var.FromString); return; }
+				if (StackType == null) { Call((Func<object, Php54Var>)Php54Var.FromNull); return; }
 				//if (StackType == typeof(object)) { SafeILGenerator.CastClass<Php54Var>(); return; }
 
 				throw (new NotImplementedException());
@@ -248,6 +261,17 @@ namespace NPhp.Codegen
 			if (ExpectedType == typeof(bool))
 			{
 				SafeILGenerator.ConvertTo<bool>();
+				return;
+			}
+
+			if (StackType == null)
+			{
+				throw (new Exception("Argument on the stack is null!"));
+			}
+
+			if (StackType == typeof(object))
+			{
+				SafeILGenerator.CastClass(ExpectedType);
 				return;
 			}
 

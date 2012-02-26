@@ -16,7 +16,7 @@ namespace NPhp.Codegen.Nodes
 		public override void Init(AstContext context, ParseTreeNode parseNode)
 		{
 			this.parseNode = parseNode;
-			this.Type = parseNode.FindTokenAndGetText();
+			this.Type = parseNode.FindTokenAndGetText().ToUpperInvariant();
 		}
 
 		public override void Generate(NodeGenerateContext Context)
@@ -24,9 +24,11 @@ namespace NPhp.Codegen.Nodes
 			switch (Type)
 			{
 				//case "true": Context.MethodGenerator.Call((Func<Php54Var>)Php54Var.FromTrue); break;
-				case "true": Context.MethodGenerator.Push(true); break;
-				case "false": Context.MethodGenerator.Push(false); break;
-				case "null": Context.MethodGenerator.Call((Func<Php54Var>)Php54Var.FromNull); break;
+				case "TRUE": Context.MethodGenerator.Push(true); break;
+				case "FALSE": Context.MethodGenerator.Push(false); break;
+				case "NULL": Context.MethodGenerator.Call((Func<Php54Var>)Php54Var.FromNull); break;
+				case "__DIR__": Context.MethodGenerator.Push(Context.CurrentDirectory); break;
+				case "__FILE__": Context.MethodGenerator.Push(Context.CurrentFile); break;
 				case "__LINE__": Context.MethodGenerator.Push(parseNode.Span.Location.Line + 1); break;
 				case "__FUNCTION__": Context.MethodGenerator.Push(Context.FunctionName); break;
 				default: throw (new NotImplementedException("Can't handle special id '" + Type + "'"));

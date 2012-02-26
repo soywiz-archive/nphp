@@ -29,11 +29,13 @@ namespace NPhp.Runtime
 
 	public class Php54FunctionScope
 	{
+		public readonly Php54Runtime Runtime;
 		public Dictionary<string, IPhp54Function> Functions { get; protected set; }
 
-		public Php54FunctionScope()
+		public Php54FunctionScope(Php54Runtime Runtime)
 		{
-			Functions = new Dictionary<string, IPhp54Function>();
+			this.Runtime = Runtime;
+			this.Functions = new Dictionary<string, IPhp54Function>();
 		}
 
 		static public IPhp54Function CreateNativeWrapper(MethodInfo MethodInfo)
@@ -84,7 +86,8 @@ namespace NPhp.Runtime
 							}
 							else
 							{
-								throw (new NotImplementedException());
+								MethodGenerator.Call((Func<object>)Php54Var.Methods.GetResourceOrDefault);
+								MethodGenerator.ConvTo(ParameterType);
 							}
 							ParameterIndex++;
 						}

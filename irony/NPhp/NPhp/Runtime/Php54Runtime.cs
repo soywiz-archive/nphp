@@ -9,20 +9,23 @@ using NPhp.LanguageGrammar;
 using System.Threading;
 using System.Globalization;
 using System.Diagnostics;
+using NPhp.Runtime.Functions;
 
 namespace NPhp.Runtime
 {
 	public class Php54Runtime
 	{
+		public Php54FunctionScope FunctionScope { get; private set; }
+		public Php54Scope ConstantScope { get; private set; }
+		public Php54Scope GlobalScope { get; private set; }
+
 		Php54Grammar Grammar;
 		LanguageData LanguageData;
-		public Php54FunctionScope FunctionScope;
-		public Php54Scope ConstantScope;
 		Parser Parser;
 		TextWriter TextWriter;
 		bool InteractiveErrors;
 
-		public Php54Runtime(Php54FunctionScope FunctionScope, bool InteractiveErrors = false)
+		public Php54Runtime(bool InteractiveErrors = false)
 		{
 			if (Thread.CurrentThread.CurrentCulture.Name != "en-US")
 			{
@@ -37,8 +40,16 @@ namespace NPhp.Runtime
 			this.Parser.Context.TracingEnabled = true;
 			this.Parser.Context.MaxErrors = 5;
 			this.TextWriter = Console.Out;
-			this.FunctionScope = FunctionScope;
+			this.FunctionScope = new Php54FunctionScope(this);
+			Reset();
+		}
+
+		public void Reset()
+		{
 			this.ConstantScope = new Php54Scope(this);
+			this.GlobalScope = new Php54Scope(this);
+			this.ShutdownFunction = null;
+			OutputFunctions.__ob_reset();
 		}
 
 		public IPhp54Function CreateMethodFromPhpCode(string Code, string File = "<source>", bool DumpTree = false, bool DoDebug = false)
@@ -89,21 +100,22 @@ namespace NPhp.Runtime
 			}
 			//Console.WriteLine("'{0}'", Tree.Root.Term.AstConfig.NodeType);
 			//Console.WriteLine("'{0}'", Tree.Root.AstNode);
-			return (Tree.Root.AstNode as Node).CreateMethod(Tree.Root, FunctionScope, DoDebug);
+			return (Tree.Root.AstNode as Node).CreateMethod(File, Tree.Root, FunctionScope, DoDebug);
 		}
 
 		public List<string> IncludedPaths = new List<string>();
+		public Php54Var ShutdownFunction;
 
 		static public void Include(Php54Scope Scope, string Path, bool IsRequire, bool IsOnce)
 		{
-			var Runtime = Scope.Php54Runtime;
+			var Runtime = Scope.Runtime;
 			var FullPath = new FileInfo(Path).FullName;
 			if (IsOnce)
 			{
 				if (Runtime.IncludedPaths.Contains(FullPath)) return;
 			}
 
-			var Method = Scope.Php54Runtime.CreateMethodFromPhpFile(File.ReadAllText(FullPath), FullPath);
+			var Method = Scope.Runtime.CreateMethodFromPhpFile(File.ReadAllText(FullPath), FullPath);
 			Method.Execute(Scope);
 	
 			//Scope.Php54Runtime.TextWriter.Write(Variable);
@@ -117,12 +129,22 @@ namespace NPhp.Runtime
 			Console.Out.Write(Variable);
 		}
 
+		static public Php54Var GetGlobal(Php54Scope Scope, string Name)
+		{
+			return Scope.Runtime.GlobalScope.GetVariable(Name);
+		}
+
+		static public Php54Var GetStatic(Php54Scope Scope, string Name)
+		{
+			return Scope.StaticScope.GetVariable(Name);
+		}
+
 		static public void Eval(Php54Scope Scope, Php54Var Variable)
 		{
 			IPhp54Function EvalFunction;
 			try
 			{
-				 EvalFunction = Scope.Php54Runtime.CreateMethodFromPhpCode(Variable.StringValue, "eval()");
+				 EvalFunction = Scope.Runtime.CreateMethodFromPhpCode(Variable.StringValue, "eval()");
 			}
 			catch (Exception Exception)
 			{
@@ -131,6 +153,16 @@ namespace NPhp.Runtime
 			}
 
 			EvalFunction.Execute(Scope);
+		}
+
+		public void Shutdown()
+		{
+			OutputFunctions.__ob_shutdown();
+			if (ShutdownFunction != null)
+			{
+				var Function = FunctionScope.Functions[ShutdownFunction.StringValue];
+				Function.Execute(new Php54Scope(this));
+			}
 		}
 	}
 

@@ -24,7 +24,7 @@ namespace NPhp.Runtime
 
 		static public Php54Var UnaryLogicNot(Php54Var Left)
 		{
-			return new Php54Var(!Left.BoolValue, TypeEnum.Bool);
+			return new Php54Var(!Left.BooleanValue, TypeEnum.Bool);
 		}
 
 		static public Php54Var Add(Php54Var Left, Php54Var Right)
@@ -97,17 +97,22 @@ namespace NPhp.Runtime
 			return new Php54Var(Left.StringValue + Right.StringValue, CombineTypes(Left.ReferencedType, Right.ReferencedType));
 		}
 
-		static public Php54Var UnaryPostInc(Php54Var Left, int Count)
+		static public Php54Var UnaryPostIncrement(Php54Var Left, int Count)
 		{
 			var Old = Left.NumericValue;
 			Left.ReferencedDynamicValue = Old + Count;
 			return new Php54Var(Old, Left.ReferencedType);
 		}
 
-		static public Php54Var UnaryPreInc(Php54Var Left, int Count)
+		static public Php54Var UnaryPreIncrement(Php54Var Left, int Count)
 		{
 			Left.ReferencedDynamicValue = Left.NumericValue + Count;
 			return new Php54Var(Left.ReferencedDynamicValue, Left.ReferencedType);
+		}
+
+		static public Php54Var UnarySilence(Php54Var Right)
+		{
+			return Right;
 		}
 
 		static public Php54Var UnaryAdd(Php54Var Right)
@@ -121,9 +126,31 @@ namespace NPhp.Runtime
 			return new Php54Var(-Right.NumericValue, Right.ReferencedType);
 		}
 
+		public static bool CompareStrictEquals(Php54Var Left, Php54Var Right)
+		{
+			//if (Left.ReferencedType != Right.ReferencedType) return false;
+			return Left == Right;
+		}
+
+		public static bool CompareStrictNotEquals(Php54Var Left, Php54Var Right)
+		{
+			//if (Left.ReferencedType != Right.ReferencedType) return false;
+			return !(CompareStrictEquals(Left, Right));
+		}
+
 		public static bool CompareEquals(Php54Var Left, Php54Var Right)
 		{
-			return Left.NumericValue == Right.NumericValue;
+			switch (CombineTypes(Left.ReferencedType, Right.ReferencedType))
+			{
+				case TypeEnum.Int: return Left.IntegerValue == Right.IntegerValue;
+				case TypeEnum.Double: return Left.DoubleValue == Right.DoubleValue;
+				default: return Left.StringValue == Right.StringValue;
+			}
+		}
+
+		public static bool CompareNotEquals(Php54Var Left, Php54Var Right)
+		{
+			return !CompareEquals(Left, Right);
 		}
 
 		public static bool CompareGreaterThan(Php54Var Left, Php54Var Right)
@@ -151,19 +178,14 @@ namespace NPhp.Runtime
 			return Left.IntegerValue < Right;
 		}
 
-		public static bool CompareNotEquals(Php54Var Left, Php54Var Right)
-		{
-			return Left.ReferencedDynamicValue != Right.ReferencedDynamicValue;
-		}
-
 		public static bool LogicalAnd(Php54Var Left, Php54Var Right)
 		{
-			return Left.BoolValue && Right.BoolValue;
+			return Left.BooleanValue && Right.BooleanValue;
 		}
 
 		public static bool LogicalOr(Php54Var Left, Php54Var Right)
 		{
-			return Left.BoolValue || Right.BoolValue;
+			return Left.BooleanValue || Right.BooleanValue;
 		}
 
 		public static bool LogicalAnd(bool Left, bool Right)

@@ -9,6 +9,7 @@ using NPhp.Runtime.Functions;
 using System.Threading;
 using System.Globalization;
 using System.Diagnostics;
+using System.IO;
 
 namespace NPhp
 {
@@ -16,39 +17,49 @@ namespace NPhp
 	{
 		static void Main(string[] args)
 		{
-			var FunctionScope = new Php54FunctionScope();
-			FunctionScope.LoadAllNativeFunctions();
 			//FunctionScope.Functions["substr"] = Php54FunctionScope.CreateNativeWrapper(((Func<string, int, int, string>)StringFunctions.substr).Method);
 
-			Debug.WriteLine("=========================");
+			if (args.Length > 0)
+			{
+				try
+				{
+					var Runtime = new Php54Runtime(InteractiveErrors: false);
+					Runtime.FunctionScope.LoadAllNativeFunctions();
 
-			var Runtime = new Php54Runtime(FunctionScope, InteractiveErrors: true);
-			var Function = Runtime.CreateMethodFromPhpFile(@"
-				<?php
-					error_reporting(0);
+					var Function = Runtime.CreateMethodFromPhpFile(File.ReadAllText(args[0]), File: args[0], DumpTree: false, DoDebug: false);
 
-					$message = ""echo \""hey\n\"";"";
-					//echo ""$message\n"";
+					Function.Execute(Runtime.GlobalScope);
+					Runtime.Shutdown();
+				}
+				catch (Exception Exception)
+				{
+					Console.Error.WriteLine(Exception);
+				}
+			}
+			else
+			{
+				var Runtime = new Php54Runtime(InteractiveErrors: true);
+				Runtime.FunctionScope.LoadAllNativeFunctions();
 
-					for ($i=0; $i<10; $i++) {
-					  eval($message);
-					  echo $i.""\n"";
-					}
-				?>
-			".Trim(), DumpTree: true, DoDebug: false);
+				var Function = Runtime.CreateMethodFromPhpCode(@"
+					$f = fopen('test.txt', 'wb');
+					fclose($f);
+				".Trim(), DumpTree: true, DoDebug: false);
 
-			var Scope = new Php54Scope(Runtime);
+				var Start = DateTime.UtcNow;
+				{
+					Function.Execute(Runtime.GlobalScope);
+					Runtime.Shutdown();
+				}
+				var End = DateTime.UtcNow;
+				//FunctionScope.Functions["add"](new Php54Scope(Runtime));
+				//Console.WriteLine(FunctionScope.Functions["add"]);
+				Console.WriteLine("\nTime: {0}", End - Start);
 
-			var Start = DateTime.UtcNow;
-			Function.Execute(Scope);
-			var End = DateTime.UtcNow;
-			//FunctionScope.Functions["add"](new Php54Scope(Runtime));
-			//Console.WriteLine(FunctionScope.Functions["add"]);
-			Console.WriteLine("\nTime: {0}", End - Start);
+				//Test();
 
-			//Test();
-
-			Console.ReadKey();
+				Console.ReadKey();
+			}
 		}
 
 		/*

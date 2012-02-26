@@ -38,7 +38,9 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal BaseSentence = new NonTerminal("BaseSentence", GetCreator<IgnoreNode>());
 		public readonly NonTerminal EchoSentence = new NonTerminal("EchoSentence", GetCreator<EchoNode>());
 		public readonly NonTerminal EvalSentence = new NonTerminal("EvalSentence", GetCreator<EvalNode>());
-		public readonly NonTerminal PrintSentence = new NonTerminal("PrintSentence", GetCreator<EvalNode>());
+		public readonly NonTerminal GlobalSentence = new NonTerminal("GlobalSentence", GetCreator<GlobalStaticNode>());
+		public readonly NonTerminal StaticSentence = new NonTerminal("StaticSentence", GetCreator<GlobalStaticNode>());
+		public readonly NonTerminal PrintSentence = new NonTerminal("PrintSentence", GetCreator<EchoNode>());
 		public readonly NonTerminal CurlySentence = new NonTerminal("CurlySentence", GetCreator<IgnoreNode>());
 		public readonly NonTerminal IfSentence = new NonTerminal("IfSentence", GetCreator<IfNode>());
 		public readonly NonTerminal IfElseSentence = new NonTerminal("IfElseSentence", GetCreator<IfNode>());
@@ -66,8 +68,13 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal Assignment = new NonTerminal("Assignment", GetCreator<AssignmentNode>());
 		public readonly NonTerminal GetVariable = new NonTerminal("GetVariable", GetCreator<GetVariableNode>());
 
+		// Unary
+		public readonly NonTerminal CastTypes = new NonTerminal("CastTypes", GetCreator<IgnoreNode>());
+		public readonly NonTerminal CastOperation = new NonTerminal("CastOperation", GetCreator<IgnoreNode>());
 		public readonly NonTerminal UnaryOperator = new NonTerminal("UnaryOperator", GetCreator<UnaryOperatorNode>());
 		public readonly NonTerminal UnaryExpression = new NonTerminal("UnaryExpression", GetCreator<UnaryExpressionNode>());
+		public readonly NonTerminal SilenceExpression = new NonTerminal("SilenceExpression", GetCreator<IgnoreNode>());
+		
 
 		public readonly NonTerminal PostOperator = new NonTerminal("PostOperator", GetCreator<UnaryPostOperationNode>());
 		public readonly NonTerminal LeftValuePostOperation = new NonTerminal("LeftValuePostOperation", GetCreator<PostOperationNode>());
@@ -100,6 +107,8 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal GetVariableRankOpt = new NonTerminal("GetVariableRankOpt", GetCreator<IgnoreNode>());
 		public readonly NonTerminal GetVariableBase = new NonTerminal("GetVariableBase", GetCreator<IgnoreNode>());
 
+		public readonly NonTerminal NumberOpt = new NonTerminal("NumberOpt", GetCreator<IgnoreNode>());
+
 		public readonly RawContentTerminal RawContentTerminal  = new RawContentTerminal("RawContentTerminal");
 		public readonly NonTerminal RawContent = new NonTerminal("RawContent", GetCreator<OutsidePhpNode>());
 		public readonly NonTerminal RawContentPlusPhpCode = new NonTerminal("RawContentPlusPhpCode", GetCreator<IgnoreNode>());
@@ -108,13 +117,22 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal PhpFilePart = new NonTerminal("PhpFilePart", GetCreator<IgnoreNode>());
 		public readonly NonTerminal PhpFileOpt = new NonTerminal("PhpFileOpt", GetCreator<IgnoreNode>());
 		public readonly NonTerminal PhpEndCode = new NonTerminal("PhpEndCode", GetCreator<IgnoreNode>());
-		
 
+		public readonly NonTerminal ClassOldVariableDeclaration = new NonTerminal("ClassOldVariableDeclaration", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ClassFunctionDeclaration = new NonTerminal("ClassFunctionDeclaration", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ClassElement = new NonTerminal("ClassElement", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ClassElementList = new NonTerminal("ClassElementList", GetCreator<IgnoreNode>());
+		public readonly NonTerminal ClassSentence = new NonTerminal("ClassSentence", GetCreator<ClassNode>());
+
+		public readonly NonTerminal GetVariableBaseAssign = new NonTerminal("GetVariableBaseAssign", GetCreator<IgnoreNode>());
+		public readonly NonTerminal GetVariableBaseAssignOptional = new NonTerminal("GetVariableBaseAssignOptional", GetCreator<IgnoreNode>());
+		
 		public Php54Grammar(double Version = 5.4)
 			: base(caseSensitive: false)
 		{
 			this.GrammarComments = "PHP 5.4";
 			NonGrammarTerminals.Add(new CommentTerminal("SingleLineComment", "//", "\r", "\n", "\u2085", "\u2028", "\u2029"));
+			NonGrammarTerminals.Add(new CommentTerminal("SingleLineComment2", "#", "\r", "\n", "\u2085", "\u2028", "\u2029"));
 			NonGrammarTerminals.Add(new CommentTerminal("DelimitedComment", "/*", "*/"));
 
 			StringSingleQuoteTerminal.AstConfig.NodeCreator = GetCreator<StringNode>();
@@ -144,8 +162,22 @@ namespace NPhp.LanguageGrammar
 			GetVariableBase.Rule = PhpVariableTerminal;
 			GetVariable.Rule = GetVariableBase + GetVariableRank;
 
+			GetVariableBaseAssign.Rule = GetVariableBase + "=" + Expression;
+
+			GetVariableBaseAssignOptional.Rule =
+				GetVariableBase
+				| GetVariableBaseAssign
+			;
+
+			NumberOpt.Rule =
+				Number
+				| Empty
+			;
+
 			EchoSentence.Rule = ToTerm("echo") + Expression + ToTerm(";");
 			EvalSentence.Rule = ToTerm("eval") + Expression + ToTerm(";");
+			GlobalSentence.Rule = ToTerm("global") + GetVariableBase + ToTerm(";");
+			StaticSentence.Rule = ToTerm("static") + GetVariableBaseAssignOptional + ToTerm(";");
 			PrintSentence.Rule = ToTerm("print") + Expression + ToTerm(";");
 			CurlySentence.Rule = ToTerm("{") + SentenceList + ToTerm("}");
 
@@ -156,12 +188,27 @@ namespace NPhp.LanguageGrammar
 			ForeachSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + ")" + Sentence;
 			ForeachPairSentence.Rule = ToTerm("foreach") + "(" + Expression + "as" + GetVariable + "=>" + GetVariable + ")" + Sentence;
 			ForSentence.Rule = ToTerm("for") + "(" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ";" + ExpressionOrEmpty + ")" + Sentence;
-			ContinueSentence.Rule = ToTerm("continue") + ToTerm(";");
-			BreakSentence.Rule = ToTerm("break") + ToTerm(";");
+			ContinueSentence.Rule = ToTerm("continue") + NumberOpt + ToTerm(";");
+			BreakSentence.Rule = ToTerm("break") + NumberOpt + ToTerm(";");
 			SwitchSentence.Rule = ToTerm("switch") + "(" + Expression + ")" + CurlySentence;
 			//CaseSentence.Rule = ToTerm("case") + NumberOrString + ":";
 			CaseSentence.Rule = ToTerm("case") + Expression + ":";
 			DefaultSentence.Rule = ToTerm("default") + ":";
+
+			ClassOldVariableDeclaration.Rule =
+				ToTerm("var") + GetVariableBase + ";";
+
+			ClassFunctionDeclaration.Rule =
+				NamedFunctionDeclarationSentence;
+
+			ClassElement.Rule =
+				ClassOldVariableDeclaration
+				| ClassFunctionDeclaration
+			;
+
+			ClassElementList.Rule = MakeStarRule(ClassElementList, ClassElement);
+
+			ClassSentence.Rule = ToTerm("class") + GetId + "{" + ClassElementList + "}";
 
 			BinaryOperation.Rule = Expression + BinaryOperator + Expression;
 			TernaryOperation.Rule = Expression + "?" + Expression + ":" + Expression;
@@ -231,9 +278,22 @@ namespace NPhp.LanguageGrammar
 
 			SubExpression.Rule = ToTerm("(") + Expression + ")";
 
-			UnaryOperator.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~") | ToTerm("&") | ToTerm("@");
+			CastTypes.Rule =
+				ToTerm("int")
+				| ToTerm("bool")
+				| ToTerm("float")
+				| ToTerm("string")
+				| ToTerm("array")
+				| ToTerm("object")
+				| ToTerm("unset")
+			;
+
+			CastOperation.Rule = ToTerm("(") + CastTypes + ToTerm(")");
+			UnaryOperator.Rule = ToTerm("+") | ToTerm("-") | ToTerm("!") | ToTerm("~") | ToTerm("&") | CastOperation;
 
 			UnaryExpression.Rule = UnaryOperator + Expression;
+
+			SilenceExpression.Rule = ToTerm("@") + Expression;
 
 			//assignment.Rule = VariableTerminal + "=" + expr;
 			Assignment.Rule = GetVariable + AssignmentOperator + Expression;
@@ -257,6 +317,7 @@ namespace NPhp.LanguageGrammar
 				Literal
 				| Constant
 				| UnaryExpression
+				| SilenceExpression
 				| LeftValuePreOperation
 				| LeftValuePostOperation
 				| BinaryOperation
@@ -274,9 +335,12 @@ namespace NPhp.LanguageGrammar
 				ExpressionSentence
 				| EchoSentence
 				| EvalSentence
+				| GlobalSentence
+				| StaticSentence
 				| PrintSentence
 				| DoWhileSentence
 				| WhileSentence
+				| ClassSentence
 				| CaseSentence
 				| DefaultSentence
 				| SwitchSentence

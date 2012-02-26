@@ -15,10 +15,10 @@ namespace NPhp.Codegen.Nodes
 		String VariableName;
 		ParseTreeNode RanksParseNode;
 
-		public override void Init(AstContext context, ParseTreeNode parseNode)
+		public override void Init(AstContext Context, ParseTreeNode ParseNode)
 		{
-			VariableName = parseNode.ChildNodes[0].FindTokenAndGetText();
-			RanksParseNode = parseNode.ChildNodes[1];
+			VariableName = ParseNode.ChildNodes[0].FindTokenAndGetText();
+			RanksParseNode = ParseNode.ChildNodes[1];
 		}
 
 		static public void GetVariable(NodeGenerateContext Context, string VariableName)

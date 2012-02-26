@@ -26,7 +26,7 @@ function switchtest ($i, $j)
 }
 for ($i=0; $i<3; $i++) {
   for ($k=0; $k<10; $k++) {
-    switchtest (0,$k);
+	switchtest (0,$k);
   }
 }
 ?>

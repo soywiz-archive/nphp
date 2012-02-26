@@ -81,6 +81,7 @@ namespace NPhp.Runtime
 		public enum TypeEnum
 		{
 			Reference,
+			Resource,
 			Null,
 			Array,
 			Bool,
@@ -97,7 +98,8 @@ namespace NPhp.Runtime
 			if (Type == typeof(String)) return TypeEnum.String;
 			if (Type == typeof(double)) return TypeEnum.Double;
 			if (Type == typeof(DBNull)) return TypeEnum.Null;
-			throw(new NotImplementedException());
+			return TypeEnum.Resource;
+			//throw(new NotImplementedException());
 		}
 
 		static private TypeEnum CombineTypes(TypeEnum Type1, TypeEnum Type2)
@@ -126,7 +128,13 @@ namespace NPhp.Runtime
 		public bool GetBooleanOrDefault(bool DefaultValue)
 		{
 			if (ReferencedDynamicValue == null) return DefaultValue;
-			return BoolValue;
+			return BooleanValue;
+		}
+
+		public object GetResourceOrDefault()
+		{
+			if (ReferencedDynamicValue == null) return null;
+			return ResourceValue;
 		}
 
 		private Php54Var()
@@ -155,9 +163,19 @@ namespace NPhp.Runtime
 			return new Php54Var(Value, TypeEnum.Array);
 		}
 
+		static public Php54Var FromArray(IEnumerable<Php54Var> Value)
+		{
+			return new Php54Var(Value, TypeEnum.Array);
+		}
+
 		static public Php54Var FromNewArray()
 		{
 			return new Php54Var(new Php54Array(), TypeEnum.Array);
+		}
+
+		static public implicit operator Php54Var(string Value)
+		{
+			return FromString(Value);
 		}
 
 		static public Php54Var FromString(string Value)
@@ -182,6 +200,7 @@ namespace NPhp.Runtime
 
 		static public Php54Var FromObject(object Object)
 		{
+			if (Object.GetType() == typeof(Php54Var)) return ((Php54Var)Object).Clone();
 			return new Php54Var(Object, TypeToTypeEnum(Object.GetType()));
 		}
 
@@ -189,10 +208,15 @@ namespace NPhp.Runtime
 		{
 			return new Php54Var(null, TypeEnum.Null);
 		}
-		
+
+		static public Php54Var FromNull(object Ignore)
+		{
+			return FromNull();
+		}
+
 		public bool ToBool()
 		{
-			return BoolValue;
+			return BooleanValue;
 		}
 
 		public int ToInt()
@@ -259,6 +283,18 @@ namespace NPhp.Runtime
 
 		static public bool operator ==(Php54Var Left, Php54Var Right)
 		{
+			// If both are null, or both are same instance, return true.
+			if (System.Object.ReferenceEquals(Left, Right))
+			{
+				return true;
+			}
+
+			// If one is null, but not both, return false.
+			if (((object)Left == null) || ((object)Right == null))
+			{
+				return false;
+			}
+
 			return (Left.ReferencedType == Right.ReferencedType) && (Left.ReferencedDynamicValue == Right.ReferencedDynamicValue);
 		}
 
@@ -282,6 +318,11 @@ namespace NPhp.Runtime
 		{
 			if (this.ReferencedType == TypeEnum.Array) return Php54Var.FromArray(this.ArrayValue.Clone());
 			return new Php54Var(this.ThisDynamicValue, this.ThisType);
+		}
+
+		public bool IsNull()
+		{
+			return ReferencedType == TypeEnum.Null;
 		}
 	}
 }
