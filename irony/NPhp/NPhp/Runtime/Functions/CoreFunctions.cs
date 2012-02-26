@@ -17,7 +17,7 @@ namespace NPhp.Runtime.Functions
 
 		static public string gettype(Php54Var Value)
 		{
-			switch (Value.Type)
+			switch (Value.ReferencedType)
 			{
 				case Php54Var.TypeEnum.Bool: return "boolean";
 				case Php54Var.TypeEnum.Int: return "integer";
@@ -34,7 +34,7 @@ namespace NPhp.Runtime.Functions
 
 		static public void print_r(Php54Var Value, int IndentLevel = 0)
 		{
-			switch (Value.Type)
+			switch (Value.ReferencedType)
 			{
 				case Php54Var.TypeEnum.Null:
 					Console.WriteLine("");

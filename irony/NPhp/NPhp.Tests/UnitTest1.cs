@@ -41,6 +41,22 @@ namespace NPhp.Tests
 		}
 
 		[TestMethod]
+		public void SimpleClass()
+		{
+			Assert.AreEqual("Hello\nWorld", CodeExecute(@"
+				class A { }
+			"));
+		}
+
+		[TestMethod]
+		public void QuoteString()
+		{
+			Assert.AreEqual("Hello\nWorld", CodeExecute(@"
+				eval(""echo \""Hello\nWorld\"";"");
+			"));
+		}
+
+		[TestMethod]
 		public void VariableNames()
 		{
 			Assert.AreEqual("1", CodeExecute(@"
@@ -55,6 +71,31 @@ namespace NPhp.Tests
 			Assert.AreEqual("", CodeExecute(@"
 				switch (0) {
 				}
+			"));
+		}
+
+		[TestMethod]
+		public void ArrayCopy()
+		{
+			Assert.AreEqual("[1,0,3,4][1,2,3,4]", CodeExecute(@"
+				$a = [1, 2, 3, 4];
+				$b = $a;
+				$a[1] = 0;
+				echo json_encode($a);
+				echo json_encode($b);
+			"));
+		}
+
+		[TestMethod]
+		public void ArrayRef()
+		{
+			Assert.AreEqual("[1,0,0,4][1,0,0,4]", CodeExecute(@"
+				$a = [1, 2, 3, 4];
+				$b = &$a;
+				$a[1] = 0;
+				$b[2] = 0;
+				echo json_encode($a);
+				echo json_encode($b);
 			"));
 		}
 
@@ -444,6 +485,30 @@ namespace NPhp.Tests
 				echo ret_bit();
 				echo ret_nil();
 				echo ret_arr();
+			"));
+		}
+
+		[TestMethod]
+		public void TernaryOperator()
+		{
+			Assert.AreEqual("abb", CodeExecute(@"
+				for ($n = 0; $n < 3; $n++) echo ($n == 0) ? 'a' : 'b';
+			"));
+		}
+
+		[TestMethod]
+		public void DynamicSwitch()
+		{
+			Assert.AreEqual("aa", CodeExecute(@"
+				for ($n = 0; $n < 2; $n++) {
+					$a = ($n % 2) ? 1 : 0;
+					$b = ($n % 2) ? 0 : 1;
+					switch ($n) {
+						case $a: echo 'a'; break;
+						case $b: echo 'b'; break;
+						default: echo 'c'; break;
+					}
+				}
 			"));
 		}
 

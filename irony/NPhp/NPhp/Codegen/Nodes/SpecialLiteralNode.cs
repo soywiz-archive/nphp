@@ -19,10 +19,6 @@ namespace NPhp.Codegen.Nodes
 			this.Type = parseNode.FindTokenAndGetText();
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			switch (Type)

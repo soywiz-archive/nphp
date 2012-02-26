@@ -21,13 +21,6 @@ namespace NPhp.Codegen.Nodes
 			Right = parseNode.ChildNodes[2].AstNode as Node;
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-			Left.PreGenerate(Context);
-			Right.PreGenerate(Context);
-			BinaryOperator.PreGenerate(Context);
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			BinaryOperator.Generate(Left, Right, Context);

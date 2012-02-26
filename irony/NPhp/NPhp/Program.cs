@@ -25,13 +25,14 @@ namespace NPhp
 			var Runtime = new Php54Runtime(FunctionScope, InteractiveErrors: true);
 			var Function = Runtime.CreateMethodFromPhpFile(@"
 				<?php
-					for ($n = 0; $n <= 3; $n++) {
-						switch ($n) {
-							case 1: echo 1;
-							case 2: echo 2; break;
-							case 3: echo 3; break;
-							default: echo 0;
-						}
+					error_reporting(0);
+
+					$message = ""echo \""hey\n\"";"";
+					//echo ""$message\n"";
+
+					for ($i=0; $i<10; $i++) {
+					  eval($message);
+					  echo $i.""\n"";
 					}
 				?>
 			".Trim(), DumpTree: true, DoDebug: false);

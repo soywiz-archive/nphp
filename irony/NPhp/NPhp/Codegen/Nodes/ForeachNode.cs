@@ -35,14 +35,6 @@ namespace NPhp.Codegen.Nodes
 			}
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-			(IterableExpressionParseNode.AstNode as Node).PreGenerate(Context);
-			if (VariableKeyGetParseNode != null)  (VariableKeyGetParseNode.AstNode as Node).PreGenerate(Context);
-			(VariableValueGetParseNode.AstNode as Node).PreGenerate(Context);
-			(IterationCodeNode.AstNode as Node).PreGenerate(Context);
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			var IteratorLocal = Context.MethodGenerator.CreateLocal<IEnumerator<KeyValuePair<Php54Var, Php54Var>>>("IteratorLocal");

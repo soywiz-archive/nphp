@@ -19,11 +19,6 @@ namespace NPhp.Codegen.Nodes
 			ExpressionNode = (parseNode.ChildNodes[1].AstNode as Node);
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-			ExpressionNode.PreGenerate(Context);
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			Context.MethodGenerator.LoadScope();

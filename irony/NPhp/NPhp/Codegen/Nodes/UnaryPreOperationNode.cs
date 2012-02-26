@@ -17,10 +17,6 @@ namespace NPhp.Codegen.Nodes
 			Operator = parseNode.FindTokenAndGetText();
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			switch (Operator)

@@ -23,8 +23,8 @@ namespace NPhp.LanguageGrammar
 			};
 		}
 
-		public readonly StringLiteral StringSingleQuoteTerminal = new StringLiteral("StringSingleQuoteTerminal", "'", StringOptions.AllowsAllEscapes);
-		public readonly StringLiteral StringDoubleQuoteTerminal = new StringLiteral("StringDoubleQuoteTerminal", "\"", StringOptions.AllowsAllEscapes);
+		public readonly StringLiteral StringSingleQuoteTerminal = new StringLiteral("StringSingleQuoteTerminal", "'", StringOptions.AllowsAllEscapes | StringOptions.AllowsLineBreak);
+		public readonly StringLiteral StringDoubleQuoteTerminal = new StringLiteral("StringDoubleQuoteTerminal", "\"", StringOptions.AllowsAllEscapes | StringOptions.AllowsLineBreak);
 		public readonly IdentifierTerminal IdTerminal = new IdentifierTerminal("IdTerminal", IdOptions.None);
 		public readonly IdentifierTerminal PhpVariableTerminal = new PhpVariableTerminal("PhpVariableTerminal");
 		public readonly NumberLiteral Number = TerminalFactory.CreateCSharpNumber("Number");
@@ -58,6 +58,7 @@ namespace NPhp.LanguageGrammar
 		public readonly NonTerminal AssignmentOperator = new NonTerminal("AssignmentOperator", GetCreator<IgnoreNode>());
 		public readonly NonTerminal BinaryOperator = new NonTerminal("BinaryOperator", GetCreator<BinaryOperatorNode>());
 		public readonly NonTerminal BinaryOperation = new NonTerminal("BinaryOperation", GetCreator<BinaryExpressionNode>());
+		public readonly NonTerminal TernaryOperation = new NonTerminal("TernaryOperation", GetCreator<TernaryOperationNode>());
 		public readonly NonTerminal Expression = new NonTerminal("Expression", GetCreator<IgnoreNode>());
 		public readonly NonTerminal ExpressionOrEmpty = new NonTerminal("ExpressionOrEmpty", GetCreator<IgnoreNode>());
 		public readonly NonTerminal SubExpression = new NonTerminal("SubExpression", GetCreator<IgnoreNode>());
@@ -158,10 +159,12 @@ namespace NPhp.LanguageGrammar
 			ContinueSentence.Rule = ToTerm("continue") + ToTerm(";");
 			BreakSentence.Rule = ToTerm("break") + ToTerm(";");
 			SwitchSentence.Rule = ToTerm("switch") + "(" + Expression + ")" + CurlySentence;
-			CaseSentence.Rule = ToTerm("case") + NumberOrString + ":";
+			//CaseSentence.Rule = ToTerm("case") + NumberOrString + ":";
+			CaseSentence.Rule = ToTerm("case") + Expression + ":";
 			DefaultSentence.Rule = ToTerm("default") + ":";
 
 			BinaryOperation.Rule = Expression + BinaryOperator + Expression;
+			TernaryOperation.Rule = Expression + "?" + Expression + ":" + Expression;
 
 			BinaryOperator.Rule =
 				ToTerm("<")
@@ -257,6 +260,7 @@ namespace NPhp.LanguageGrammar
 				| LeftValuePreOperation
 				| LeftValuePostOperation
 				| BinaryOperation
+				| TernaryOperation
 				| Assignment
 				| SubExpression
 				| FunctionCall

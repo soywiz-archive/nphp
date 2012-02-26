@@ -26,12 +26,6 @@ namespace NPhp.Codegen.Nodes
 			//throw(new NotImplementedException());
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-			(ParametersDeclaration.AstNode as Node).PreGenerate(Context);
-			CodeStatements.PreGenerate(Context);
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			var Function = Context.GenerateFunction(() =>

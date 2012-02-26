@@ -71,9 +71,9 @@ namespace NPhp.Runtime
 					Errors.Add(String.Format("{0}: {1}", Message.Location.Line + 1, Line.Substr(0, Message.Location.Column) + "^^" + Line.Substr(Message.Location.Column)));
 				}
 				var ErrorsString = String.Join("\r\n", Errors);
-				Console.Error.WriteLine(ErrorsString);
 				if (InteractiveErrors)
 				{
+					Console.Error.WriteLine(ErrorsString);
 					Console.ReadKey();
 					Environment.Exit(-1);
 				}
@@ -89,7 +89,7 @@ namespace NPhp.Runtime
 			}
 			//Console.WriteLine("'{0}'", Tree.Root.Term.AstConfig.NodeType);
 			//Console.WriteLine("'{0}'", Tree.Root.AstNode);
-			return (Tree.Root.AstNode as Node).CreateMethod(FunctionScope, DoDebug);
+			return (Tree.Root.AstNode as Node).CreateMethod(Tree.Root, FunctionScope, DoDebug);
 		}
 
 		public List<string> IncludedPaths = new List<string>();

@@ -21,12 +21,6 @@ namespace NPhp.Codegen.Nodes
 			LoopSentence = parseNode.ChildNodes[2];
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-			(ConditionExpresion.AstNode as Node).PreGenerate(Context);
-			(LoopSentence.AstNode as Node).PreGenerate(Context);
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			var ContinueLabel = Context.MethodGenerator.DefineLabel("Loop");

@@ -24,15 +24,6 @@ namespace NPhp.Codegen.Nodes
 			return this;
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-			foreach (var Node in parseNode.ChildNodes)
-			{
-				var AstNode = (Node)Node.AstNode;
-				if (AstNode != null) AstNode.PreGenerate(Context);
-			}
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			foreach (var Node in parseNode.ChildNodes)

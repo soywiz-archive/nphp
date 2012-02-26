@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NPhp.Common;
+using System.Diagnostics;
 
 namespace NPhp.Runtime.Functions
 {
@@ -19,13 +20,14 @@ namespace NPhp.Runtime.Functions
 		/// <returns></returns>
 		static public string json_encode(Php54Var Variable)
 		{
-			switch (Variable.Type)
+			switch (Variable.ReferencedType)
 			{
 				case Php54Var.TypeEnum.Bool: return Variable.BoolValue ? "true" : "false";
 				case Php54Var.TypeEnum.Int: return Variable.IntegerValue.ToString();
 				case Php54Var.TypeEnum.Null: return "null";
 				case Php54Var.TypeEnum.String: return Php54Utils.StringQuote(Variable.StringValue);
 				case Php54Var.TypeEnum.Array:
+					//Debug.WriteLine((object)Variable.DynamicValue);
 					if (Variable.ArrayValue.PureArray)
 					{
 						var ElementsArray = new List<string>();

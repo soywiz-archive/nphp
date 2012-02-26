@@ -31,14 +31,6 @@ namespace NPhp.Codegen.Nodes
 			Childs = _Childs.ElementAt(0).ChildNodes.Select(Item => Item).ToArray();
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-			foreach (var ParseNode in Childs)
-			{
-				(ParseNode.AstNode as Node).PreGenerate(Context);
-			}
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			Context.MethodGenerator.Call((Func<Php54Var>)Php54Var.FromNewArray);

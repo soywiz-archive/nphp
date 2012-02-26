@@ -31,9 +31,9 @@ namespace NPhp.Runtime
 
 		private void UpdateLastNumericIndex(Php54Var Key)
 		{
-			if ((Key.Type != Php54Var.TypeEnum.Int) && (Key.Type != Php54Var.TypeEnum.String)) throw (new InvalidOperationException("Keys must be integers or strings only"));
+			if ((Key.ReferencedType != Php54Var.TypeEnum.Int) && (Key.ReferencedType != Php54Var.TypeEnum.String)) throw (new InvalidOperationException("Keys must be integers or strings only"));
 
-			if ((Key.Type == Php54Var.TypeEnum.Int) || (Php54Utils.IsCompletelyNumeric(Key.StringValue)))
+			if ((Key.ReferencedType == Php54Var.TypeEnum.Int) || (Php54Utils.IsCompletelyNumeric(Key.StringValue)))
 			{
 				var IntKey = Key.IntegerValue;
 				if (IntKey > LastNumericIndex)
@@ -82,6 +82,31 @@ namespace NPhp.Runtime
 		public Php54Var GetElementByKey(Php54Var Key)
 		{
 			return Values[KeyIndices[Key]];
+		}
+
+		public int Count
+		{
+			get
+			{
+				return Keys.Count;
+			}
+		}
+
+		public Php54Array Clone()
+		{
+			var ClonedArray = new Php54Array();
+			ClonedArray.LastNumericIndex = this.LastNumericIndex;
+			ClonedArray.Keys = new List<Php54Var>(this.Keys);
+			ClonedArray.Values = new List<Php54Var>(this.Values);
+			ClonedArray.KeyIndices = new Dictionary<Php54Var, int>(this.KeyIndices);
+			ClonedArray.PureArray = this.PureArray;
+
+			for (int n = 0; n < this.Count; n++)
+			{
+				ClonedArray.Values[n] = ClonedArray.Values[n].Clone();
+			}
+
+			return ClonedArray;
 		}
 	}
 }

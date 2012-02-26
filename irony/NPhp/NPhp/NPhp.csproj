@@ -78,6 +78,7 @@
     <Compile Include="Codegen\Nodes\SpecialLiteralNode.cs" />
     <Compile Include="Codegen\Nodes\StringNode.cs" />
     <Compile Include="Codegen\Nodes\SwitchSentenceNode.cs" />
+    <Compile Include="Codegen\Nodes\TernaryOperationNode.cs" />
     <Compile Include="Codegen\Nodes\UnaryExpressionNode.cs" />
     <Compile Include="Codegen\Nodes\UnaryOperatorNode.cs" />
     <Compile Include="Codegen\Nodes\UnaryPostOperationNode.cs" />
@@ -99,7 +100,9 @@
     <Compile Include="Runtime\Php54NativeLibraryAttribute.cs" />
     <Compile Include="Runtime\Php54Runtime.cs" />
     <Compile Include="Runtime\Php54Scope.cs" />
+    <Compile Include="Runtime\Php54Var.Casts.cs" />
     <Compile Include="Runtime\Php54Var.cs" />
+    <Compile Include="Runtime\Php54Var.Operators.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SafeILGenerator\SafeILGenerator.csproj">

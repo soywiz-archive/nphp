@@ -22,7 +22,7 @@ namespace NPhp.Codegen.Nodes
 			}
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
+		public override void PreGenerateNode(NodeGenerateContext Context)
 		{
 			//Console.WriteLine("Pregenerate case!");
 			Label = Context.MethodGenerator.DefineLabel("case");

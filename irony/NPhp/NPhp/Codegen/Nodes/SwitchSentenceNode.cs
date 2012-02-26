@@ -21,12 +21,6 @@ namespace NPhp.Codegen.Nodes
 			this.Sentences = parseNode.ChildNodes[2].ChildNodes[0].ChildNodes.ToArray();
 		}
 
-		public override void PreGenerate(NodeGenerateContext Context)
-		{
-			(Expression.AstNode as Node).PreGenerate(Context);
-			foreach (var Sentence in Sentences) (Sentence.AstNode as Node).PreGenerate(Context);
-		}
-
 		public override void Generate(NodeGenerateContext Context)
 		{
 			var EndSwitchLabel = Context.MethodGenerator.DefineLabel("EndSwitch");
@@ -35,7 +29,7 @@ namespace NPhp.Codegen.Nodes
 			{
 				var ExpressionLocal = Context.MethodGenerator.CreateLocal<Php54Var>("SwitchExpression");
 				{
-					(Expression.AstNode as Node).Generate(Context);
+					(Expression.AstNode as Node).GenerateAs<Php54Var>(Context);
 				}
 				Context.MethodGenerator.StoreToLocal(ExpressionLocal);
 
